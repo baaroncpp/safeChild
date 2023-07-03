@@ -1,0 +1,73 @@
+version: '2.0.1'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_USER=guest
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_DB=safe_child_db
+      - POSTGRES_USER=aaron
+      - POSTGRES_PASSWORD=aaron
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  safe-app:
+    depends_on:
+      - db
+      - rabbitmq
+    container_name: safe-aloginpp
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: 5432
+      DB: safe_child_db
+      username: aaron
+      password: aaron
+
+    restart: always
+    build:
+      context: ./safe-child
+      dockerfile: Dockerfile
+    ports:
+      - '8081:8081'
+    links:
+      - db
+
+  sms-app:
+    depends_on:
+      - db
+      - rabbitmq
+    container_name: sms-app
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: 5432
+      DB: safe_child_db
+      username: aaron
+      password: aaron
+
+    restart: always
+    build:
+      context: ./sms_notification
+      dockerfile: Dockerfile
+    ports:
+      - '8083:8083'
+    links:
+      - db
+
+volumes:
+  db:
+    driver: local

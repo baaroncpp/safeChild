@@ -1,0 +1,40 @@
+server:
+  port: 8083
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB:safe_child_db}
+    username: ${DB_USERNAME:aaron}
+    password: ${DB_PASSWORD:aaron}
+  jpa:
+    show-sql: true
+    hibernate:
+      dll-auto: none
+      show: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+notification:
+  routing:
+    key:
+      sms: sms.routing
+  queue:
+    name:
+      sms: sms.queue
+  exchange:
+    name: notification.exchange
+
+pandora-sms:
+  url: https://www.sms.thepandoranetworks.com/API/send_sms/?
+  username: 0703958863
+  password: M0b1c4s#
+  sender: SafeChild
+  message-type: info
+  message-category: bulk

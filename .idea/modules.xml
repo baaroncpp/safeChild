@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/commons/nc.commons.main.iml" filepath="$PROJECT_DIR$/.idea/modules/commons/nc.commons.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/safe-child/nc.safe-child.main.iml" filepath="$PROJECT_DIR$/.idea/modules/safe-child/nc.safe-child.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sms_notification/nc.sms_notification.main.iml" filepath="$PROJECT_DIR$/.idea/modules/sms_notification/nc.sms_notification.main.iml" />
+    </modules>
+  </component>
+</project>

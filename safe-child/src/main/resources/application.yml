@@ -1,0 +1,52 @@
+server:
+  port: 8081
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB:safe_child_db}
+    username: ${DB_USERNAME:aaron}
+    password: ${DB_PASSWORD:aaron}
+  jpa:
+    show-sql: true
+    hibernate:
+      dll-auto: none
+      show: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  flyway:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB:safe_child_db}
+    user: ${DB_USERNAME:aaron}
+    password: ${DB_PASSWORD:aaron}
+    schemas: core
+    locations: classpath:db/migration
+
+url:
+  core-banking-url: http://127.0.0.1:8080/platform
+
+accounts:
+  sms: SCH2023
+
+transfer-type:
+  sms-notification: 29
+
+notification:
+  routing:
+    key:
+      sms: sms.routing
+  queue:
+    name:
+      sms: sms.queue
+  exchange:
+    name: notification.exchange
+  sms:
+    drop-off: Hi Parent! Your Child With ID %s has been Dropped off from school with ID %s by a %s with ID %s at %s, Powered by NC LTD
+    pick-up: Hi Parent! Your Child With ID %s has been picked up from home by a %s with ID %s at %s, Powered by NC LTD
+    on-school: Hi Parent! Your Child With ID %s has been received at school with ID %s by a %s with ID %s at %s, Powered by NC LTD
+    off-school: Hi Parent! Your Child With ID %s has been signed out by a %s with ID %s of school with ID %s at %s, Powered by NC LTD

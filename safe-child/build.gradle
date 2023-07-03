@@ -1,0 +1,56 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.1.1'
+	id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'com.nc'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.flywaydb:flyway-core'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.amqp:spring-rabbit-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	implementation files('libs/commons-lang-2.5.jar')
+	implementation files('libs/cxf-2.6.1.jar')
+	implementation files('libs/cyclos_3.7.3_ws_client.jar')
+	implementation files('libs/wsdl4j-1.6.2.jar')
+	implementation files('libs/xml-resolver-1.2.jar')
+	implementation files('libs/xmlschema-core-2.0.2.jar')
+
+	implementation 'javax.jws:javax.jws-api:1.1'
+	implementation group: 'javax.xml.ws', name: 'jaxws-api', version: '2.3.1'
+	implementation group: 'org.apache.neethi', name: 'neethi', version: '3.1.1'
+	implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.1'
+	implementation 'com.sun.activation:javax.activation:1.2.0'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
