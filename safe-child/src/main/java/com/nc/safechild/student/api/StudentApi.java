@@ -1,7 +1,9 @@
 package com.nc.safechild.student.api;
 
+import com.nc.safechild.network.MessageBrokerService;
 import com.nc.safechild.student.model.dto.AuthenticationDto;
 import com.nc.safechild.student.model.dto.NotificationDto;
+import com.nc.safechild.student.model.jpa.Notification;
 import com.nc.safechild.student.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class StudentApi {
 
     private final StudentService studentService;
+    private final MessageBrokerService messageBrokerService;
 
     @GetMapping(path = "student/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getUserByUsername(@PathVariable("username") String username){
@@ -42,5 +45,13 @@ public class StudentApi {
     @PostMapping(path = "send/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Object sendNotification(@RequestBody NotificationDto notificationDto) throws Exception {
         return studentService.sendNotification(notificationDto);
+    }
+
+    @GetMapping(path = "test")
+    public void test(){
+        Notification notification = new Notification();
+        notification.setMessage("testing");
+        notification.setId(1L);
+        messageBrokerService.sendSms(notification);
     }
 }

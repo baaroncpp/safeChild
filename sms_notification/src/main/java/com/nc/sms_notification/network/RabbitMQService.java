@@ -5,6 +5,7 @@ import com.nc.sms_notification.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,7 +20,10 @@ public class RabbitMQService {
 
     private final SmsService smsService;
 
-    @RabbitListener(queues = "notification.sms.queue")
+    @Value("${notification.queue.name.sms}")
+    private String smsQueue;
+
+    @RabbitListener(queues = "sms.queue")
     public void receiveSms(Notification notification){
         log.info("received sms from CORE");
         smsService.sendSms(notification);
