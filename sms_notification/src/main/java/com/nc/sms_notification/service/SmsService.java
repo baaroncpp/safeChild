@@ -33,7 +33,8 @@ public class SmsService {
         var notification = existingNotification.get();
 
         var smsResponse = webClientService.makeSmsCall(notification.getReceiver(), notification.getMessage());
-
+        log.info(smsResponse);
+        
         JSONObject jsonObject = new JSONObject(smsResponse);
         var success = jsonObject.getBoolean("success");
 
