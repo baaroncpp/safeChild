@@ -36,19 +36,18 @@ public class SmsService {
             if(!notification.getStatus().equals(SmsStatus.SUCCESS)){
                 var smsResponse = webClientService.makeSmsCall(notification.getReceiver(), notification.getMessage());
                 log.info(smsResponse);
-                log.info("sms sent "+ notification.getMessage());
 
                 JSONObject jsonObject = new JSONObject(smsResponse);
                 var success = jsonObject.getBoolean("success");
 
                 if(success){
-                    var statusMessage = jsonObject.getString("message");
+                    var statusMessage = jsonObject.getString("messages");
                     notification.setStatus(SmsStatus.SUCCESS);
                     notification.setStatusNote(statusMessage);
                     log.info(statusMessage);
                     
                 }else{
-                    var errorMessage = jsonObject.getString("message");
+                    var errorMessage = jsonObject.getString("messages");
                     log.error(errorMessage);
 
                     notification.setStatus(SmsStatus.FAILED);
