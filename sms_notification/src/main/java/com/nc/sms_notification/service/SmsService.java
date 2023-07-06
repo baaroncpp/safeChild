@@ -48,7 +48,7 @@ public class SmsService {
                     
                 }else{
                     var errorMessage = jsonObject.getString("messages");
-                    log.error(errorMessage);
+                    log.error("Failed ........ "+errorMessage);
 
                     notification.setStatus(SmsStatus.FAILED);
                     notification.setStatusNote(errorMessage);
