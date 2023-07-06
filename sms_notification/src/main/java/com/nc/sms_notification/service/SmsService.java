@@ -40,17 +40,18 @@ public class SmsService {
                 JSONObject jsonObject = new JSONObject(smsResponse);
                 var success = jsonObject.getBoolean("success");
 
-                if(!success){
-                    var errorMessage = jsonObject.getString("error_message");
-                    log.error(errorMessage);
-
-                    notification.setStatus(SmsStatus.FAILED);
-                    notification.setStatusNote(errorMessage);
-                }else{
+                if(success){
                     var statusMessage = jsonObject.getString("message");
                     notification.setStatus(SmsStatus.SUCCESS);
                     notification.setStatusNote(statusMessage);
                     log.info(statusMessage);
+                    
+                }else{
+                    var errorMessage = jsonObject.getString("message");
+                    log.error(errorMessage);
+
+                    notification.setStatus(SmsStatus.FAILED);
+                    notification.setStatusNote(errorMessage);
                 }
 
                 notificationRepository.save(notification);
