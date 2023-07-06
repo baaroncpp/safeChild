@@ -27,7 +27,7 @@ public class SmsService {
     private final WebClientService webClientService;
 
     public void sendSms(Notification notify){
-
+        log.info("updated");
         var existingNotification = notificationRepository.findById(notify.getId());
 
         if(existingNotification.isPresent()){
