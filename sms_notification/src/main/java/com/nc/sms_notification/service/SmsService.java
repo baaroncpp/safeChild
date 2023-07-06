@@ -41,13 +41,13 @@ public class SmsService {
                 var success = jsonObject.getBoolean("success");
 
                 if(success){
-                    var statusMessage = jsonObject.getString("messages");
+                    var statusMessage = jsonObject.getJSONArray("messages").getString(0);
                     notification.setStatus(SmsStatus.SUCCESS);
                     notification.setStatusNote(statusMessage);
-                    log.info(statusMessage);
+                    log.info("Success ........ "+statusMessage);
                     
                 }else{
-                    var errorMessage = jsonObject.getString("messages");
+                    var errorMessage = jsonObject.getJSONArray("messages").getString(0);
                     log.error("Failed ........ "+errorMessage);
 
                     notification.setStatus(SmsStatus.FAILED);
