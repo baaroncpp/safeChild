@@ -35,6 +35,7 @@ public class SmsService {
 
             if(!notification.getStatus().equals(SmsStatus.SUCCESS)){
                 var smsResponse = webClientService.makeSmsCall(notification.getReceiver(), notification.getMessage());
+                log.info(smsResponse);
                 log.info("sms sent "+ notification.getMessage());
 
                 JSONObject jsonObject = new JSONObject(smsResponse);
