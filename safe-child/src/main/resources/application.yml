@@ -28,7 +28,7 @@ spring:
     locations: classpath:db/migration
 
 url:
-  core-banking-url: http://127.0.0.1:8080/platform
+  core-banking-url: http://host.docker.internal:8080/platform
 
 accounts:
   sms: SCH2023

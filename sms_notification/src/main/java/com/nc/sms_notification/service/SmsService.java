@@ -29,30 +29,37 @@ public class SmsService {
     public void sendSms(Notification notify){
 
         var existingNotification = notificationRepository.findById(notify.getId());
-        Validate.isPresent(existingNotification, NOTIFICATION_NOT_FOUND, notify.getId());
-        var notification = existingNotification.get();
 
-        var smsResponse = webClientService.makeSmsCall(notification.getReceiver(), notification.getMessage());
+        if(existingNotification.isPresent()){
+            var notification = existingNotification.get();
 
-        JSONObject jsonObject = new JSONObject(smsResponse);
-        var success = jsonObject.getBoolean("success");
+            if(!notification.getStatus().equals(SmsStatus.SUCCESS)){
+                var smsResponse = webClientService.makeSmsCall(notification.getReceiver(), notification.getMessage());
+                log.info("sms sent "+ notification.getMessage());
 
-        if(!success){
-            var errorMessage = jsonObject.getString("error_message");
-            log.error(errorMessage);
+                JSONObject jsonObject = new JSONObject(smsResponse);
+                var success = jsonObject.getBoolean("success");
 
-            notification.setStatus(SmsStatus.FAILED);
-            notification.setStatusNote(errorMessage);
+                if(!success){
+                    var errorMessage = jsonObject.getString("error_message");
+                    log.error(errorMessage);
+
+                    notification.setStatus(SmsStatus.FAILED);
+                    notification.setStatusNote(errorMessage);
+                }else{
+                    var statusMessage = jsonObject.getString("message");
+                    notification.setStatus(SmsStatus.SUCCESS);
+                    notification.setStatusNote(statusMessage);
+                    log.info(statusMessage);
+                }
+
+                notificationRepository.save(notification);
+                log.info("notification updated");
+            }
+
+        }else{
+            log.error("Sms not found");
         }
-        var statusMessage = jsonObject.getString("message");
-        notification.setStatus(SmsStatus.SUCCESS);
-        notification.setStatusNote(statusMessage);
-
-        log.info(statusMessage);
-
-        notificationRepository.save(notification);
-
-        Validate.isTrue(success, ExceptionType.BAD_REQUEST, SMS_FAILED, notification.getTransactionId());
     }
 
     public Object testSms(String number, String message){
