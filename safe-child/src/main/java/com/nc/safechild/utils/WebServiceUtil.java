@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * @Author bkaaron
@@ -43,5 +45,11 @@ public class WebServiceUtil {
         return studentStatusList.contains(value);
     }
 
+    public String getUgandaTimeZone(){
+        Calendar calNewYork = Calendar.getInstance();
+        calNewYork.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+
+        return calNewYork.getTime().toString();
+    }
 
 }

@@ -10,7 +10,10 @@ import com.nc.safechild.student.model.enums.SmsStatus;
 import com.nc.safechild.student.model.enums.StudentStatus;
 import com.nc.safechild.student.model.enums.UserType;
 import com.nc.safechild.student.model.jpa.Notification;
+import com.nc.safechild.student.model.jpa.UserStudentStatusCount;
 import com.nc.safechild.student.respository.NotificationRepository;
+import com.nc.safechild.student.respository.UserStudentStatusCountRepository;
+import com.nc.safechild.utils.DateTimeUtil;
 import com.nc.safechild.utils.Validate;
 import com.nc.safechild.utils.WebServiceUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +30,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.nc.safechild.utils.MessageConstants.*;
 
@@ -68,6 +71,12 @@ public class StudentService {
 
     private final NotificationRepository notificationRepository;
     private final MessageBrokerService messageBrokerService;
+    private final UserStudentStatusCountRepository userStudentStatusCountRepository;
+
+    public Object getSchoolBurg(){
+        var accessWebService = WebServiceUtil.getWebServiceFactory().getMemberWebService();
+        return null;
+    }
 
     public Object getMemberByUsername(String username){
 
@@ -278,7 +287,7 @@ public class StudentService {
         params.setToMember(mainSmsAccount);
         params.setTransferTypeId(smsPaymentTransferType);
         params.setCustomValues(customParams);
-        params.setAmount(BigDecimal.valueOf(150)); //TODO call from DB
+        params.setAmount(BigDecimal.valueOf(150));
         params.setDescription("SMS CHARGE");
 
         log.info(params.toString());
@@ -297,25 +306,98 @@ public class StudentService {
                 performerType,
                 notificationDto.performedByUsername());
 
+        var result =  paymentWebService.doPayment(params);
+        processPaymentStatus(result);
+
         var notification = new Notification();
+        notification.setTransactionId(result.getTransfer().getTransactionNumber());
         notification.setMessage(message);
         notification.setSender("SAFE CHILD");
         notification.setReceiver(phoneNumber);
         notification.setStatus(SmsStatus.PENDING);
         notification.setTransactionId(UUID.randomUUID().toString().replace("-",""));
-        notification.setCreatedOn(new Date());
+        notification.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
 
         var notify = notificationRepository.save(notification);
         messageBrokerService.sendSms(notify);
 
-        var result =  paymentWebService.doPayment(params);
-        processPaymentStatus(result);
+        updateUserStudentStatusCount(eventUser.getUsername(),
+                userType,
+                getCurrentDate(),
+                StudentStatus.valueOf(notificationDto.studentStatus()));
 
         return new NotificationResponseDto(
                 result.getStatus().name(),
                 StudentStatus.valueOf(notificationDto.studentStatus()),
                 notificationDto.appRef()
         );
+    }
+
+    public Object getDailyEventCount(String username){
+
+        var eventUser = getUserByUsername(username);
+
+        var userGroup = getGroups().stream()
+                .filter(groupVO -> groupVO.getId().equals(eventUser.getGroupId()))
+                .findFirst();
+
+        var groupName = userGroup.get().getName();
+        var userRoles = getNotificationRolesByUserType(getUserTypeByGroupName(groupName));
+        var listOfEventCounts = userStudentStatusCountRepository.findAllByUsernameAndDate(username, getCurrentDate());
+
+        var roleOne = listOfEventCounts.stream()
+                .filter(event -> event.getStudentStatus().name().equals(userRoles.get(0).getRole().name()))
+                .findFirst();
+        var roleOneCount = roleOne.get().getDateCount();
+        var eventOne = new EventCountDto(getCurrentDate(), NotificationRoleEnum.valueOf(roleOne.get().getStudentStatus().name()), roleOneCount);
+
+        var roleTwo = listOfEventCounts.stream()
+                .filter(event -> event.getStudentStatus().name().equals(userRoles.get(1).getRole().name()))
+                .findFirst();
+        var roleTwoCount = roleTwo.get().getDateCount();
+        var eventTwo = new EventCountDto(getCurrentDate(), NotificationRoleEnum.valueOf(roleTwo.get().getStudentStatus().name()), roleTwoCount);
+
+        return Arrays.asList(
+                eventOne, eventTwo
+        );
+    }
+
+    private void updateUserStudentStatusCount(String username, UserType userType, Date date, StudentStatus status) {
+
+        var userStudentStatusCount = userStudentStatusCountRepository.findByUsernameAndDateAndStudentStatus(username, date, status);
+
+        if(userStudentStatusCount.isPresent()){
+            var count = userStudentStatusCount.get();
+            count.setDateCount(count.getDateCount() + 1L);
+            count.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+            userStudentStatusCountRepository.save(count);
+        }
+
+        var count = new UserStudentStatusCount();
+        count.setUsername(username);
+        count.setStudentStatus(status);
+        count.setDateCount(1L);
+        count.setUserType(userType);
+        count.setDate(getCurrentDate());
+        count.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+
+        log.info(count.toString());
+
+        userStudentStatusCountRepository.save(count);
+
+        log.info("persisting event object");
+    }
+
+    private Date getCurrentDate(){
+        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        Date today = DateTimeUtil.getCurrentUTCTime();
+        try {
+            return formatter.parse(formatter.format(today));
+        } catch (ParseException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     private void processPaymentStatus(PaymentResult result){

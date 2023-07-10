@@ -47,6 +47,12 @@ public class StudentApi {
         return studentService.sendNotification(notificationDto);
     }
 
+    @GetMapping(path = "events/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getEvents(@PathVariable("username") String username){
+        return studentService.getDailyEventCount(username);
+    }
+
+
     @GetMapping(path = "test")
     public void test(){
         Notification notification = new Notification();
