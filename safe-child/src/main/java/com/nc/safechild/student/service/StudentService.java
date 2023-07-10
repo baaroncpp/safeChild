@@ -345,16 +345,28 @@ public class StudentService {
         var userRoles = getNotificationRolesByUserType(getUserTypeByGroupName(groupName));
         var listOfEventCounts = userStudentStatusCountRepository.findAllByUsernameAndDate(username, getCurrentDate());
 
+        Validate.notNull(listOfEventCounts, ExceptionType.BAD_REQUEST, NO_EVENTS);
+
         var roleOne = listOfEventCounts.stream()
                 .filter(event -> event.getStudentStatus().name().equals(userRoles.get(0).getRole().name()))
                 .findFirst();
-        var roleOneCount = roleOne.get().getDateCount();
+        var roleOneCount = 0L;
+
+        if(roleOne.isPresent()){
+            roleOneCount = roleOne.get().getDateCount();
+        }
+
         var eventOne = new EventCountDto(getCurrentDate(), NotificationRoleEnum.valueOf(roleOne.get().getStudentStatus().name()), roleOneCount);
 
         var roleTwo = listOfEventCounts.stream()
                 .filter(event -> event.getStudentStatus().name().equals(userRoles.get(1).getRole().name()))
                 .findFirst();
-        var roleTwoCount = roleTwo.get().getDateCount();
+        var roleTwoCount = 0L;
+
+        if(roleTwo.isPresent()){
+            roleTwoCount = roleTwo.get().getDateCount();
+        }
+
         var eventTwo = new EventCountDto(getCurrentDate(), NotificationRoleEnum.valueOf(roleTwo.get().getStudentStatus().name()), roleTwoCount);
 
         return Arrays.asList(
@@ -372,21 +384,21 @@ public class StudentService {
             count.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
 
             userStudentStatusCountRepository.save(count);
+        }else{
+            var count = new UserStudentStatusCount();
+            count.setUsername(username);
+            count.setStudentStatus(status);
+            count.setDateCount(1L);
+            count.setUserType(userType);
+            count.setDate(getCurrentDate());
+            count.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+
+            log.info(count.toString());
+
+            userStudentStatusCountRepository.save(count);
+
+            log.info("persisting event object");
         }
-
-        var count = new UserStudentStatusCount();
-        count.setUsername(username);
-        count.setStudentStatus(status);
-        count.setDateCount(1L);
-        count.setUserType(userType);
-        count.setDate(getCurrentDate());
-        count.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
-
-        log.info(count.toString());
-
-        userStudentStatusCountRepository.save(count);
-
-        log.info("persisting event object");
     }
 
     private Date getCurrentDate(){

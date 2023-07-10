@@ -32,4 +32,5 @@ public class MessageConstants {
     public static final String STUDENT_STATUS = "std1_status";
     public static final String NULL_PERFORMED_BY = "performedByUsername is null or empty";
     public static final String NULL_APP_REF = "appRef is null or empty";
+    public static final String NO_EVENTS = "no daily events";
 }
