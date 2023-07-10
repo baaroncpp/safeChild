@@ -302,7 +302,7 @@ public class StudentService {
 
         var message = getSms(StudentStatus.valueOf(notificationDto.studentStatus()),
                 notificationDto.studentUsername(),
-                schoolAccount,
+                trimSchoolName(studentSchool),
                 performerType,
                 notificationDto.performedByUsername());
 
@@ -412,6 +412,14 @@ public class StudentService {
         }
     }
 
+    private String trimSchoolName(String schoolName){
+        if(schoolName.length() > 60){
+            return schoolName.substring(0, 58) + "...";
+        }else{
+            return schoolName;
+        }
+    }
+
     private void processPaymentStatus(PaymentResult result){
         String responseMsg;
         var throwException = Boolean.TRUE;
@@ -462,7 +470,7 @@ public class StudentService {
 
     private String getSms(StudentStatus status,
                          String childId,
-                         String schoolId,
+                         String schoolName,
                          String performer,
                          String performerId){
 
@@ -474,15 +482,15 @@ public class StudentService {
         }
 
         if(status.equals(StudentStatus.DROP_OFF)){
-            return String.format(dropOffSms, childId, schoolId, performer, performerId, time.format(formatter));
+            return String.format(dropOffSms, childId, schoolName, performer, performerId, time.format(formatter));
         }
 
         if(status.equals(StudentStatus.OFF_SCHOOL)){
-            return String.format(offSchoolSms, childId, performer, performerId, schoolId, time.format(formatter));
+            return String.format(offSchoolSms, childId, performer, performerId, schoolName, time.format(formatter));
         }
 
         if(status.equals(StudentStatus.ON_SCHOOL)){
-            return String.format(onSchoolSms, childId, schoolId, performer, performerId, time.format(formatter));
+            return String.format(onSchoolSms, childId, schoolName, performer, performerId, time.format(formatter));
         }
 
         return null;

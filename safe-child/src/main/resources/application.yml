@@ -46,7 +46,12 @@ notification:
   exchange:
     name: notification.exchange
   sms:
-    drop-off: Hi Parent! Your Child With ID %s has been Dropped off from school with ID %s by a %s with ID %s at %s, Powered by NC LTD
-    pick-up: Hi Parent! Your Child With ID %s has been picked up from home by a %s with ID %s at %s, Powered by NC LTD
-    on-school: Hi Parent! Your Child With ID %s has been received at school with ID %s by a %s with ID %s at %s, Powered by NC LTD
-    off-school: Hi Parent! Your Child With ID %s has been signed out by a %s with ID %s of school with ID %s at %s, Powered by NC LTD
+    drop-off: Hi Parent! Your Child With ID %s has been Dropped off from %s by a %s with ID %s at %s
+    pick-up: Hi Parent! Your Child With ID %s has been picked up from home by a %s with ID %s at %s
+    on-school: Hi Parent! Your Child With ID %s has been received at %s by a %s with ID %s at %s
+    off-school: Hi Parent! Your Child With ID %s has been signed out by a %s with ID %s from %s at %s
+
+    #drop-off: Hi Parent! Your Child With ID %s has been Dropped off from school with ID %s by a %s with ID %s at %s
+    #pick-up: Hi Parent! Your Child With ID %s has been picked up from home by a %s with ID %s at %s
+    #on-school: Hi Parent! Your Child With ID %s has been received at school with ID %s by a %s with ID %s at %s
+    #off-school: Hi Parent! Your Child With ID %s has been signed out by a %s with ID %s of school with ID %s at %s
