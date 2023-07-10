@@ -356,7 +356,7 @@ public class StudentService {
             roleOneCount = roleOne.get().getDateCount();
         }
 
-        var eventOne = new EventCountDto(getCurrentDate(), NotificationRoleEnum.valueOf(roleOne.get().getStudentStatus().name()), roleOneCount);
+        var eventOne = new EventCountDto(getCurrentDate(), userRoles.get(0).getRole(), roleOneCount);
 
         var roleTwo = listOfEventCounts.stream()
                 .filter(event -> event.getStudentStatus().name().equals(userRoles.get(1).getRole().name()))
@@ -367,7 +367,7 @@ public class StudentService {
             roleTwoCount = roleTwo.get().getDateCount();
         }
 
-        var eventTwo = new EventCountDto(getCurrentDate(), NotificationRoleEnum.valueOf(roleTwo.get().getStudentStatus().name()), roleTwoCount);
+        var eventTwo = new EventCountDto(getCurrentDate(), userRoles.get(1).getRole(), roleTwoCount);
 
         return Arrays.asList(
                 eventOne, eventTwo
