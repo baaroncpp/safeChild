@@ -375,11 +375,8 @@ public class StudentService {
     }
 
     public Object getProfileUrl(String username){
-
-        var memberWebService = WebServiceUtil.getWebServiceFactory().getMemberWebService();
-
-        var result = memberWebService.loadByUsername(username);
-        return result.getImages();
+        var user = getUserByUsername(username);
+        return user.getImages();
     }
 
     private void updateUserStudentStatusCount(String username, UserType userType, Date date, StudentStatus status) {
