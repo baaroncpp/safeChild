@@ -1,6 +1,9 @@
 server:
   port: 8081
 
+host:
+  ip: 135.181.158.109
+
 spring:
   rabbitmq:
     host: ${QUEUE_HOST:localhost}
