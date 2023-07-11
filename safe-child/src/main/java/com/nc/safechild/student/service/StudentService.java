@@ -374,6 +374,14 @@ public class StudentService {
         );
     }
 
+    public Object getProfileUrl(String username){
+
+        var memberWebService = WebServiceUtil.getWebServiceFactory().getMemberWebService();
+
+        var result = memberWebService.loadByUsername(username);
+        return result.getImages();
+    }
+
     private void updateUserStudentStatusCount(String username, UserType userType, Date date, StudentStatus status) {
 
         var userStudentStatusCount = userStudentStatusCountRepository.findByUsernameAndDateAndStudentStatus(username, date, status);

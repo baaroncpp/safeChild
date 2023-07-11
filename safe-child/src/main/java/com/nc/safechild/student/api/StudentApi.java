@@ -52,6 +52,10 @@ public class StudentApi {
         return studentService.getDailyEventCount(username);
     }
 
+    @GetMapping(path = "images/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getImages(@PathVariable("username") String username){
+        return studentService.getProfileUrl(username);
+    }
 
     @GetMapping(path = "test")
     public void test(){

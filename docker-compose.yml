@@ -34,6 +34,7 @@ services:
     volumes:
       - ./docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ./docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    network_mode: "host"
 #    networks:
 #      - rabbitmq_go_net
 
@@ -58,8 +59,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - '8081:8081'
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    network_mode: "host"
+    #extra_hosts:
+    #  - host.docker.internal:host-gateway
 
   sms-app:
     depends_on:
@@ -82,8 +84,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - '8083:8083'
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    network_mode: "host"
+    #extra_hosts:
+    #  - host.docker.internal:host-gateway
 #networks:
 #  rabbitmq_go_net:
 #    driver: bridge
