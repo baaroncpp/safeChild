@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -375,8 +377,24 @@ public class StudentService {
     }
 
     public Object getProfileUrl(String username){
+
+        InetAddress ipAddr = null;
+        try {
+            ipAddr = InetAddress.getLocalHost();
+            log.info(ipAddr.getHostAddress());
+        } catch (UnknownHostException ex) {
+            ex.printStackTrace();
+        }
+
         var user = getUserByUsername(username);
-        return user.getImages();
+        var imageUrls = user.getImages();
+
+        Validate.notNull(ipAddr, ExceptionType.BAD_REQUEST, "FAILED TO GET HOST IP");
+
+        return new ImageUrlDto(
+                imageUrls.get(0).getThumbnailUrl().replace("127.0.0.1", ipAddr.getHostAddress()),
+                imageUrls.get(0).getFullUrl().replace("127.0.0.1", ipAddr.getHostAddress())
+        );
     }
 
     private void updateUserStudentStatusCount(String username, UserType userType, Date date, StudentStatus status) {
