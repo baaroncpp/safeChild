@@ -2,6 +2,7 @@ package com.nc.safechild.student.api;
 
 import com.nc.safechild.network.MessageBrokerService;
 import com.nc.safechild.student.model.dto.AuthenticationDto;
+import com.nc.safechild.student.model.dto.NotificationDriverDto;
 import com.nc.safechild.student.model.dto.NotificationDto;
 import com.nc.safechild.student.model.jpa.Notification;
 import com.nc.safechild.student.service.StudentService;
@@ -43,8 +44,18 @@ public class StudentApi {
     }
 
     @PostMapping(path = "send/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object sendNotification(@RequestBody NotificationDto notificationDto) throws Exception {
+    public Object sendNotification(@RequestBody NotificationDto notificationDto) {
         return studentService.sendNotification(notificationDto);
+    }
+
+    @PostMapping(path = "send/driver/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object sendNotification(@RequestBody NotificationDriverDto notificationDriverDto) {
+        return studentService.sendNotificationDriver(notificationDriverDto);
+    }
+
+    @GetMapping(path = "bulk/school-sign-in/trip/{id}")
+    public Object sendBulkNotification(@PathVariable("id") Long id) {
+        return studentService.bulkOnSchool(id);
     }
 
     @GetMapping(path = "events/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)

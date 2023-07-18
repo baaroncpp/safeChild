@@ -67,4 +67,12 @@ public class Validate {
             throw new ResourceNotFoundException(String.format(message,params));
         }
     }
+
+    public static void filterException(String message){
+        if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(message, "found")){
+            throw new ResourceNotFoundException(message);
+        }else {
+            throw new BadRequestException(message);
+        }
+    }
 }

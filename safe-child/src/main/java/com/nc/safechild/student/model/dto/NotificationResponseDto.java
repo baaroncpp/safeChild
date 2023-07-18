@@ -11,6 +11,7 @@ import com.nc.safechild.student.model.enums.StudentStatus;
 public record NotificationResponseDto(
         String transactionStatus,
         StudentStatus studentStatus,
-        String appRef
+        String appRef,
+        String schoolId
 ) {
 }

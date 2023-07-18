@@ -5,17 +5,19 @@ import com.nc.safechild.exceptions.model.ExceptionType;
 import com.nc.safechild.network.MessageBrokerService;
 import com.nc.safechild.student.model.NotificationRole;
 import com.nc.safechild.student.model.dto.*;
-import com.nc.safechild.student.model.enums.NotificationRoleEnum;
-import com.nc.safechild.student.model.enums.SmsStatus;
-import com.nc.safechild.student.model.enums.StudentStatus;
-import com.nc.safechild.student.model.enums.UserType;
+import com.nc.safechild.student.model.enums.*;
 import com.nc.safechild.student.model.jpa.Notification;
+import com.nc.safechild.student.model.jpa.StudentTravel;
+import com.nc.safechild.student.model.jpa.Trip;
 import com.nc.safechild.student.model.jpa.UserStudentStatusCount;
 import com.nc.safechild.student.respository.NotificationRepository;
+import com.nc.safechild.student.respository.StudentTravelRepository;
+import com.nc.safechild.student.respository.TripRepository;
 import com.nc.safechild.student.respository.UserStudentStatusCountRepository;
 import com.nc.safechild.utils.DateTimeUtil;
 import com.nc.safechild.utils.Validate;
 import com.nc.safechild.utils.WebServiceUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.strohalm.cyclos.webservices.access.CheckCredentialsParameters;
@@ -23,15 +25,12 @@ import nl.strohalm.cyclos.webservices.access.CredentialsStatus;
 import nl.strohalm.cyclos.webservices.accounts.AccountHistorySearchParameters;
 import nl.strohalm.cyclos.webservices.model.FieldValueVO;
 import nl.strohalm.cyclos.webservices.model.GroupVO;
-import nl.strohalm.cyclos.webservices.model.MemberVO;
 import nl.strohalm.cyclos.webservices.payments.PaymentParameters;
 import nl.strohalm.cyclos.webservices.payments.PaymentResult;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -77,15 +76,12 @@ public class StudentService {
     private final NotificationRepository notificationRepository;
     private final MessageBrokerService messageBrokerService;
     private final UserStudentStatusCountRepository userStudentStatusCountRepository;
-
-    public Object getSchoolBurg(){
-        var accessWebService = WebServiceUtil.getWebServiceFactory().getMemberWebService();
-        return null;
-    }
+    private final TripRepository tripRepository;
+    private final StudentTravelRepository studentTravelRepository;
 
     public Object getMemberByUsername(String username){
 
-        var result = getUserByUsername(username);
+        var result = WebServiceUtil.getUserByUsername(username);
 
         var customFields = result.getFields();
         var guardianName = customFields.stream()
@@ -143,7 +139,7 @@ public class StudentService {
         Validate.isTrue(!CredentialsStatus.BLOCKED.equals(result), ExceptionType.BAD_CREDENTIALS, USER_BLOCKED, authenticationDto.username());
         Validate.isTrue(!CredentialsStatus.INVALID.equals(result), ExceptionType.BAD_CREDENTIALS, INVALID_CREDENTIALS);
 
-        var user = getUserByUsername(authenticationDto.username());
+        var user = WebServiceUtil.getUserByUsername(authenticationDto.username());
         log.info(user.toString());
         var customFields = user.getFields();
 
@@ -193,15 +189,6 @@ public class StudentService {
         return accountHistory.getAccountStatus().getBalance();
     }
 
-    private MemberVO getUserByUsername(String username){
-        var memberWebService = WebServiceUtil.getWebServiceFactory().getMemberWebService();
-
-        var result = memberWebService.loadByUsername(username);
-        Validate.notNull(result, ExceptionType.RESOURCE_NOT_FOUND, STUDENT_NOT_FOUND, username);
-
-        return result;
-    }
-
     public List<GroupVO> getGroups(){
         var memberWebService = WebServiceUtil.getWebServiceFactory().getMemberWebService();
         return memberWebService.listManagedGroups();
@@ -229,12 +216,7 @@ public class StudentService {
         if(userType.equals(UserType.DRIVER)){
             return Arrays.asList(
                     new NotificationRole(NotificationRoleEnum.PICK_UP, NotificationRoleEnum.PICK_UP.getDescription()),
-                    new NotificationRole(NotificationRoleEnum.DROP_OFF, NotificationRoleEnum.DROP_OFF.getDescription())
-            );
-        }
-
-        if(userType.equals(UserType.GATE_MAN)){
-            return Arrays.asList(
+                    new NotificationRole(NotificationRoleEnum.DROP_OFF, NotificationRoleEnum.DROP_OFF.getDescription()),
                     new NotificationRole(NotificationRoleEnum.ON_SCHOOL, NotificationRoleEnum.ON_SCHOOL.getDescription()),
                     new NotificationRole(NotificationRoleEnum.OFF_SCHOOL, NotificationRoleEnum.OFF_SCHOOL.getDescription())
             );
@@ -253,12 +235,12 @@ public class StudentService {
         );
     }
 
-    public Object sendNotification(NotificationDto notificationDto){
+    public NotificationResponseDto sendNotification(NotificationDto notificationDto){
 
         notificationDto.validate();
 
-        var user = getUserByUsername(notificationDto.studentUsername());
-        var eventUser = getUserByUsername(notificationDto.performedByUsername());
+        var user = WebServiceUtil.getUserByUsername(notificationDto.studentUsername());
+        var eventUser = WebServiceUtil.getUserByUsername(notificationDto.performedByUsername());
         var customFields = user.getFields();
 
         var schoolAccount = customFields.stream()
@@ -268,6 +250,11 @@ public class StudentService {
 
         var studentSchool = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("std_school"))
+                .findFirst().get()
+                .getValue();
+
+        var schoolId = customFields.stream()
+                .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_id"))
                 .findFirst().get()
                 .getValue();
 
@@ -334,13 +321,108 @@ public class StudentService {
         return new NotificationResponseDto(
                 result.getStatus().name(),
                 StudentStatus.valueOf(notificationDto.studentStatus()),
-                notificationDto.appRef()
+                notificationDto.appRef(),
+                schoolId
         );
+    }
+
+    @Transactional
+    public Object sendNotificationDriver(NotificationDriverDto notificationDriverDto){
+
+        notificationDriverDto.validate();
+
+        var notificationDto = new NotificationDto(
+                notificationDriverDto.studentUsername(),
+                notificationDriverDto.studentStatus(),
+                notificationDriverDto.performedByUsername(),
+                notificationDriverDto.appRef()
+        );
+
+        var existingTrip = tripRepository.findById(notificationDriverDto.tripId());
+        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, notificationDriverDto.tripId());
+        Validate.isTrue(!existingTrip.get().getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+
+        var trip = existingTrip.get();
+
+        var existingStudentTravel = studentTravelRepository.findByStudentUsernameAndTrip(notificationDriverDto.studentUsername(), trip);
+
+        var studentTravel = new StudentTravel();
+        NotificationResponseDto notificationResult = null;
+
+        if(notificationDriverDto.studentStatus().equals(StudentStatus.PICK_UP.name())){
+            notificationResult = sendNotification(notificationDto);
+
+            Validate.isTrue(existingStudentTravel.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_ALREADY_ON_TRIP);
+            studentTravel.setStudentStatus(StudentStatus.valueOf(notificationDriverDto.studentStatus()));
+            studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
+            studentTravel.setDriverUsername(notificationDriverDto.performedByUsername());
+            studentTravel.setTrip(trip);
+            studentTravel.setSchoolId(notificationResult.schoolId());
+            studentTravel.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+
+            studentTravelRepository.save(studentTravel);
+
+            trip.setTripStatus(TripStatus.IN_PROGRESS);
+            trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+            tripRepository.save(trip);
+        }
+
+        if(notificationDriverDto.studentStatus().equals(StudentStatus.ON_SCHOOL.name())){
+
+            Validate.isPresent(existingStudentTravel, STUDENT_NOT_ON_TRIP);
+            studentTravel = existingStudentTravel.get();
+
+            Validate.isTrue(studentTravel.getStudentStatus().equals(StudentStatus.ON_SCHOOL), ExceptionType.BAD_REQUEST, ALREADY_ON_SCHOOL, notificationDriverDto.studentUsername());
+
+            studentTravel.setStudentStatus(StudentStatus.valueOf(notificationDriverDto.studentStatus()));
+            studentTravel.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+            studentTravelRepository.save(studentTravel);
+
+            trip.setTripStatus(TripStatus.IN_PROGRESS);
+            trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+            tripRepository.save(trip);
+
+            notificationResult = sendNotification(notificationDto);
+        }
+
+        Validate.isTrue((notificationDriverDto.studentStatus().equals(StudentStatus.PICK_UP.name()) || notificationDriverDto.studentStatus().equals(StudentStatus.ON_SCHOOL.name())),
+                ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentStatus());
+
+        return notificationResult;
+    }
+
+    @Transactional
+    public Object bulkOnSchool(Long tripId){
+
+        var existingTrip = tripRepository.findById(tripId);
+        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, tripId);
+
+        var trip = existingTrip.get();
+        Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+
+        var studentTravelList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.PICK_UP);
+
+        for(StudentTravel obj : studentTravelList){
+            var notificationDriverDto = new NotificationDriverDto(
+                    tripId,
+                    obj.getStudentUsername(),
+                    StudentStatus.ON_SCHOOL.name(),
+                    obj.getDriverUsername(),
+                    ""
+            );
+            sendNotificationDriver(notificationDriverDto);
+        }
+        trip.setTripStatus(TripStatus.ENDED);
+        trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+        tripRepository.save(trip);
+
+        return "Successfully signed into school";
     }
 
     public Object getDailyEventCount(String username){
 
-        var eventUser = getUserByUsername(username);
+        var eventUser = WebServiceUtil.getUserByUsername(username);
 
         var userGroup = getGroups().stream()
                 .filter(groupVO -> groupVO.getId().equals(eventUser.getGroupId()))
@@ -381,7 +463,7 @@ public class StudentService {
 
     public Object getProfileUrl(String username){
 
-        var user = getUserByUsername(username);
+        var user = WebServiceUtil.getUserByUsername(username);
         var imageUrls = user.getImages();
 
         return new ImageUrlDto(
