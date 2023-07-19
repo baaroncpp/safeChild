@@ -241,32 +241,34 @@ public class StudentService {
 
         var user = WebServiceUtil.getUserByUsername(notificationDto.studentUsername());
         var eventUser = WebServiceUtil.getUserByUsername(notificationDto.performedByUsername());
+
+        log.info(eventUser.toString());
         var customFields = user.getFields();
 
         var schoolAccount = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_account"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(schoolAccount.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school account not found");
 
         var studentSchool = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("std_school"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(studentSchool.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school name not found");
 
         var schoolId = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_id"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(schoolId.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school_id not found");
 
         var phoneNumber = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("reciever_phone"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(schoolId.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "phoneNumber not found");
 
         var paymentWebService = WebServiceUtil.getWebServiceFactory().getPaymentWebService();
 
         List<FieldValueVO> customParams = Arrays.asList(
-                new FieldValueVO(STUDENT_SCHOOL, studentSchool),
+                new FieldValueVO(STUDENT_SCHOOL, studentSchool.get().getValue()),
                 new FieldValueVO(PERFORMED_BY, eventUser.getUsername()),
                 new FieldValueVO(APP_REF, notificationDto.appRef()),
                 new FieldValueVO(STUDENT_STATUS, notificationDto.studentStatus())
@@ -275,7 +277,7 @@ public class StudentService {
         var params = new PaymentParameters();
         params.setFromMemberPrincipalType(MEMBER_PRINCIPLE_TYPE);
         params.setToMemberPrincipalType(MEMBER_PRINCIPLE_TYPE);
-        params.setFromMember(schoolAccount);
+        params.setFromMember(schoolAccount.get().getValue());
         params.setToMember(mainSmsAccount);
         params.setTransferTypeId(smsPaymentTransferType);
         params.setCustomValues(customParams);
@@ -294,7 +296,7 @@ public class StudentService {
 
         var message = getSms(StudentStatus.valueOf(notificationDto.studentStatus()),
                 notificationDto.studentUsername(),
-                trimSchoolName(studentSchool),
+                trimSchoolName(studentSchool.get().getValue()),
                 performerType,
                 notificationDto.performedByUsername());
 
@@ -305,7 +307,7 @@ public class StudentService {
         notification.setTransactionId(result.getTransfer().getTransactionNumber());
         notification.setMessage(message);
         notification.setSender("SAFE CHILD");
-        notification.setReceiver(phoneNumber);
+        notification.setReceiver(phoneNumber.get().getValue());
         notification.setStatus(SmsStatus.PENDING);
         notification.setTransactionId(UUID.randomUUID().toString().replace("-",""));
         notification.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
@@ -322,7 +324,7 @@ public class StudentService {
                 result.getStatus().name(),
                 StudentStatus.valueOf(notificationDto.studentStatus()),
                 notificationDto.appRef(),
-                schoolId
+                schoolId.get().getValue()
         );
     }
 
@@ -348,6 +350,16 @@ public class StudentService {
 
         var studentTravel = new StudentTravel();
         NotificationResponseDto notificationResult = null;
+
+        if(trip.getTripType().equals(TripType.PICKUP)) {
+            Validate.isTrue((notificationDriverDto.studentStatus().equals(StudentStatus.PICK_UP.name()) || notificationDriverDto.studentStatus().equals(StudentStatus.ON_SCHOOL.name())),
+                    ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentStatus());
+        }
+
+        if(trip.getTripType().equals(TripType.DROP_OFF)) {
+            Validate.isTrue((notificationDriverDto.studentStatus().equals(StudentStatus.OFF_SCHOOL.name()) || notificationDriverDto.studentStatus().equals(StudentStatus.DROP_OFF.name())),
+                    ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentStatus());
+        }
 
         if(notificationDriverDto.studentStatus().equals(StudentStatus.PICK_UP.name())){
             notificationResult = sendNotification(notificationDto);
@@ -385,10 +397,6 @@ public class StudentService {
 
             notificationResult = sendNotification(notificationDto);
         }
-
-        Validate.isTrue((notificationDriverDto.studentStatus().equals(StudentStatus.PICK_UP.name()) || notificationDriverDto.studentStatus().equals(StudentStatus.ON_SCHOOL.name())),
-                ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentStatus());
-
         return notificationResult;
     }
 

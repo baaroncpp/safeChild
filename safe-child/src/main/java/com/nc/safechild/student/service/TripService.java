@@ -5,9 +5,12 @@ import com.nc.safechild.exceptions.model.ExceptionType;
 import com.nc.safechild.student.model.dto.TripRequestDto;
 import com.nc.safechild.student.model.dto.TripResponseDto;
 import com.nc.safechild.student.model.enums.NotificationRoleEnum;
+import com.nc.safechild.student.model.enums.StudentStatus;
 import com.nc.safechild.student.model.enums.TripStatus;
 import com.nc.safechild.student.model.enums.TripType;
+import com.nc.safechild.student.model.jpa.StudentTravel;
 import com.nc.safechild.student.model.jpa.Trip;
+import com.nc.safechild.student.respository.StudentTravelRepository;
 import com.nc.safechild.student.respository.TripRepository;
 import com.nc.safechild.utils.DateTimeUtil;
 import com.nc.safechild.utils.Validate;
@@ -16,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,6 +36,7 @@ import static com.nc.safechild.utils.MessageConstants.*;
 public class TripService {
 
     private final TripRepository tripRepository;
+    private final StudentTravelRepository studentTravelRepository;
 
     public TripResponseDto createTrip(TripRequestDto tripRequestDto){
 
@@ -50,14 +55,15 @@ public class TripService {
 
         var schoolId = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_id"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+
+        Validate.isTrue(schoolId.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school_id not found");
 
         Trip newTrip = Trip.builder()
                 .tripType(TripType.valueOf(tripRequestDto.tripType()))
                 .driverUsername(tripRequestDto.username())
                 .tripStatus(TripStatus.OPEN)
-                .schoolId(schoolId)
+                .schoolId(schoolId.get().getValue())
                 .note(tripRequestDto.note())
                 .build();
 
@@ -124,6 +130,15 @@ public class TripService {
 
         var trip = existingTrip.get();
         Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+
+        List<StudentTravel> studentTravelPickUp;
+
+        if(trip.getTripType().equals(TripType.PICKUP)){
+            studentTravelPickUp = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.PICK_UP);
+        }else{
+            studentTravelPickUp = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.OFF_SCHOOL);
+        }
+        Validate.isTrue(studentTravelPickUp.isEmpty(), ExceptionType.BAD_REQUEST, "students on trip");
 
         trip.setTripStatus(TripStatus.ENDED);
         trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
