@@ -347,8 +347,6 @@ public class StudentService {
 
         var trip = existingTrip.get();
 
-        var existingStudentTravel = studentTravelRepository.findByStudentUsernameAndTrip(notificationDriverDto.studentUsername(), trip);
-
         var studentTravel = new StudentTravel();
         NotificationResponseDto notificationResult = null;
 
@@ -362,15 +360,17 @@ public class StudentService {
                     ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentStatus());
         }
 
+        var existingStudentTravel = studentTravelRepository.findByStudentUsernameAndTrip(notificationDriverDto.studentUsername(), trip);
+
         if(notificationDriverDto.studentStatus().equals(StudentStatus.PICK_UP.name())){
-            notificationResult = sendNotification(notificationDto);
 
             Validate.isTrue(existingStudentTravel.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_ALREADY_ON_TRIP);
+
             studentTravel.setStudentStatus(StudentStatus.valueOf(notificationDriverDto.studentStatus()));
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
             studentTravel.setDriverUsername(notificationDriverDto.performedByUsername());
             studentTravel.setTrip(trip);
-            studentTravel.setSchoolId(notificationResult.schoolId());
+            studentTravel.setSchoolId(trip.getSchoolId());
             studentTravel.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
 
             studentTravelRepository.save(studentTravel);
@@ -378,11 +378,14 @@ public class StudentService {
             trip.setTripStatus(TripStatus.IN_PROGRESS);
             trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
             tripRepository.save(trip);
+
+            notificationResult = sendNotification(notificationDto);
         }
 
         if(notificationDriverDto.studentStatus().equals(StudentStatus.ON_SCHOOL.name())){
 
-            Validate.isPresent(existingStudentTravel, STUDENT_NOT_ON_TRIP);
+            Validate.isTrue(existingStudentTravel.isPresent(), ExceptionType.BAD_REQUEST, STUDENT_NOT_ON_TRIP);
+
             studentTravel = existingStudentTravel.get();
 
             Validate.isTrue(studentTravel.getStudentStatus().equals(StudentStatus.ON_SCHOOL), ExceptionType.BAD_REQUEST, ALREADY_ON_SCHOOL, notificationDriverDto.studentUsername());
