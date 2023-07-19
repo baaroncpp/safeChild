@@ -45,6 +45,7 @@ public class TripService {
 
         var user = WebServiceUtil.getUserByUsername(tripRequestDto.username());
 
+        log.info(user.toString());
         var customFields = user.getFields();
 
         var schoolId = customFields.stream()
