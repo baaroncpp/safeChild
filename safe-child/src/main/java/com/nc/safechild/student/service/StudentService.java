@@ -244,6 +244,7 @@ public class StudentService {
 
         log.info(eventUser.toString());
         var customFields = user.getFields();
+        var customFieldsEvent = eventUser.getFields();
 
         var schoolAccount = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_account"))
@@ -255,7 +256,7 @@ public class StudentService {
                 .findFirst();
         Validate.isTrue(studentSchool.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school name not found");
 
-        var schoolId = customFields.stream()
+        var schoolId = customFieldsEvent.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_id"))
                 .findFirst();
         Validate.isTrue(schoolId.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school_id not found");
