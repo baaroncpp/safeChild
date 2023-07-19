@@ -48,7 +48,7 @@ public class TripService {
         var customFields = user.getFields();
 
         var schoolId = customFields.stream()
-                .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_Id"))
+                .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_id"))
                 .findFirst().get()
                 .getValue();
 
