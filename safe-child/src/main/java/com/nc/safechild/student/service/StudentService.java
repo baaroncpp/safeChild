@@ -388,7 +388,7 @@ public class StudentService {
 
             studentTravel = existingStudentTravel.get();
 
-            Validate.isTrue(studentTravel.getStudentStatus().equals(StudentStatus.ON_SCHOOL), ExceptionType.BAD_REQUEST, ALREADY_ON_SCHOOL, notificationDriverDto.studentUsername());
+            Validate.isTrue(!studentTravel.getStudentStatus().equals(StudentStatus.ON_SCHOOL), ExceptionType.BAD_REQUEST, ALREADY_ON_SCHOOL, notificationDriverDto.studentUsername());
 
             studentTravel.setStudentStatus(StudentStatus.valueOf(notificationDriverDto.studentStatus()));
             studentTravel.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
