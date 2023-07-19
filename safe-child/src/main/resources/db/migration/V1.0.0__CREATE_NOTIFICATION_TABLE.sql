@@ -1,4 +1,4 @@
-CREATE TABLE t_notification(
+CREATE TABLE IF NOT EXISTS t_notification(
     id BIGSERIAL primary key,
     created_on timestamp not null default now(),
     receiver VARCHAR(15),

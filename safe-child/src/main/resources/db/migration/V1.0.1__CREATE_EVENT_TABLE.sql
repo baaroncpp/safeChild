@@ -1,4 +1,4 @@
-CREATE TABLE t_user_student_status_count(
+CREATE TABLE IF NOT EXISTS t_user_student_status_count(
     id BIGSERIAL primary key,
     username VARCHAR(50),
     created_on timestamp not null default now(),
