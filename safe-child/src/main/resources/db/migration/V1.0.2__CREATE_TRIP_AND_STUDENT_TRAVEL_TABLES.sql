@@ -1,4 +1,4 @@
-CREATE TABLE core.t_trip(
+CREATE TABLE t_trip(
     id BIGSERIAL primary key,
     created_on timestamp not null default now(),
     modified_on timestamp,
@@ -9,7 +9,7 @@ CREATE TABLE core.t_trip(
     note TEXT
 );
 
-CREATE TABLE core.t_student_travel(
+CREATE TABLE t_student_travel(
     id BIGSERIAL primary key,
     created_on timestamp not null default now(),
     modified_on timestamp,
