@@ -30,6 +30,11 @@ public class TripApi {
         return tripService.getTripById(id);
     }
 
+    @GetMapping(path = "students/trip/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getStudentsOnTrip(@PathVariable("id") Long id){
+        return tripService.getStudentsCurrentlyOnTrip(id);
+    }
+
     @PutMapping(path = "trip", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object updateTripStatus(@Param("id") Long id,
                                    @Param("tripStatus")TripStatus tripStatus){

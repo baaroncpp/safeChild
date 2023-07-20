@@ -6,14 +6,8 @@ import com.nc.safechild.network.MessageBrokerService;
 import com.nc.safechild.student.model.NotificationRole;
 import com.nc.safechild.student.model.dto.*;
 import com.nc.safechild.student.model.enums.*;
-import com.nc.safechild.student.model.jpa.Notification;
-import com.nc.safechild.student.model.jpa.StudentTravel;
-import com.nc.safechild.student.model.jpa.Trip;
-import com.nc.safechild.student.model.jpa.UserStudentStatusCount;
-import com.nc.safechild.student.respository.NotificationRepository;
-import com.nc.safechild.student.respository.StudentTravelRepository;
-import com.nc.safechild.student.respository.TripRepository;
-import com.nc.safechild.student.respository.UserStudentStatusCountRepository;
+import com.nc.safechild.student.model.jpa.*;
+import com.nc.safechild.student.respository.*;
 import com.nc.safechild.utils.DateTimeUtil;
 import com.nc.safechild.utils.Validate;
 import com.nc.safechild.utils.WebServiceUtil;
@@ -78,6 +72,7 @@ public class StudentService {
     private final UserStudentStatusCountRepository userStudentStatusCountRepository;
     private final TripRepository tripRepository;
     private final StudentTravelRepository studentTravelRepository;
+    private final StudentDayRepository studentDayRepository;
 
     public Object getMemberByUsername(String username){
 
@@ -86,40 +81,40 @@ public class StudentService {
         var customFields = result.getFields();
         var guardianName = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("parent"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(guardianName.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "parent not found");
 
         var guardianPhoneNumber = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("reciever_phone"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(guardianPhoneNumber.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "reciever_phone not found");
 
         var studentClass = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("std_class"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(studentClass.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "std_class not found");
 
         var school = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("std_school"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(school.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "std_school not found");
 
         var schoolAccount = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_account"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(schoolAccount.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school_account not found");
 
-        Validate.isTrue(getAccountBalance(schoolAccount).compareTo(BigDecimal.valueOf(200)) > 0, ExceptionType.BAD_REQUEST, SCHOOL_INSUFFICIENT_FUNDS);
+        Validate.isTrue(getAccountBalance(schoolAccount.get().getValue()).compareTo(BigDecimal.valueOf(200)) > 0, ExceptionType.BAD_REQUEST, SCHOOL_INSUFFICIENT_FUNDS);
 
         return  new StudentResponseDto(
                 result.getId(),
                 result.getName(),
                 result.getUsername(),
                 result.getEmail(),
-                guardianName,
-                guardianPhoneNumber,
-                studentClass,
-                school
+                guardianName.get().getValue(),
+                guardianPhoneNumber.get().getValue(),
+                studentClass.get().getValue(),
+                school.get().getValue()
         );
     }
 
@@ -145,13 +140,13 @@ public class StudentService {
 
         var school = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("std_school"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(school.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school account not found");
 
         var phoneNumber = customFields.stream()
                 .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("reciever_phone"))
-                .findFirst().get()
-                .getValue();
+                .findFirst();
+        Validate.isTrue(phoneNumber.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "receiver_phone account not found");
 
         var userGroup = getGroups().stream()
                 .filter(groupVO -> groupVO.getId().equals(user.getGroupId()))
@@ -167,8 +162,8 @@ public class StudentService {
                 user.getUsername(),
                 user.getName(),
                 user.getEmail(),
-                phoneNumber,
-                school,
+                phoneNumber.get().getValue(),
+                school.get().getValue(),
                 userTpe,
                 roles
         );
@@ -401,6 +396,58 @@ public class StudentService {
 
             notificationResult = sendNotification(notificationDto);
         }
+        //TODO OFF_SCHOOL AND DROP_OFF
+        return notificationResult;
+    }
+
+    @Transactional
+    public Object sendNotificationStaff(NotificationDto notificationDto){
+
+        NotificationResponseDto notificationResult = null;
+        notificationDto.validate();
+        var eventUser = WebServiceUtil.getUserByUsername(notificationDto.performedByUsername());
+        var customFieldsEvent = eventUser.getFields();
+
+        var schoolId = customFieldsEvent.stream()
+                .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_id"))
+                .findFirst();
+        Validate.isTrue(schoolId.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school_id not found");
+
+        var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndSchoolId(getCurrentDate(),
+                notificationDto.studentUsername(),
+                schoolId.get().getValue());
+
+        var studentDay = new StudentDay();
+
+        if(notificationDto.studentStatus().equals(StudentStatus.ON_SCHOOL.name())){
+            Validate.isTrue(existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, ALREADY_ON_SCHOOL, notificationDto.studentUsername());
+            //TODO check if student is on shuttle
+
+            studentDay.setStudentUsername(notificationDto.studentUsername());
+            studentDay.setStudentStatus(StudentStatus.ON_SCHOOL);
+            studentDay.setSchoolDate(getCurrentDate());
+            studentDay.setStudentUsername(notificationDto.performedByUsername());
+            studentDay.setSchoolId(schoolId.get().getValue());
+            studentDay.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+
+            studentDayRepository.save(studentDay);
+
+            notificationResult = sendNotification(notificationDto);
+        }
+
+        if(notificationDto.studentStatus().equals(StudentStatus.OFF_SCHOOL.name())){
+            Validate.isTrue(existingStudentDay.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, STUDENT_NOT_SIGNED_IN, notificationDto.studentUsername());
+
+            var sd = existingStudentDay.get();
+            Validate.isTrue(!sd.getStudentStatus().equals(StudentStatus.OFF_SCHOOL), ExceptionType.BAD_REQUEST, ALREADY_SIGNED_OUT, notificationDto.studentUsername());
+
+            sd.setStudentStatus(StudentStatus.OFF_SCHOOL);
+            sd.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+            studentDayRepository.save(sd);
+            notificationResult = sendNotification(notificationDto);
+        }
+
         return notificationResult;
     }
 

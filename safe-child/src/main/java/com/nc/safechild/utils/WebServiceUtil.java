@@ -8,14 +8,8 @@ import nl.strohalm.cyclos.webservices.CyclosWebServicesClientFactory;
 import nl.strohalm.cyclos.webservices.model.MemberVO;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
-
-import static com.nc.safechild.utils.MessageConstants.STUDENT_NOT_FOUND;
 
 /**
  * @Author bkaaron
@@ -71,11 +65,5 @@ public class WebServiceUtil {
         return tripTypeList.contains(value);
     }
 
-    public String getUgandaTimeZone(){
-        Calendar calNewYork = Calendar.getInstance();
-        calNewYork.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-
-        return calNewYork.getTime().toString();
-    }
 
 }

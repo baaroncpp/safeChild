@@ -43,14 +43,14 @@ public class StudentApi {
         return studentService.getGroups();
     }
 
-    /*@PostMapping(path = "send/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object sendNotification(@RequestBody NotificationDto notificationDto) {
-        return studentService.sendNotification(notificationDto);
-    }*/
-
     @PostMapping(path = "send/driver/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Object sendNotificationDriver(@RequestBody NotificationDriverDto notificationDriverDto) {
         return studentService.sendNotificationDriver(notificationDriverDto);
+    }
+
+    @PostMapping(path = "send/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object sendNotification(@RequestBody NotificationDto notificationDto) {
+        return studentService.sendNotification(notificationDto);
     }
 
     @GetMapping(path = "bulk/school-sign-in/trip/{id}")

@@ -125,11 +125,7 @@ public class TripService {
 
     public Trip endTrip(Long tripId){
 
-        var existingTrip = tripRepository.findById(tripId);
-        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, tripId);
-
-        var trip = existingTrip.get();
-        Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+        var trip = getTrip(tripId);
 
         List<StudentTravel> studentTravelPickUp;
 
@@ -143,6 +139,30 @@ public class TripService {
         trip.setTripStatus(TripStatus.ENDED);
         trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
         return tripRepository.save(trip);
+    }
+
+    public List<StudentTravel> getStudentsCurrentlyOnTrip(Long tripId){
+
+        var trip = getTrip(tripId);
+        List<StudentTravel> studentTravelList;
+
+        if(trip.getTripType().equals(TripType.PICKUP)){
+            studentTravelList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.PICK_UP);
+        }else{
+            studentTravelList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.OFF_SCHOOL);
+        }
+
+        return studentTravelList;
+    }
+
+    private Trip getTrip(Long id){
+        var existingTrip = tripRepository.findById(id);
+        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, id);
+
+        var trip = existingTrip.get();
+        Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+
+        return trip;
     }
 
     private List<NotificationRoleEnum> getTripRoles(TripType tripType){
