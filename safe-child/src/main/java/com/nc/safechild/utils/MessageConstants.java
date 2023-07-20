@@ -43,9 +43,13 @@ public class MessageConstants {
     public static final String NULL_TRIP_ID = "tripId is null or empty";
     public static final String INVALID_STUDENT_STATUS_FOR_TRIP = "studentStatus %s does not correspond to tripType";
     public static final String STUDENT_ALREADY_ON_TRIP = "Student is already on the trip";
-    public static final String STUDENT_NOT_ON_TRIP = "Student not on the trip";
+    public static final String STUDENT_NOT_ON_TRIP = "Student %s not on the trip";
     public static final String ALREADY_ON_SCHOOL = "Student %s is already signed in to school";
     public static final String STUDENT_NOT_SIGNED_IN = "Student %s was not signed in";
     public static final String ALREADY_SIGNED_OUT = "Student %s already signed out";
     public static final String TRIP_ENDED = "trip is already ended";
+    public static final String NO_PERMISSION_ON_SCHOOL = "Staff %s cannot perform event, invalid trip";
+    public static final String STUDENT_SCHOOL_STATUS = "%s already %s";
+    public static final String STUDENT_ALREADY_SIGNED_OUT = "Student %s already signed out";
+    public static final String STUDENT_ALREADY_DROPPED_OFF = "Student %s already dropped off";
 }

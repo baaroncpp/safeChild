@@ -48,6 +48,11 @@ public class StudentApi {
         return studentService.sendNotificationDriver(notificationDriverDto);
     }
 
+    @PostMapping(path = "send/staff/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object sendNotificationStaff(@RequestBody NotificationDto notificationDto) {
+        return studentService.sendNotificationStaff(notificationDto);
+    }
+
     @PostMapping(path = "send/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Object sendNotification(@RequestBody NotificationDto notificationDto) {
         return studentService.sendNotification(notificationDto);

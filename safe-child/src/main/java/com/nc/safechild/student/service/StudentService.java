@@ -340,7 +340,7 @@ public class StudentService {
         Validate.isPresent(existingTrip, TRIP_NOT_FOUND, notificationDriverDto.tripId());
         Validate.isTrue(!existingTrip.get().getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
 
-        var trip = existingTrip.get();
+        var trip = existingTrip.get();Validate.isTrue(trip.getDriverUsername().equals(notificationDriverDto.studentUsername()), ExceptionType.BAD_REQUEST, NO_PERMISSION_ON_SCHOOL, notificationDriverDto.performedByUsername());
 
         var studentTravel = new StudentTravel();
         NotificationResponseDto notificationResult = null;
@@ -356,19 +356,18 @@ public class StudentService {
         }
 
         var existingStudentTravel = studentTravelRepository.findByStudentUsernameAndTrip(notificationDriverDto.studentUsername(), trip);
+        var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndSchoolId(getCurrentDate(), notificationDriverDto.studentUsername(), trip.getSchoolId());
 
         if(notificationDriverDto.studentStatus().equals(StudentStatus.PICK_UP.name())){
 
             Validate.isTrue(existingStudentTravel.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_ALREADY_ON_TRIP);
+            Validate.isTrue(existingStudentDay.isEmpty(),
+                    ExceptionType.BAD_REQUEST,
+                    STUDENT_SCHOOL_STATUS,
+                    notificationDriverDto.studentUsername(),
+                    notificationDriverDto.studentStatus());
 
-            studentTravel.setStudentStatus(StudentStatus.valueOf(notificationDriverDto.studentStatus()));
-            studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
-            studentTravel.setDriverUsername(notificationDriverDto.performedByUsername());
-            studentTravel.setTrip(trip);
-            studentTravel.setSchoolId(trip.getSchoolId());
-            studentTravel.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
-
-            studentTravelRepository.save(studentTravel);
+            createStudentTravelForDriver(notificationDriverDto, trip, studentTravel);
 
             trip.setTripStatus(TripStatus.IN_PROGRESS);
             trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
@@ -379,8 +378,7 @@ public class StudentService {
 
         if(notificationDriverDto.studentStatus().equals(StudentStatus.ON_SCHOOL.name())){
 
-            Validate.isTrue(existingStudentTravel.isPresent(), ExceptionType.BAD_REQUEST, STUDENT_NOT_ON_TRIP);
-
+            Validate.isTrue(existingStudentTravel.isPresent(), ExceptionType.BAD_REQUEST, STUDENT_NOT_ON_TRIP, notificationDriverDto.studentUsername());
             studentTravel = existingStudentTravel.get();
 
             Validate.isTrue(!studentTravel.getStudentStatus().equals(StudentStatus.ON_SCHOOL), ExceptionType.BAD_REQUEST, ALREADY_ON_SCHOOL, notificationDriverDto.studentUsername());
@@ -394,10 +392,66 @@ public class StudentService {
             trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
             tripRepository.save(trip);
 
+            var studentDay = new StudentDay();
+            studentDay.setStudentUsername(notificationDto.studentUsername());
+            studentDay.setStudentStatus(StudentStatus.ON_SCHOOL);
+            studentDay.setSchoolDate(getCurrentDate());
+            studentDay.setStudentUsername(notificationDto.performedByUsername());
+            studentDay.setSchoolId(trip.getSchoolId());
+            studentDay.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+
+            studentDayRepository.save(studentDay);
+
             notificationResult = sendNotification(notificationDto);
         }
-        //TODO OFF_SCHOOL AND DROP_OFF
+
+        if(notificationDriverDto.studentStatus().equals(StudentStatus.OFF_SCHOOL.name())){
+
+            Validate.isTrue(existingStudentDay.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, STUDENT_NOT_SIGNED_IN, notificationDto.studentUsername());
+            var studentDay = existingStudentDay.get();
+
+            Validate.isTrue(studentDay.getStudentStatus().equals(StudentStatus.OFF_SCHOOL), ExceptionType.BAD_REQUEST, STUDENT_ALREADY_SIGNED_OUT, notificationDto.studentUsername());
+
+            //Sign out student
+            studentDay.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+            studentDay.setStudentStatus(StudentStatus.OFF_SCHOOL);
+
+            studentDayRepository.save(studentDay);
+
+            //load student onto the shuttle
+            trip.setTripStatus(TripStatus.IN_PROGRESS);
+            trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+            tripRepository.save(trip);
+
+            createStudentTravelForDriver(notificationDriverDto, trip, studentTravel);
+
+            notificationResult = sendNotification(notificationDto);
+        }
+
+        if(notificationDriverDto.studentStatus().equals(StudentStatus.DROP_OFF.name())){
+            Validate.isTrue(existingStudentTravel.isPresent(), ExceptionType.BAD_REQUEST, STUDENT_NOT_ON_TRIP, notificationDriverDto.studentUsername());
+            studentTravel = existingStudentTravel.get();
+
+            Validate.isTrue( studentTravel.getStudentStatus().equals(StudentStatus.DROP_OFF), ExceptionType.BAD_REQUEST, STUDENT_ALREADY_DROPPED_OFF, notificationDriverDto.studentUsername());
+
+            studentTravel.setStudentStatus(StudentStatus.DROP_OFF);
+            studentTravel.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+            studentTravelRepository.save( studentTravel);
+
+            notificationResult = sendNotification(notificationDto);
+        }
         return notificationResult;
+    }
+
+    private void createStudentTravelForDriver(NotificationDriverDto notificationDriverDto, Trip trip, StudentTravel studentTravel) {
+        studentTravel.setStudentStatus(StudentStatus.valueOf(notificationDriverDto.studentStatus()));
+        studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
+        studentTravel.setDriverUsername(notificationDriverDto.performedByUsername());
+        studentTravel.setTrip(trip);
+        studentTravel.setSchoolId(trip.getSchoolId());
+        studentTravel.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+
+        studentTravelRepository.save(studentTravel);
     }
 
     @Transactional
@@ -421,7 +475,6 @@ public class StudentService {
 
         if(notificationDto.studentStatus().equals(StudentStatus.ON_SCHOOL.name())){
             Validate.isTrue(existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, ALREADY_ON_SCHOOL, notificationDto.studentUsername());
-            //TODO check if student is on shuttle
 
             studentDay.setStudentUsername(notificationDto.studentUsername());
             studentDay.setStudentStatus(StudentStatus.ON_SCHOOL);
@@ -567,6 +620,11 @@ public class StudentService {
         } catch (ParseException e) {
             throw new BadRequestException(e.getMessage());
         }
+    }
+
+    private Date getDateWithoutTime(Date date) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return sdf.parse(sdf.format(date));
     }
 
     private String trimSchoolName(String schoolName){
