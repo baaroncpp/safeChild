@@ -366,7 +366,7 @@ public class StudentService {
                     ExceptionType.BAD_REQUEST,
                     STUDENT_SCHOOL_STATUS,
                     notificationDriverDto.studentUsername(),
-                    notificationDriverDto.studentStatus());
+                    existingStudentDay.get().getStudentStatus());
 
             createStudentTravelForDriver(notificationDriverDto, trip, studentTravel);
 

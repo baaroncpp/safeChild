@@ -49,7 +49,7 @@ public class MessageConstants {
     public static final String ALREADY_SIGNED_OUT = "Student %s already signed out";
     public static final String TRIP_ENDED = "trip is already ended";
     public static final String NO_PERMISSION_ON_SCHOOL = "Staff %s cannot perform event, invalid trip";
-    public static final String STUDENT_SCHOOL_STATUS = "%s already %s";
+    public static final String STUDENT_SCHOOL_STATUS = "%s in %s status";
     public static final String STUDENT_ALREADY_SIGNED_OUT = "Student %s already signed out";
     public static final String STUDENT_ALREADY_DROPPED_OFF = "Student %s already dropped off";
 }
