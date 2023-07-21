@@ -340,7 +340,8 @@ public class StudentService {
         Validate.isPresent(existingTrip, TRIP_NOT_FOUND, notificationDriverDto.tripId());
         Validate.isTrue(!existingTrip.get().getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
 
-        var trip = existingTrip.get();Validate.isTrue(trip.getDriverUsername().equals(notificationDriverDto.studentUsername()), ExceptionType.BAD_REQUEST, NO_PERMISSION_ON_SCHOOL, notificationDriverDto.performedByUsername());
+        var trip = existingTrip.get();
+        Validate.isTrue(trip.getDriverUsername().equals(notificationDriverDto.performedByUsername()), ExceptionType.BAD_REQUEST, NO_PERMISSION_ON_SCHOOL, notificationDriverDto.performedByUsername());
 
         var studentTravel = new StudentTravel();
         NotificationResponseDto notificationResult = null;
