@@ -396,7 +396,7 @@ public class StudentService {
             studentDay.setStudentUsername(notificationDto.studentUsername());
             studentDay.setStudentStatus(StudentStatus.ON_SCHOOL);
             studentDay.setSchoolDate(getCurrentDate());
-            studentDay.setStudentUsername(notificationDto.performedByUsername());
+            studentDay.setStaffUsername(notificationDto.performedByUsername());
             studentDay.setSchoolId(trip.getSchoolId());
             studentDay.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
 
@@ -479,7 +479,7 @@ public class StudentService {
             studentDay.setStudentUsername(notificationDto.studentUsername());
             studentDay.setStudentStatus(StudentStatus.ON_SCHOOL);
             studentDay.setSchoolDate(getCurrentDate());
-            studentDay.setStudentUsername(notificationDto.performedByUsername());
+            studentDay.setStaffUsername(notificationDto.performedByUsername());
             studentDay.setSchoolId(schoolId.get().getValue());
             studentDay.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
 
