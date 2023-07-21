@@ -58,3 +58,11 @@ notification:
     #pick-up: Hi Parent! Your Child With ID %s has been picked up from home by a %s with ID %s at %s
     #on-school: Hi Parent! Your Child With ID %s has been received at school with ID %s by a %s with ID %s at %s
     #off-school: Hi Parent! Your Child With ID %s has been signed out by a %s with ID %s of school with ID %s at %s
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: *
+#  health:
+#    show-details: always
