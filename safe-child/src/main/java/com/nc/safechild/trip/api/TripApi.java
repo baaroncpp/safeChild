@@ -44,12 +44,6 @@ public class TripApi {
         return tripService.getStudentsCurrentlyOnTrip(id);
     }
 
-    /*@PutMapping(path = "trip", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object updateTripStatus(@Param("id") Long id,
-                                   @Param("tripStatus")TripStatus tripStatus){
-        return tripService.changeTripStatus(id, tripStatus);
-    }*/
-
     @PutMapping(path = "end/trip/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object endTrip(@PathVariable("id") Long id){
         return tripService.endTrip(id);

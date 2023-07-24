@@ -23,7 +23,7 @@ public class MessageConstants {
     public static final String INVALID_CREDENTIALS = "invalid user parameters";
     public static final String STUDENT_NOT_FOUND = "student %s not found";
     public static final String NULL_STUDENT_STATUS = "studentStatus is null or empty";
-    public static final String INVALID_STUDENT_STATUS = "%s is invalid studentStatus: VALID OPTIONS: PICK_UP, DROP_OFF, ON_SCHOOL, OOF_SCHOOL, IN_CLASS";
+    public static final String INVALID_STUDENT_STATUS = "%s is invalid studentStatus: VALID OPTIONS: SCHOOL_SIGN_OUT, HOME_DROP_OFF, SCHOOL_SIGN_IN, HOME_PICK_UP, IN_CLASS";
     public static final String SCHOOL_INSUFFICIENT_FUNDS = "Insufficient funds on school, please top up";
     public static final String MEMBER_PRINCIPLE_TYPE = "USER";
     public static final String STUDENT_SCHOOL = "std1_school";
