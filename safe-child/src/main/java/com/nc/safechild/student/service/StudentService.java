@@ -187,6 +187,8 @@ public class StudentService {
                 .schoolName(studentStaffDetails.getSchoolName())
                 .studentStatus(StudentStatus.valueOf(notificationDriverDto.studentStatus()))
                 .guardianPhoneNumber(studentStaffDetails.getGuardianPhoneNumber())
+                .staffUsername(notificationDriverDto.performedByUsername())
+                .studentUsername(notificationDriverDto.studentUsername())
                 .build();
 
         var studentDay = new StudentDay();
@@ -616,7 +618,7 @@ public class StudentService {
                 sendSmsDto.getStaffUsername());
 
         var notification = new Notification();
-        notification.setTransactionId(paymentResult.getTransfer().getTransactionNumber());
+        //notification.setTransactionId(paymentResult.getTransfer().getTransactionNumber());
         notification.setMessage(message);
         notification.setSender("SAFE CHILD");
         notification.setReceiver(sendSmsDto.getGuardianPhoneNumber());
