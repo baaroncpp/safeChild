@@ -618,12 +618,12 @@ public class StudentService {
                 sendSmsDto.getStaffUsername());
 
         var notification = new Notification();
-        //notification.setTransactionId(paymentResult.getTransfer().getTransactionNumber());
+        notification.setTransactionId(paymentResult.getTransfer().getTransactionNumber());
         notification.setMessage(message);
         notification.setSender("SAFE CHILD");
         notification.setReceiver(sendSmsDto.getGuardianPhoneNumber());
         notification.setStatus(SmsStatus.PENDING);
-        notification.setTransactionId(UUID.randomUUID().toString().replace("-",""));
+        //notification.setTransactionId(UUID.randomUUID().toString().replace("-",""));
         notification.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
 
         System.out.println(notification.toString());
