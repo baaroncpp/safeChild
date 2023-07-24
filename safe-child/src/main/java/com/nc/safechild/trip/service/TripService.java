@@ -1,0 +1,177 @@
+package com.nc.safechild.trip.service;
+
+import com.nc.safechild.exceptions.BadRequestException;
+import com.nc.safechild.exceptions.model.ExceptionType;
+import com.nc.safechild.trip.model.dto.TripRequestDto;
+import com.nc.safechild.trip.model.dto.TripResponseDto;
+import com.nc.safechild.student.models.enums.NotificationRoleEnum;
+import com.nc.safechild.student.models.enums.StudentStatus;
+import com.nc.safechild.trip.model.enums.TripStatus;
+import com.nc.safechild.trip.model.enums.TripType;
+import com.nc.safechild.student.models.jpa.StudentTravel;
+import com.nc.safechild.trip.model.jpa.Trip;
+import com.nc.safechild.student.repository.StudentTravelRepository;
+import com.nc.safechild.trip.repository.TripRepository;
+import com.nc.safechild.base.utils.DateTimeUtil;
+import com.nc.safechild.base.utils.Validate;
+import com.nc.safechild.base.utils.WebServiceUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.nc.safechild.base.utils.MessageConstants.*;
+
+/**
+ * @Author bkaaron
+ * @Project nc
+ * @Date 7/17/23
+ **/
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class TripService {
+
+    private final TripRepository tripRepository;
+    private final StudentTravelRepository studentTravelRepository;
+
+    public List<TripResponseDto> getTripsByStaffUsername(String staffUsername, Pageable pageable){
+        return tripRepository.findAllByStaffUsername(staffUsername, pageable).stream()
+                .map(this::mapTripToTripResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    public TripResponseDto createTrip(TripRequestDto tripRequestDto){
+
+        tripRequestDto.validate();
+
+        var existingInProgressTrip = tripRepository.findByStaffUsernameAndTripStatus(tripRequestDto.username(), TripStatus.IN_PROGRESS);
+        Validate.isTrue(existingInProgressTrip.isEmpty(), ExceptionType.BAD_REQUEST, EXISTING_IN_PROGRESS_TRIP);
+
+        var existingOpenTrip = tripRepository.findByStaffUsernameAndTripStatus(tripRequestDto.username(), TripStatus.OPEN);
+        Validate.isTrue(existingOpenTrip.isEmpty(), ExceptionType.BAD_REQUEST, EXISTING_OPEN_TRIP);
+
+        var user = WebServiceUtil.getUserByUsername(tripRequestDto.username());
+
+        log.info(user.toString());
+        var customFields = user.getFields();
+
+        var schoolId = customFields.stream()
+                .filter(fieldValueVO -> fieldValueVO.getInternalName().equals("school_id"))
+                .findFirst();
+
+        Validate.isTrue(schoolId.isPresent(), ExceptionType.RESOURCE_NOT_FOUND, "school_id not found");
+
+        Trip newTrip = Trip.builder()
+                .tripType(TripType.valueOf(tripRequestDto.tripType()))
+                .staffUsername(tripRequestDto.username())
+                .tripStatus(TripStatus.OPEN)
+                .schoolId(schoolId.get().getValue())
+                .note(tripRequestDto.note())
+                .build();
+
+        newTrip.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+
+        return mapTripToTripResponseDto(tripRepository.save(newTrip));
+    }
+
+    public TripResponseDto getTripById(Long id){
+
+        var existingTrip = tripRepository.findById(id);
+        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, id);
+        var trip = existingTrip.get();
+
+        return mapTripToTripResponseDto(trip);
+    }
+
+    public TripResponseDto changeTripStatus(Long id, TripStatus tripStatus){
+
+        var existingTrip = tripRepository.findById(id);
+        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, id);
+
+        var trip = existingTrip.get();
+
+        Validate.isTrue(!trip.getTripStatus().equals(tripStatus), ExceptionType.BAD_REQUEST, TRIP_SAME_STATUS, tripStatus);
+        trip.setTripStatus(tripStatus);
+        trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+        return mapTripToTripResponseDto(tripRepository.save(trip));
+    }
+
+    public TripResponseDto endTrip(Long tripId){
+
+        var trip = getTrip(tripId);
+
+        List<StudentTravel> studentTravelPickUp;
+
+        if(trip.getTripType().equals(TripType.PICK_UP)){
+            studentTravelPickUp = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+        }else{
+            studentTravelPickUp = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+        }
+        Validate.isTrue(studentTravelPickUp.isEmpty(), ExceptionType.BAD_REQUEST, "students on trip");
+
+        trip.setTripStatus(TripStatus.ENDED);
+        trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+        return mapTripToTripResponseDto(tripRepository.save(trip));
+    }
+
+    public List<StudentTravel> getStudentsCurrentlyOnTrip(Long tripId){
+
+        var trip = getTrip(tripId);
+        List<StudentTravel> studentTravelList;
+
+        if(trip.getTripType().equals(TripType.PICK_UP)){
+            studentTravelList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+        }else{
+            studentTravelList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+        }
+
+        return studentTravelList;
+    }
+
+    private Trip getTrip(Long id){
+        var existingTrip = tripRepository.findById(id);
+        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, id);
+
+        var trip = existingTrip.get();
+        Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+
+        return trip;
+    }
+
+    private List<NotificationRoleEnum> getTripRoles(TripType tripType){
+        if(tripType.equals(TripType.PICK_UP)){
+            return Arrays.asList(
+                   NotificationRoleEnum.PICK_UP,
+                   NotificationRoleEnum.BULK_ON_SCHOOL,
+                   NotificationRoleEnum.ON_SCHOOL
+            );
+        }
+
+        if(tripType.equals(TripType.DROP_OFF)){
+            return Arrays.asList(
+                    NotificationRoleEnum.DROP_OFF,
+                    NotificationRoleEnum.OFF_SCHOOL
+            );
+        }
+        throw new BadRequestException("Failed to load trip type");
+    }
+
+    private TripResponseDto mapTripToTripResponseDto(Trip trip){
+        return new TripResponseDto(
+                trip.getId(),
+                trip.getCreatedOn(),
+                trip.getModifiedOn(),
+                trip.getTripType(),
+                trip.getTripStatus(),
+                trip.getStaffUsername(),
+                getTripRoles(trip.getTripType())
+        );
+    }
+}

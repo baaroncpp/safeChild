@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS t_student_day(
     student_username VARCHAR(50) NOT NULL,
     staff_username VARCHAR(50) NOT NULL,
     school_id VARCHAR(20) NOT NULL,
-    STUDENT_status VARCHAR(32) NOT NULL
+    student_status VARCHAR(32) NOT NULL,
+    on_trip BOOLEAN DEFAULT false
 );
