@@ -624,6 +624,8 @@ public class StudentService {
         notification.setTransactionId(UUID.randomUUID().toString().replace("-",""));
         notification.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
 
+        System.out.println(notification.toString());
+
         var notify = notificationRepository.save(notification);
         messageBrokerService.sendSms(notify);
 
@@ -631,7 +633,6 @@ public class StudentService {
                 userType,
                 getCurrentOnlyDate(),
                 StudentStatus.valueOf(sendSmsDto.getStudentStatus().name()));
-
 
         return new NotificationResponseDto(
                 paymentResult.getTransfer().getTransactionNumber(),
