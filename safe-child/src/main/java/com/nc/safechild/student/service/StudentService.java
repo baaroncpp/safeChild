@@ -205,6 +205,15 @@ public class StudentService {
                     STUDENT_ALREADY_PICKED_UP,
                     notificationDriverDto.studentUsername());
 
+            var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(),
+                    notificationDriverDto.studentUsername());
+
+            Validate.isTrue(existingStudentDay.isEmpty(),
+                    ExceptionType.BAD_REQUEST,
+                    STUDENT_ALREADY_BEEN_EVENT,
+                    notificationDriverDto.studentUsername(),
+                    existingStudentDay.get().getStudentStatus());
+
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
             studentTravel.setTrip(trip);
             studentTravel.setCreatedOn(getCurrentUTCTime());
@@ -637,7 +646,7 @@ public class StudentService {
                 StudentStatus.valueOf(sendSmsDto.getStudentStatus().name()));
 
         return new NotificationResponseDto(
-                paymentResult.getTransfer().getTransactionNumber(),
+                "Success",
                 sendSmsDto.getStudentStatus(),
                 sendSmsDto.getAppRef(),
                 null
