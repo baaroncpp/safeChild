@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS t_notification(
     message TEXT NOT NULL,
     status VARCHAR(20) NOT NULL,
     status_note TEXT,
-    transaction_id VARCHAR(20),
+    transaction_id TEXT,
     external_transaction_id VARCHAR(20)
 );
