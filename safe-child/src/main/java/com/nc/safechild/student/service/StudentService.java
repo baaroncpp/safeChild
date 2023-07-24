@@ -162,6 +162,7 @@ public class StudentService {
         throw new BadRequestException("Failed to send notification");
     }
 
+    @Transactional
     public NotificationResponseDto sendNotificationDriver(NotificationDriverDto notificationDriverDto){
 
         notificationDriverDto.validate();
