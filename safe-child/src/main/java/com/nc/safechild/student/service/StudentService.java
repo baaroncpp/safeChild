@@ -131,6 +131,7 @@ public class StudentService {
             studentDay.setSchoolId(studentStaffDetails.getStudentSchoolId());
             studentDay.setStudentUsername(notificationDto.studentUsername());
             studentDay.setStaffUsername(notificationDto.performedByUsername());
+            studentDay.setSchoolDate(getCurrentOnlyDate());
 
             studentDayRepository.save(studentDay);
 
@@ -154,6 +155,7 @@ public class StudentService {
             studentDay.setSchoolId(studentStaffDetails.getStudentSchoolId());
             studentDay.setStudentUsername(notificationDto.studentUsername());
             studentDay.setStaffUsername(notificationDto.performedByUsername());
+            studentDay.setSchoolDate(getCurrentOnlyDate());
 
             studentDayRepository.save(studentDay);
 
@@ -206,6 +208,7 @@ public class StudentService {
             studentTravel.setCreatedOn(getCurrentUTCTime());
             studentTravel.setModifiedOn(getCurrentUTCTime());
             studentTravel.setStudentStatus(StudentStatus.HOME_PICK_UP);
+            studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
 
             studentTravelRepository.save(studentTravel);
 
@@ -216,6 +219,7 @@ public class StudentService {
             studentDay.setSchoolId(studentStaffDetails.getStudentSchoolId());
             studentDay.setStudentUsername(notificationDriverDto.studentUsername());
             studentDay.setStaffUsername(notificationDriverDto.performedByUsername());
+            studentDay.setSchoolDate(getCurrentOnlyDate());
 
             studentDayRepository.save(studentDay);
 
@@ -263,6 +267,7 @@ public class StudentService {
             studentTravel.setCreatedOn(getCurrentUTCTime());
             studentTravel.setModifiedOn(getCurrentUTCTime());
             studentTravel.setStudentStatus(StudentStatus.HOME_DROP_OFF);
+            studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
 
             studentTravelRepository.save(studentTravel);
 
@@ -273,6 +278,7 @@ public class StudentService {
             studentDay.setSchoolId(studentStaffDetails.getStudentSchoolId());
             studentDay.setStudentUsername(notificationDriverDto.studentUsername());
             studentDay.setStaffUsername(notificationDriverDto.performedByUsername());
+            studentDay.setSchoolDate(getCurrentOnlyDate());
 
             return sendSms(sendSmsDto);
         }
