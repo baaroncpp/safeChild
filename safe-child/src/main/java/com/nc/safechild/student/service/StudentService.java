@@ -264,6 +264,32 @@ public class StudentService {
         );
 
         if(StudentStatus.SCHOOL_SIGN_IN.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
+
+            var existingStudentTravel = studentTravelRepository.findByStudentUsernameAndTripAndStudentStatus(
+                    notificationDto.studentUsername(),
+                    trip,
+                    StudentStatus.HOME_PICK_UP);
+
+            Validate.isTrue(existingStudentTravel.isPresent(),
+                    ExceptionType.RESOURCE_NOT_FOUND,
+                    STUDENT_NOT_PICKED_UP,
+                    notificationDto.studentUsername());
+
+            var existingSignInStudentTravel = studentTravelRepository.findByStudentUsernameAndTripAndStudentStatus(
+                    notificationDto.studentUsername(),
+                    trip,
+                    StudentStatus.SCHOOL_SIGN_IN);
+
+            Validate.isTrue(existingSignInStudentTravel.isEmpty(),
+                    ExceptionType.BAD_REQUEST,
+                    STUDENT_IS_ALREADY_SIGNED_IN,
+                    notificationDto.studentUsername());
+
+            Validate.isTrue(existingStudentTravel.isPresent(),
+                    ExceptionType.RESOURCE_NOT_FOUND,
+                    STUDENT_NOT_PICKED_UP,
+                    notificationDto.studentUsername());
+
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
             studentTravel.setTrip(trip);
             studentTravel.setCreatedOn(getCurrentUTCTime());

@@ -61,5 +61,6 @@ public class MessageConstants {
     public static final String STUDENT_IS_ALREADY_SIGNED_IN = "Student %s is already signed in";
     public static final String STUDENT_IS_ALREADY_SIGNED_OUT = "Student %s is already signed out";
     public static final String STUDENT_ALREADY_PICKED_UP = "Student %s has already been picked up";
+    public static final String STUDENT_NOT_PICKED_UP = "Student %s not picked on this trip";
 }
 
