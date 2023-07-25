@@ -151,8 +151,8 @@ public class StudentService {
                     STUDENT_WAS_NOT_SIGNED_IN,
                     notificationDto.studentUsername());
 
-            Validate.isTrue(outSchoolStudentDay.isPresent(),
-                    ExceptionType.RESOURCE_NOT_FOUND,
+            Validate.isTrue(outSchoolStudentDay.isEmpty(),
+                    ExceptionType.BAD_REQUEST,
                     STUDENT_IS_ALREADY_SIGNED_OUT,
                     notificationDto.studentUsername());
 
