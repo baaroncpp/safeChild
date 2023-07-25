@@ -36,7 +36,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static com.nc.safechild.base.utils.DateTimeUtil.getCurrentOnlyDate;
 import static com.nc.safechild.base.utils.DateTimeUtil.getCurrentUTCTime;
