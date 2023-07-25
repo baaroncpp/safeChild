@@ -57,6 +57,9 @@ public class MessageConstants {
     public static final String STUDENT_ALREADY_BEEN_EVENT = "Student %s has already been in %s status";
     public static final String STUDENT_AND_STUFF_NOT_SAME_SCHOOL = "School staff and student not from the same school";
     public static final String STUDENT_WAS_NOT_SIGNED_IN = "Student %s was not signed in";
+    public static final String STUDENT_WAS_NOT_SIGNED_OUT = "Student %s was not signed out";
+    public static final String STUDENT_IS_ALREADY_SIGNED_IN = "Student %s is already signed in";
+    public static final String STUDENT_IS_ALREADY_SIGNED_OUT = "Student %s is already signed out";
     public static final String STUDENT_ALREADY_PICKED_UP = "Student %s has already been picked up";
 }
 

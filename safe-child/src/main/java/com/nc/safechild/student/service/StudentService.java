@@ -36,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static com.nc.safechild.base.utils.DateTimeUtil.getCurrentOnlyDate;
 import static com.nc.safechild.base.utils.DateTimeUtil.getCurrentUTCTime;
@@ -109,19 +110,18 @@ public class StudentService {
 
         Validate.isTrue((studentStaffDetails.getStudentSchoolId()).equals(studentStaffDetails.getStaffSchoolId()), ExceptionType.BAD_REQUEST, STUDENT_AND_STUFF_NOT_SAME_SCHOOL);
 
-        var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(getCurrentOnlyDate(),
-                notificationDto.studentUsername(),
-                StudentStatus.valueOf(notificationDto.studentStatus()));
-
-        Validate.isTrue(existingStudentDay.isEmpty(),
-                ExceptionType.BAD_REQUEST,
-                STUDENT_ALREADY_BEEN_EVENT,
-                notificationDto.studentUsername(),
-                notificationDto.studentStatus());
-
         var studentDay = new StudentDay();
 
         if(StudentStatus.SCHOOL_SIGN_IN.equals(StudentStatus.valueOf(notificationDto.studentStatus()))) {
+
+            var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(getCurrentOnlyDate(),
+                    notificationDto.studentUsername(),
+                    StudentStatus.valueOf(notificationDto.studentStatus()));
+
+            Validate.isTrue(existingStudentDay.isEmpty(),
+                    ExceptionType.BAD_REQUEST,
+                    STUDENT_IS_ALREADY_SIGNED_IN,
+                    notificationDto.studentUsername());
 
             studentDay.setStudentStatus(StudentStatus.SCHOOL_SIGN_IN);
             studentDay.setOnTrip(isOnTrip);
@@ -142,9 +142,18 @@ public class StudentService {
                     notificationDto.studentUsername(),
                     StudentStatus.SCHOOL_SIGN_IN);
 
+            var outSchoolStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(getCurrentOnlyDate(),
+                    notificationDto.studentUsername(),
+                    StudentStatus.SCHOOL_SIGN_OUT);
+
             Validate.isTrue(inSchoolStudentDay.isPresent(),
                     ExceptionType.RESOURCE_NOT_FOUND,
                     STUDENT_WAS_NOT_SIGNED_IN,
+                    notificationDto.studentUsername());
+
+            Validate.isTrue(outSchoolStudentDay.isPresent(),
+                    ExceptionType.RESOURCE_NOT_FOUND,
+                    STUDENT_IS_ALREADY_SIGNED_OUT,
                     notificationDto.studentUsername());
 
             studentDay.setStudentStatus(StudentStatus.SCHOOL_SIGN_OUT);
@@ -204,6 +213,7 @@ public class StudentService {
                     STUDENT_ALREADY_PICKED_UP,
                     notificationDriverDto.studentUsername());
 
+            //Check if student has been recorded
             var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(),
                     notificationDriverDto.studentUsername());
 
@@ -269,7 +279,7 @@ public class StudentService {
 
             Validate.isTrue(existingSignedOutStudentDay.isPresent(),
                     ExceptionType.RESOURCE_NOT_FOUND,
-                    STUDENT_NOT_SIGNED_IN,
+                    STUDENT_WAS_NOT_SIGNED_OUT,
                     notificationDriverDto.studentUsername());
 
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
@@ -289,6 +299,8 @@ public class StudentService {
             studentDay.setStudentUsername(notificationDriverDto.studentUsername());
             studentDay.setStaffUsername(notificationDriverDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
+
+            studentDayRepository.save(studentDay);
 
             return sendSms(sendSmsDto);
         }
@@ -313,7 +325,7 @@ public class StudentService {
                     obj.getStudentUsername(),
                     StudentStatus.SCHOOL_SIGN_IN.name(),
                     trip.getStaffUsername(),
-                    ""
+                    ("NC"+ UUID.randomUUID().toString().replace("-","")).substring(0, 10)
             );
             sendNotificationDriver(notificationDriverDto);
         }
