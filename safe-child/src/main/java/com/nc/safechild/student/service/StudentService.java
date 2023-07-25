@@ -20,6 +20,7 @@ import com.nc.safechild.student.repository.StudentDayRepository;
 import com.nc.safechild.student.repository.StudentTravelRepository;
 import com.nc.safechild.student.repository.UserStudentStatusCountRepository;
 import com.nc.safechild.trip.model.enums.TripStatus;
+import com.nc.safechild.trip.model.enums.TripType;
 import com.nc.safechild.trip.model.jpa.Trip;
 import com.nc.safechild.trip.repository.TripRepository;
 import jakarta.transaction.Transactional;
@@ -203,6 +204,7 @@ public class StudentService {
         var studentTravel = new StudentTravel();
 
         if(StudentStatus.HOME_PICK_UP.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
+            Validate.isTrue(trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentUsername());
 
             var existingTravelDay = studentTravelRepository.findByStudentUsernameAndTripAndStudentStatus(notificationDriverDto.studentUsername(),
                     trip,
@@ -228,9 +230,8 @@ public class StudentService {
 
             Validate.isTrue(existingStudentDay.isEmpty(),
                     ExceptionType.BAD_REQUEST,
-                    STUDENT_ALREADY_BEEN_EVENT,
-                    notificationDriverDto.studentUsername(),
-                    existingStudentDay.get().getStudentStatus());
+                    STUDENT_ALREADY_HAS_EVENT,
+                    notificationDriverDto.studentUsername());
 
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
             studentTravel.setTrip(trip);
@@ -264,6 +265,7 @@ public class StudentService {
         );
 
         if(StudentStatus.SCHOOL_SIGN_IN.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
+            Validate.isTrue(trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentUsername());
 
             var existingStudentTravel = studentTravelRepository.findByStudentUsernameAndTripAndStudentStatus(
                     notificationDto.studentUsername(),
@@ -303,6 +305,8 @@ public class StudentService {
         }
 
         if(StudentStatus.SCHOOL_SIGN_OUT.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
+            Validate.isTrue(trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentUsername());
+
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
             studentTravel.setTrip(trip);
             studentTravel.setCreatedOn(getCurrentUTCTime());
@@ -316,6 +320,7 @@ public class StudentService {
         }
 
         if(StudentStatus.HOME_DROP_OFF.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
+            Validate.isTrue(trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentUsername());
 
             var existingDropOffStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(getCurrentOnlyDate(),
                     notificationDriverDto.studentUsername(),
