@@ -106,14 +106,17 @@ public class TripService {
 
         var trip = getTrip(tripId);
 
-        List<StudentTravel> studentTravelPickUp;
+        List<StudentTravel> studentTravelOn;
+        List<StudentTravel> studentTravelOff;
 
         if(trip.getTripType().equals(TripType.PICK_UP)){
-            studentTravelPickUp = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+            studentTravelOn = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+            studentTravelOff = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
         }else{
-            studentTravelPickUp = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+            studentTravelOn = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+            studentTravelOff = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
         }
-        Validate.isTrue(studentTravelPickUp.isEmpty(), ExceptionType.BAD_REQUEST, "students on trip");
+        Validate.isTrue((studentTravelOn.size() == studentTravelOff.size()), ExceptionType.BAD_REQUEST, "students on trip");
 
         trip.setTripStatus(TripStatus.ENDED);
         trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());

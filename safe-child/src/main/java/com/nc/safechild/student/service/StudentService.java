@@ -264,10 +264,28 @@ public class StudentService {
         );
 
         if(StudentStatus.SCHOOL_SIGN_IN.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
+            studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
+            studentTravel.setTrip(trip);
+            studentTravel.setCreatedOn(getCurrentUTCTime());
+            studentTravel.setModifiedOn(getCurrentUTCTime());
+            studentTravel.setStudentStatus(StudentStatus.SCHOOL_SIGN_IN);
+            studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
+
+            studentTravelRepository.save(studentTravel);
+
             return sendNotificationStaff(notificationDto, Boolean.FALSE);
         }
 
         if(StudentStatus.SCHOOL_SIGN_OUT.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
+            studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
+            studentTravel.setTrip(trip);
+            studentTravel.setCreatedOn(getCurrentUTCTime());
+            studentTravel.setModifiedOn(getCurrentUTCTime());
+            studentTravel.setStudentStatus(StudentStatus.SCHOOL_SIGN_OUT);
+            studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
+
+            studentTravelRepository.save(studentTravel);
+
             return sendNotificationStaff(notificationDto, Boolean.TRUE);
         }
 
@@ -289,6 +307,15 @@ public class StudentService {
             Validate.isTrue(existingSignedOutStudentDay.isPresent(),
                     ExceptionType.RESOURCE_NOT_FOUND,
                     STUDENT_WAS_NOT_SIGNED_OUT,
+                    notificationDriverDto.studentUsername());
+
+            var existingStudentTravel = studentTravelRepository.findByStudentUsernameAndTripAndStudentStatus(notificationDriverDto.studentUsername(),
+                    trip,
+                    StudentStatus.SCHOOL_SIGN_OUT);
+
+            Validate.isTrue(existingStudentTravel.isPresent(),
+                    ExceptionType.BAD_REQUEST,
+                    STUDENT_NOT_ON_TRIP,
                     notificationDriverDto.studentUsername());
 
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
