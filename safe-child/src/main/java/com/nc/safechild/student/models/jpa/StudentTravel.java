@@ -16,7 +16,7 @@ import lombok.Setter;
         schema = "core",
         uniqueConstraints =
         {
-            @UniqueConstraint(columnNames = {"student_username", "student_status"})
+            @UniqueConstraint(columnNames = {"student_username", "student_status", "trip_id"})
         })
 @Setter
 public class StudentTravel extends BaseEntity {

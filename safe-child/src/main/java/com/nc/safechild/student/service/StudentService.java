@@ -204,14 +204,23 @@ public class StudentService {
 
         if(StudentStatus.HOME_PICK_UP.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
 
-            var existingPickUpStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(getCurrentOnlyDate(),
+            var existingTravelDay = studentTravelRepository.findByStudentUsernameAndTripAndStudentStatus(notificationDriverDto.studentUsername(),
+                    trip,
+                    StudentStatus.valueOf(notificationDriverDto.studentStatus()));
+
+            Validate.isTrue(existingTravelDay.isEmpty(),
+                    ExceptionType.BAD_REQUEST,
+                    STUDENT_ALREADY_PICKED_UP,
+                    notificationDriverDto.studentUsername());
+
+            /*var existingPickUpStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(getCurrentOnlyDate(),
                     notificationDriverDto.studentUsername(),
                     StudentStatus.valueOf(notificationDriverDto.studentStatus()));
 
             Validate.isTrue(existingPickUpStudentDay.isEmpty(),
                     ExceptionType.BAD_REQUEST,
                     STUDENT_ALREADY_PICKED_UP,
-                    notificationDriverDto.studentUsername());
+                    notificationDriverDto.studentUsername());*/
 
             //Check if student has been recorded
             var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(),
