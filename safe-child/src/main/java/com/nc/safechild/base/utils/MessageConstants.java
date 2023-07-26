@@ -38,6 +38,7 @@ public class MessageConstants {
     public static final String INVALID_TRIP_TYPE = "Invalid tripType, options: PICK_UP, DROP_OFF";
     public static final String EXISTING_IN_PROGRESS_TRIP = "cannot create a new trip, IN_PROGRESS trip exits";
     public static final String EXISTING_OPEN_TRIP = "cannot create a new trip, OPEN trip exits";
+    public static final String NO_OPEN_IN_PROGRESS_TRIPS = "user: %s has no open or in progress trips";
     public static final String TRIP_NOT_FOUND = "trip with ID: %s not found";
     public static final String TRIP_SAME_STATUS = "trip already in %s status";
     public static final String NULL_TRIP_ID = "tripId is null or empty";

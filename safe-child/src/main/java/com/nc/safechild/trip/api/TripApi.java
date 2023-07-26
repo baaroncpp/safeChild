@@ -29,6 +29,11 @@ public class TripApi {
         return tripService.getTripsByStaffUsername(username, pageable);
     }
 
+    @GetMapping(path = "trip/driver/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getDriverOpenTrip(@PathVariable("username") String username){
+        return tripService.getExistingOpenOrInProgressTrip(username);
+    }
+
     @PostMapping(path = "trip", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Object createNewTrip(@RequestBody TripRequestDto tripRequestDto){
         return tripService.createTrip(tripRequestDto);

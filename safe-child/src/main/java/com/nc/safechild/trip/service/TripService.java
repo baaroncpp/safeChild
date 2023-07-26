@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.nc.safechild.base.utils.MessageConstants.*;
@@ -43,6 +44,19 @@ public class TripService {
         return tripRepository.findAllByStaffUsername(staffUsername, pageable).stream()
                 .map(this::mapTripToTripResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    public TripResponseDto getExistingOpenOrInProgressTrip(String username){
+        Optional<Trip> result;
+
+        result = tripRepository.findByStaffUsernameAndTripStatus(username, TripStatus.IN_PROGRESS);
+
+        if(result.isEmpty())
+            result = tripRepository.findByStaffUsernameAndTripStatus(username, TripStatus.OPEN);
+
+        Validate.isPresent(result, NO_OPEN_IN_PROGRESS_TRIPS, username);
+
+        return mapTripToTripResponseDto(result.get());
     }
 
     public TripResponseDto createTrip(TripRequestDto tripRequestDto){
