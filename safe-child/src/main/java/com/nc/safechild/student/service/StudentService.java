@@ -215,15 +215,6 @@ public class StudentService {
                     STUDENT_ALREADY_PICKED_UP,
                     notificationDriverDto.studentUsername());
 
-            /*var existingPickUpStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(getCurrentOnlyDate(),
-                    notificationDriverDto.studentUsername(),
-                    StudentStatus.valueOf(notificationDriverDto.studentStatus()));
-
-            Validate.isTrue(existingPickUpStudentDay.isEmpty(),
-                    ExceptionType.BAD_REQUEST,
-                    STUDENT_ALREADY_PICKED_UP,
-                    notificationDriverDto.studentUsername());*/
-
             //Check if student has been recorded
             var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(),
                     notificationDriverDto.studentUsername());

@@ -13,13 +13,13 @@ import static com.nc.safechild.base.utils.WebServiceUtil.isTripType;
  **/
 public record TripRequestDto(
         String username,
-        Long schoolId,
+        //Long schoolId,
         String tripType,
         String note
 ) {
     public void validate(){
         Validate.notEmpty(username, NULL_USERNAME);
-        Validate.notNull(schoolId, ExceptionType.BAD_REQUEST, NULL_SCHOOL_ID);
+        //Validate.notNull(schoolId, ExceptionType.BAD_REQUEST, NULL_SCHOOL_ID);
         Validate.notNull(tripType, ExceptionType.BAD_REQUEST, NULL_TRIP_TYPE);
         Validate.isTrue(isTripType(tripType), ExceptionType.BAD_REQUEST, INVALID_TRIP_TYPE);
     }
