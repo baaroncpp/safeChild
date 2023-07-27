@@ -146,23 +146,23 @@ public class WebServiceUtil {
 
         if(userType.equals(UserType.DRIVER)){
             return Arrays.asList(
-                    new NotificationRole(NotificationRoleEnum.PICK_UP, NotificationRoleEnum.PICK_UP.getDescription()),
-                    new NotificationRole(NotificationRoleEnum.DROP_OFF, NotificationRoleEnum.DROP_OFF.getDescription()),
-                    new NotificationRole(NotificationRoleEnum.ON_SCHOOL, NotificationRoleEnum.ON_SCHOOL.getDescription()),
-                    new NotificationRole(NotificationRoleEnum.OFF_SCHOOL, NotificationRoleEnum.OFF_SCHOOL.getDescription())
+                    new NotificationRole(NotificationRoleEnum.HOME_PICK_UP, NotificationRoleEnum.HOME_PICK_UP.getDescription()),
+                    new NotificationRole(NotificationRoleEnum.HOME_DROP_OFF, NotificationRoleEnum.HOME_DROP_OFF.getDescription()),
+                    new NotificationRole(NotificationRoleEnum.SCHOOL_SIGN_IN, NotificationRoleEnum.SCHOOL_SIGN_IN.getDescription()),
+                    new NotificationRole(NotificationRoleEnum.SCHOOL_SIGN_OUT, NotificationRoleEnum.SCHOOL_SIGN_OUT.getDescription())
             );
         }
 
         if(userType.equals(UserType.TEACHER)){
             return Arrays.asList(
-                    new NotificationRole(NotificationRoleEnum.ON_SCHOOL, NotificationRoleEnum.ON_SCHOOL.getDescription()),
-                    new NotificationRole(NotificationRoleEnum.OFF_SCHOOL, NotificationRoleEnum.OFF_SCHOOL.getDescription())
+                    new NotificationRole(NotificationRoleEnum.SCHOOL_SIGN_IN, NotificationRoleEnum.SCHOOL_SIGN_IN.getDescription()),
+                    new NotificationRole(NotificationRoleEnum.SCHOOL_SIGN_OUT, NotificationRoleEnum.SCHOOL_SIGN_OUT.getDescription())
             );
         }
 
         return Arrays.asList(
-                new NotificationRole(NotificationRoleEnum.PICK_UP, NotificationRoleEnum.PICK_UP.getDescription()),
-                new NotificationRole(NotificationRoleEnum.DROP_OFF, NotificationRoleEnum.DROP_OFF.getDescription())
+                new NotificationRole(NotificationRoleEnum.HOME_PICK_UP, NotificationRoleEnum.HOME_PICK_UP.getDescription()),
+                new NotificationRole(NotificationRoleEnum.HOME_DROP_OFF, NotificationRoleEnum.HOME_DROP_OFF.getDescription())
         );
     }
 

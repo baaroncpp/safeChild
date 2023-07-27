@@ -165,16 +165,16 @@ public class TripService {
     private List<NotificationRoleEnum> getTripRoles(TripType tripType){
         if(tripType.equals(TripType.PICK_UP)){
             return Arrays.asList(
-                   NotificationRoleEnum.PICK_UP,
+                   NotificationRoleEnum.HOME_PICK_UP,
                    NotificationRoleEnum.BULK_ON_SCHOOL,
-                   NotificationRoleEnum.ON_SCHOOL
+                   NotificationRoleEnum.SCHOOL_SIGN_IN
             );
         }
 
         if(tripType.equals(TripType.DROP_OFF)){
             return Arrays.asList(
-                    NotificationRoleEnum.DROP_OFF,
-                    NotificationRoleEnum.OFF_SCHOOL
+                    NotificationRoleEnum.HOME_DROP_OFF,
+                    NotificationRoleEnum.SCHOOL_SIGN_OUT
             );
         }
         throw new BadRequestException("Failed to load trip type");
