@@ -243,6 +243,7 @@ public class StudentService {
             studentDay.setSchoolDate(getCurrentOnlyDate());
 
             studentDayRepository.save(studentDay);
+            changeOpenTripToInProgress(trip);
 
             return sendSms(sendSmsDto);
 
@@ -306,6 +307,7 @@ public class StudentService {
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
 
             studentTravelRepository.save(studentTravel);
+            changeOpenTripToInProgress(trip);
 
             return sendNotificationStaff(notificationDto, Boolean.TRUE);
         }
@@ -359,6 +361,8 @@ public class StudentService {
             studentDay.setSchoolDate(getCurrentOnlyDate());
 
             studentDayRepository.save(studentDay);
+
+            //changeOpenTripToInProgress(trip);
 
             return sendSms(sendSmsDto);
         }
@@ -748,6 +752,13 @@ public class StudentService {
         }
 
         return null;
+    }
+
+    private void changeOpenTripToInProgress(Trip trip){
+        if(trip.getTripStatus().equals(TripStatus.OPEN)){
+            trip.setTripStatus(TripStatus.IN_PROGRESS);
+            tripRepository.save(trip);
+        }
     }
 
 }
