@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -144,12 +145,42 @@ public class TripService {
         List<StudentTravel> studentTravelList;
 
         if(trip.getTripType().equals(TripType.PICK_UP)){
-            studentTravelList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+            studentTravelList = getStudentsOnPickUpTrip(trip);
         }else{
-            studentTravelList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+            studentTravelList = getStudentsOnDropOffTrip(trip);
         }
 
         return studentTravelList;
+    }
+
+    private List<StudentTravel> getStudentsOnPickUpTrip(Trip trip){
+
+        var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+        var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
+        var pickUpList = new ArrayList<StudentTravel>();
+
+        for(StudentTravel obj : studentTravelPickUpList){
+            if(studentTravelSignInList.stream().noneMatch(t -> t.getStudentUsername().equals(obj.getStudentUsername()))){
+                pickUpList.add(obj);
+            }
+        }
+
+        return pickUpList;
+    }
+
+    private List<StudentTravel> getStudentsOnDropOffTrip(Trip trip){
+
+        var studentTravelSignOutList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+        var studentTravelDropOffList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
+        var result = new ArrayList<StudentTravel>();
+
+        for(StudentTravel obj : studentTravelSignOutList){
+            if(studentTravelDropOffList.stream().noneMatch(t -> t.getStudentUsername().equals(obj.getStudentUsername()))){
+                result.add(obj);
+            }
+        }
+
+        return result;
     }
 
     private Trip getTrip(Long id){
