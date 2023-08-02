@@ -215,9 +215,10 @@ public class StudentService {
             checkIfStudentDayStatusExists(notificationDriverDto.studentUsername(), StudentStatus.valueOf(notificationDriverDto.studentStatus()), getCurrentOnlyDate());
 
             //Check if student has been recorded
-            var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(),
-                    notificationDriverDto.studentUsername());
+            var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(), notificationDriverDto.studentUsername());
 
+            System.out.println("find record");
+            System.out.println(existingStudentDay.isPresent());
             Validate.isTrue(existingStudentDay.isEmpty(),
                     ExceptionType.BAD_REQUEST,
                     STUDENT_ALREADY_HAS_EVENT,
