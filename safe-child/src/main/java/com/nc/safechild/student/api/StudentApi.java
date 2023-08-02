@@ -53,10 +53,10 @@ public class StudentApi {
         return studentService.getDailyEventCount(username);
     }
 
-    @GetMapping(path = "student-status/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    /*@GetMapping(path = "student-status/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getStudentCurrentStatus(@PathVariable("username") String username){
         return studentService.getCurrentStudentDay(username);
-    }
+    }*/
 
     @GetMapping(path = "images/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getImages(@PathVariable("username") String username){

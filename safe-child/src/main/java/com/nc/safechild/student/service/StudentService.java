@@ -218,7 +218,7 @@ public class StudentService {
             var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(), notificationDriverDto.studentUsername());
 
             System.out.println("find record");
-            System.out.println(existingStudentDay.isPresent());
+            System.out.println(existingStudentDay.isEmpty());
             Validate.isTrue(existingStudentDay.isEmpty(),
                     ExceptionType.BAD_REQUEST,
                     STUDENT_ALREADY_HAS_EVENT,
@@ -464,11 +464,11 @@ public class StudentService {
         );
     }
 
-    public StudentDay getCurrentStudentDay(String studentUsername){
+    /*public StudentDay getCurrentStudentDay(String studentUsername){
         var studentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(), studentUsername);
         Validate.isPresent(studentDay, STUDENT_NO_TODAY_RECORD, studentUsername);
         return studentDay.get();
-    }
+    }*/
 
     public ImageUrlDto getProfileUrl(String username){
 
