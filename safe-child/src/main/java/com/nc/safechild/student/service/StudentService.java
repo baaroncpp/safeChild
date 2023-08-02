@@ -34,10 +34,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static com.nc.safechild.base.utils.DateTimeUtil.getCurrentOnlyDate;
 import static com.nc.safechild.base.utils.DateTimeUtil.getCurrentUTCTime;
@@ -379,7 +376,7 @@ public class StudentService {
         var trip = existingTrip.get();
         Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
 
-        var studentTravelList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+        var studentTravelList = getStudentsOnPickUpTrip(trip);//studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
 
         for(StudentTravel obj : studentTravelList){
             var notificationDriverDto = new NotificationDriverDto(
@@ -396,6 +393,21 @@ public class StudentService {
         tripRepository.save(trip);
 
         return "Successfully signed into school";
+    }
+
+    private List<StudentTravel> getStudentsOnPickUpTrip(Trip trip){
+
+        var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+        var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
+        var pickUpList = new ArrayList<StudentTravel>();
+
+        for(StudentTravel obj : studentTravelPickUpList){
+            if(studentTravelSignInList.stream().noneMatch(t -> t.getStudentUsername().equals(obj.getStudentUsername()))){
+                pickUpList.add(obj);
+            }
+        }
+
+        return pickUpList;
     }
 
     public Object getDailyEventCount(String username){
