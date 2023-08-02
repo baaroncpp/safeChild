@@ -392,7 +392,11 @@ public class StudentService {
         trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
         tripRepository.save(trip);
 
-        return "Successfully signed into school";
+        return new BulkSignInResponse(
+                trip,
+                "SUCCESS",
+                "Successfully signed into school"
+        );
     }
 
     private List<StudentTravel> getStudentsOnPickUpTrip(Trip trip){
