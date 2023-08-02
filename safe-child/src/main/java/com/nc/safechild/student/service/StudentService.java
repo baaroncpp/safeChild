@@ -212,6 +212,8 @@ public class StudentService {
                     STUDENT_ALREADY_PICKED_UP,
                     notificationDriverDto.studentUsername());
 
+            checkIfStudentDayStatusExists(notificationDriverDto.studentUsername(), StudentStatus.valueOf(notificationDriverDto.studentStatus()), getCurrentOnlyDate());
+
             //Check if student has been recorded
             var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsername(getCurrentOnlyDate(),
                     notificationDriverDto.studentUsername());
@@ -256,6 +258,8 @@ public class StudentService {
         if(StudentStatus.SCHOOL_SIGN_IN.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
             Validate.isTrue(trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentUsername());
 
+            //checkIfStudentDayStatusExists(notificationDriverDto.studentUsername(), StudentStatus.valueOf(notificationDriverDto.studentStatus()), getCurrentOnlyDate());
+
             var existingStudentTravel = studentTravelRepository.findByStudentUsernameAndTripAndStudentStatus(
                     notificationDto.studentUsername(),
                     trip,
@@ -296,6 +300,8 @@ public class StudentService {
         if(StudentStatus.SCHOOL_SIGN_OUT.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
             Validate.isTrue(trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentUsername());
 
+            //checkIfStudentDayStatusExists(notificationDriverDto.studentUsername(), StudentStatus.valueOf(notificationDriverDto.studentStatus()), getCurrentOnlyDate());
+
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
             studentTravel.setTrip(trip);
             studentTravel.setCreatedOn(getCurrentUTCTime());
@@ -311,6 +317,8 @@ public class StudentService {
 
         if(StudentStatus.HOME_DROP_OFF.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
             Validate.isTrue(trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, notificationDriverDto.studentUsername());
+
+            checkIfStudentDayStatusExists(notificationDriverDto.studentUsername(), StudentStatus.valueOf(notificationDriverDto.studentStatus()), getCurrentOnlyDate());
 
             var existingDropOffStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(getCurrentOnlyDate(),
                     notificationDriverDto.studentUsername(),
@@ -775,6 +783,14 @@ public class StudentService {
             trip.setTripStatus(TripStatus.IN_PROGRESS);
             tripRepository.save(trip);
         }
+    }
+
+    private void checkIfStudentDayStatusExists(String username, StudentStatus studentStatus, Date schoolDate){
+         var existingStudentDay = studentDayRepository.findBySchoolDateAndStudentUsernameAndStudentStatus(schoolDate,
+                 username,
+                 studentStatus);
+
+         Validate.isTrue(existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, "%s has already been %s");
     }
 
 }
