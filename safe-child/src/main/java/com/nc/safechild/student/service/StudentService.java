@@ -791,13 +791,7 @@ public class StudentService {
                  username,
                  studentStatus);
 
-        System.out.println("check if empty");
-        System.out.println(existingStudentDay.isEmpty());
-
-        System.out.println("check if present");
-        System.out.println(existingStudentDay.isPresent());
-
-         Validate.isTrue(existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, "%s has already been %s");
+         Validate.isTrue(existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, "%s has already been %s", username, studentStatus);
     }
 
 }
