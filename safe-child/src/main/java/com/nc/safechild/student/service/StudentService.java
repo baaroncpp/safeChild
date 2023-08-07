@@ -103,6 +103,8 @@ public class StudentService {
                 .schoolName(studentStaffDetails.getSchoolName())
                 .studentStatus(StudentStatus.valueOf(notificationDto.studentStatus()))
                 .guardianPhoneNumber(studentStaffDetails.getGuardianPhoneNumber())
+                .staffUsername(notificationDto.performedByUsername())
+                .studentUsername(notificationDto.studentUsername())
                 .build();
 
         System.out.println("Staff send sms");

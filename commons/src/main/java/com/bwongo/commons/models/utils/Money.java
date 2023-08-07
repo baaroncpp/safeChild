@@ -1,4 +1,4 @@
-package com.bkbwongo.commons.utils;
+package com.bwongo.commons.models.utils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
