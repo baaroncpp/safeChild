@@ -105,6 +105,8 @@ public class StudentService {
                 .guardianPhoneNumber(studentStaffDetails.getGuardianPhoneNumber())
                 .build();
 
+        System.out.println("Staff send sms");
+        System.out.println(sendSmsDto.toString());
 
         Validate.isTrue((studentStaffDetails.getStudentSchoolId()).equals(studentStaffDetails.getStaffSchoolId()), ExceptionType.BAD_REQUEST, STUDENT_AND_STUFF_NOT_SAME_SCHOOL);
 
@@ -196,6 +198,9 @@ public class StudentService {
                 .staffUsername(notificationDriverDto.performedByUsername())
                 .studentUsername(notificationDriverDto.studentUsername())
                 .build();
+
+        System.out.println("Staff send sms");
+        System.out.println(sendSmsDto.toString());
 
         var studentDay = new StudentDay();
         var studentTravel = new StudentTravel();

@@ -161,8 +161,8 @@ public class WebServiceUtil {
         }
 
         return Arrays.asList(
-                new NotificationRole(NotificationRoleEnum.HOME_PICK_UP, NotificationRoleEnum.HOME_PICK_UP.getDescription()),
-                new NotificationRole(NotificationRoleEnum.HOME_DROP_OFF, NotificationRoleEnum.HOME_DROP_OFF.getDescription())
+                new NotificationRole(NotificationRoleEnum.SCHOOL_SIGN_IN, NotificationRoleEnum.SCHOOL_SIGN_IN.getDescription()),
+                new NotificationRole(NotificationRoleEnum.SCHOOL_SIGN_OUT, NotificationRoleEnum.SCHOOL_SIGN_OUT.getDescription())
         );
     }
 

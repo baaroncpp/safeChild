@@ -13,6 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class SendSmsDto {
     private String appRef;
     private Long staffUserGroupId;
