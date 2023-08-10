@@ -5,8 +5,13 @@ import com.nc.safechild.student.models.dto.AuthenticationDto;
 import com.nc.safechild.student.models.dto.NotificationDriverDto;
 import com.nc.safechild.student.models.dto.NotificationDto;
 import com.nc.safechild.notification.model.jpa.Notification;
+import com.nc.safechild.student.models.dto.StudentDayDto;
 import com.nc.safechild.student.service.StudentService;
+import com.nc.safechild.trip.model.dto.TravelStudent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +56,14 @@ public class StudentApi {
     @GetMapping(path = "events/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getEvents(@PathVariable("username") String username){
         return studentService.getDailyEventCount(username);
+    }
+
+    @PostMapping(path = "student/date/student-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getStudentsDateAndSchoolStatus(@RequestParam("page") int page,
+                                                 @RequestParam("size") int size,
+                                                 @RequestBody StudentDayDto studentDayDto){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        return studentService.getStudentsByDateAndStudentStatus(studentDayDto, pageable);
     }
 
     /*@GetMapping(path = "student-status/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)

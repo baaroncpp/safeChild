@@ -4,6 +4,7 @@ import com.nc.safechild.base.model.jpa.BaseEntity;
 import com.nc.safechild.student.models.enums.StudentStatus;
 import com.nc.safechild.trip.model.jpa.Trip;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 
 /**
@@ -20,10 +21,16 @@ import lombok.Setter;
         })
 @Setter
 public class StudentTravel extends BaseEntity {
+    private String fullName;
     private Trip trip;
     private String studentUsername;
     private StudentStatus studentStatus;
     private String schoolId;
+
+    @Column(name = "full_name")
+    public String getFullName() {
+        return fullName;
+    }
 
     @JoinColumn(name = "trip_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)

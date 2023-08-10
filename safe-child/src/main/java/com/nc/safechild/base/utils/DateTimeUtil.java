@@ -53,6 +53,14 @@ public class DateTimeUtil {
         }
     }
 
+    public static Date getAcceptedDateFromString(String date){
+        try {
+            return new SimpleDateFormat("dd/MM/yyyy").parse(date);
+        } catch (ParseException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
     public static Date getDateWithoutTime(Date date) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         return sdf.parse(sdf.format(date));

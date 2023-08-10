@@ -2,6 +2,7 @@ package com.nc.safechild.trip.service;
 
 import com.nc.safechild.exceptions.BadRequestException;
 import com.nc.safechild.exceptions.model.ExceptionType;
+import com.nc.safechild.trip.model.dto.TravelStudent;
 import com.nc.safechild.trip.model.dto.TripRequestDto;
 import com.nc.safechild.trip.model.dto.TripResponseDto;
 import com.nc.safechild.student.models.enums.NotificationRoleEnum;
@@ -166,6 +167,14 @@ public class TripService {
         }
 
         return pickUpList;
+    }
+
+    public List<StudentTravel> getStudentsTripByStatus(TravelStudent travelStudent, Pageable pageable){
+
+        travelStudent.validate();
+        var trip = getTrip(travelStudent.tripId());
+        var studentStatus = StudentStatus.valueOf(travelStudent.studentStatus());
+        return studentTravelRepository.findAllByTripAndStudentStatus(trip, studentStatus, pageable);
     }
 
     private List<StudentTravel> getStudentsOnDropOffTrip(Trip trip){

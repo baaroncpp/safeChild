@@ -21,12 +21,18 @@ import java.util.Date;
                 })
 @Setter
 public class StudentDay extends BaseEntity {
+    private String fullName;
     private StudentStatus studentStatus;
     private String staffUsername;
     private String studentUsername;
     private String schoolId;
     private Date schoolDate;
     private boolean onTrip;
+
+    @Column(name = "full_name")
+    public String getFullName() {
+        return fullName;
+    }
 
     @Column(name = "student_status")
     @Enumerated(EnumType.STRING)

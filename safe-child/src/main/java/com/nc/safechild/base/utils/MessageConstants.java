@@ -34,6 +34,7 @@ public class MessageConstants {
     public static final String NULL_APP_REF = "appRef is null or empty";
     public static final String NO_EVENTS = "no daily events";
     public static final String NULL_SCHOOL_ID = "schoolId is null or empty";
+    public static final String INVALID_DATE = "invalid date format, use: dd/MM/yyyy";
     public static final String NULL_TRIP_TYPE = "tripType is null or empty";
     public static final String INVALID_TRIP_TYPE = "Invalid tripType, options: PICK_UP, DROP_OFF";
     public static final String EXISTING_IN_PROGRESS_TRIP = "cannot create a new trip, IN_PROGRESS trip exits";

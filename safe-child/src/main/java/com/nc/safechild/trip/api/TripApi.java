@@ -1,5 +1,6 @@
 package com.nc.safechild.trip.api;
 
+import com.nc.safechild.trip.model.dto.TravelStudent;
 import com.nc.safechild.trip.model.dto.TripRequestDto;
 import com.nc.safechild.trip.service.TripService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,14 @@ public class TripApi {
                                      @RequestParam("username") String username){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return tripService.getTripsByStaffUsername(username, pageable);
+    }
+
+    @PostMapping(path = "trip/student-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getStudentsTripByStudentStatus(@RequestParam("page") int page,
+                                                 @RequestParam("size") int size,
+                                                 @RequestBody TravelStudent travelStudent){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        return tripService.getStudentsTripByStatus(travelStudent, pageable);
     }
 
     @GetMapping(path = "trip/driver/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)

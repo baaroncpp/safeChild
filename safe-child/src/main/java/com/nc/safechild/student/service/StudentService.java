@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.strohalm.cyclos.webservices.access.CheckCredentialsParameters;
 import nl.strohalm.cyclos.webservices.access.CredentialsStatus;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,8 +37,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.nc.safechild.base.utils.DateTimeUtil.getCurrentOnlyDate;
-import static com.nc.safechild.base.utils.DateTimeUtil.getCurrentUTCTime;
+import static com.nc.safechild.base.utils.DateTimeUtil.*;
 import static com.nc.safechild.base.utils.MessageConstants.*;
 import static com.nc.safechild.base.utils.WebServiceUtil.*;
 
@@ -83,6 +83,13 @@ public class StudentService {
     private final NotificationRepository notificationRepository;
     private final MessageBrokerService messageBrokerService;
     private final UserStudentStatusCountRepository userStudentStatusCountRepository;
+
+    public List<StudentDay> getStudentsByDateAndStudentStatus(StudentDayDto studentDayDto, Pageable pageable){
+
+        studentDayDto.validate();
+        Date schoolDate = getAcceptedDateFromString(studentDayDto.date());
+        return studentDayRepository.findAllBySchoolIdAndStudentStatusAndSchoolDate(studentDayDto.schoolId(), StudentStatus.valueOf(studentDayDto.studentStatus()), schoolDate, pageable);
+    }
 
     @Transactional
     public NotificationResponseDto sendNotificationStaff(NotificationDto notificationDto, boolean isOnTrip){
@@ -133,6 +140,7 @@ public class StudentService {
             studentDay.setStudentUsername(notificationDto.studentUsername());
             studentDay.setStaffUsername(notificationDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
+            studentDay.setFullName(studentStaffDetails.getStudentUser().getName());
 
             studentDayRepository.save(studentDay);
 
@@ -166,6 +174,7 @@ public class StudentService {
             studentDay.setStudentUsername(notificationDto.studentUsername());
             studentDay.setStaffUsername(notificationDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
+            studentDay.setFullName(studentStaffDetails.getStudentUser().getName());
 
             studentDayRepository.save(studentDay);
 
@@ -237,6 +246,7 @@ public class StudentService {
             studentTravel.setModifiedOn(getCurrentUTCTime());
             studentTravel.setStudentStatus(StudentStatus.HOME_PICK_UP);
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
+            studentTravel.setFullName(studentStaffDetails.getStudentUser().getName());
 
             studentTravelRepository.save(studentTravel);
 
@@ -248,6 +258,7 @@ public class StudentService {
             studentDay.setStudentUsername(notificationDriverDto.studentUsername());
             studentDay.setStaffUsername(notificationDriverDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
+            studentDay.setFullName(studentStaffDetails.getStudentUser().getName());
 
             studentDayRepository.save(studentDay);
             changeOpenTripToInProgress(trip);
@@ -299,6 +310,7 @@ public class StudentService {
             studentTravel.setModifiedOn(getCurrentUTCTime());
             studentTravel.setStudentStatus(StudentStatus.SCHOOL_SIGN_IN);
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
+            studentTravel.setFullName(studentStaffDetails.getStudentUser().getName());
 
             studentTravelRepository.save(studentTravel);
 
@@ -316,6 +328,7 @@ public class StudentService {
             studentTravel.setModifiedOn(getCurrentUTCTime());
             studentTravel.setStudentStatus(StudentStatus.SCHOOL_SIGN_OUT);
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
+            studentTravel.setFullName(studentStaffDetails.getStudentUser().getName());
 
             studentTravelRepository.save(studentTravel);
             changeOpenTripToInProgress(trip);
@@ -361,6 +374,7 @@ public class StudentService {
             studentTravel.setModifiedOn(getCurrentUTCTime());
             studentTravel.setStudentStatus(StudentStatus.HOME_DROP_OFF);
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
+            studentTravel.setFullName(studentStaffDetails.getStudentUser().getName());
 
             studentTravelRepository.save(studentTravel);
 
@@ -372,6 +386,7 @@ public class StudentService {
             studentDay.setStudentUsername(notificationDriverDto.studentUsername());
             studentDay.setStaffUsername(notificationDriverDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
+            studentDay.setFullName(studentStaffDetails.getStudentUser().getName());
 
             studentDayRepository.save(studentDay);
 

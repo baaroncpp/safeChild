@@ -18,6 +18,12 @@ import nl.strohalm.cyclos.webservices.payments.PaymentParameters;
 import nl.strohalm.cyclos.webservices.payments.PaymentResult;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Arrays;
 import java.util.List;
 
@@ -221,6 +227,30 @@ public class WebServiceUtil {
         if(Boolean.TRUE.equals(throwException)){
             throw new BadRequestException(responseMsg);
         }
+    }
+
+    public static boolean isValidDate(String date){
+        /*boolean valid = Boolean.FALSE;
+
+        try {
+            LocalDate.parse(date, DateTimeFormatter.ofPattern("dd/MM/yyyy").withResolverStyle(ResolverStyle.STRICT));
+            valid = Boolean.TRUE;
+
+        } catch (DateTimeParseException e) {
+            log.error(e.getMessage());
+        }
+        return valid;*/
+
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        // With lenient parsing, the parser may use heuristics to interpret
+        // inputs that do not precisely match this object's format.
+        format.setLenient(false);
+        try {
+            format.parse(date);
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
     }
 
 }
