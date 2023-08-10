@@ -172,7 +172,12 @@ public class TripService {
     public List<StudentTravel> getStudentsTripByStatus(TravelStudent travelStudent, Pageable pageable){
 
         travelStudent.validate();
-        var trip = getTrip(travelStudent.tripId());
+
+        var existingTrip = tripRepository.findById(travelStudent.tripId());
+        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, travelStudent.tripId());
+
+        var trip = existingTrip.get();
+
         var studentStatus = StudentStatus.valueOf(travelStudent.studentStatus());
         return studentTravelRepository.findAllByTripAndStudentStatus(trip, studentStatus, pageable);
     }
