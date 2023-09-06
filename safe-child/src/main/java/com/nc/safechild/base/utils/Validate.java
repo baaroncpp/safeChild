@@ -4,6 +4,7 @@ import com.nc.safechild.exceptions.BadRequestException;
 import com.nc.safechild.exceptions.InsufficientAuthenticationException;
 import com.nc.safechild.exceptions.ResourceNotFoundException;
 import com.nc.safechild.exceptions.model.ExceptionType;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.util.StringUtils;
 
@@ -69,7 +70,7 @@ public class Validate {
     }
 
     public static void filterException(String message){
-        if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(message, "found")){
+        if(org.apache.commons.lang.StringUtils.containsIgnoreCase(message, "found")){
             throw new ResourceNotFoundException(message);
         }else {
             throw new BadRequestException(message);
