@@ -1,1 +1,33 @@
+server:
+  port: 2022
+  error:
+    include-message: always
 
+spring:
+  datasource:
+    url: jdbc:postgresql://${KB_DB_HOST:localhost}:${KB_DB_PORT:5432}/${KB_DB:safe_child_db}
+    username: ${KB_DB_USERNAME:aaron}
+    password: ${KB_DB_PASSWORD:aaron}
+  jpa:
+    show-sql: true
+    hibernate:
+      dll-auto: none
+      show: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  flyway:
+    url: jdbc:postgresql://${KB_DB_HOST:localhost}:${KB_DB_PORT:5432}/${KB_DB:safe_child_db}
+    user: ${KB_DB_USERNAME:aaron}
+    password: ${KB_DB_PASSWORD:aaron}
+    schemas: core
+    locations: classpath:db/migration
+
+app:
+  security:
+    jwt:
+      keystore-location: ${KEYSTORE_LOCATION:keys/kabangali.jks}
+      keystore-password: ${KEYSTORE_PASSWORD:kabangali2022}
+      key-alias: ${KEY_ALIAS:kabangali}
+      signing-key: ${SIGNING-KEY:123456}

@@ -14,9 +14,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @Date 8/6/23
  **/
 @Configuration
-@EnableJpaRepositories()
-@EntityScan()
-@ComponentScan()
+@ComponentScan("com.bwongo.core.security.config")
+@EnableJpaRepositories({"com.bwongo.core.user_mgt.repository",
+                        "com.bwongo.core.base.repository"})
+@EntityScan({"com.bwongo.core.user_mgt.model.jpa",
+             "com.bwongo.core.base.model.jpa"})
 public class AppConfig {
     @Bean
     public PasswordEncoder getPasswordEncoder(){

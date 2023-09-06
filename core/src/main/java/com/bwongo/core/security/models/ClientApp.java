@@ -15,7 +15,7 @@ import java.util.Set;
  * @Date 8/6/23
  **/
 @Setter
-public class AppClient implements ClientDetails {
+public class ClientApp implements ClientDetails {
     private String name;
     private Boolean isSecretRequired;
     private String secret;

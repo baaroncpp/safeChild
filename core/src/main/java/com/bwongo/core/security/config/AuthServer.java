@@ -1,5 +1,7 @@
 package com.bwongo.core.security.config;
 
+import com.bwongo.core.security.service.CustomClientDetailsService;
+import com.bwongo.core.security.service.CustomUserDetailsService;
 import com.bwongo.core.security.utils.CustomAccessTokenConverter;
 import com.bwongo.core.security.utils.CustomOauth2RequestFactory;
 import com.bwongo.core.security.utils.UserDetailsTokenEnhancer;
@@ -47,8 +49,8 @@ public class AuthServer extends AuthorizationServerConfigurerAdapter {
     private String keyAlias;
 
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsService userDetailsService;
-    private final ClientDetailsService clientDetailsService;
+    private final CustomUserDetailsService userDetailsService;
+    private final CustomClientDetailsService clientDetailsService;
     private final AuthenticationManager authenticationManager;
 
     @Bean
@@ -106,5 +108,5 @@ public class AuthServer extends AuthorizationServerConfigurerAdapter {
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.withClientDetails(clientDetailsService);
     }
-}
 
+}
