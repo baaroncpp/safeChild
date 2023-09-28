@@ -4,6 +4,8 @@ import com.bwongo.core.base.model.enums.GenderEnum;
 import com.bwongo.core.base.model.enums.IdentificationType;
 import com.bwongo.core.base.model.jpa.TCountry;
 import com.bwongo.core.base.service.BaseDtoService;
+import com.bwongo.core.school_mgt.model.jpa.TSchool;
+import com.bwongo.core.school_mgt.service.SchoolDtoService;
 import com.bwongo.core.user_mgt.model.dto.*;
 import com.bwongo.core.user_mgt.model.jpa.*;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,10 @@ public class UserDtoService {
 
     public UserGroupResponseDto tUserGroupToDto(TUserGroup userGroup){
 
+        if(userGroup == null){
+            return null;
+        }
+
         return new UserGroupResponseDto(
                 userGroup.getId(),
                 userGroup.getCreatedOn(),
@@ -32,6 +38,10 @@ public class UserDtoService {
     }
 
     public TUser dtoToTUser(UserRequestDto userRequestDto){
+
+        if(userRequestDto == null){
+            return null;
+        }
 
         var userGroup = new TUserGroup();
         userGroup.setId(userRequestDto.userGroupId());
@@ -45,6 +55,10 @@ public class UserDtoService {
     }
 
     public UserResponseDto tUserToDto(TUser user){
+
+        if(user == null){
+            return null;
+        }
 
         return new UserResponseDto(
                 user.getId(),
@@ -64,6 +78,10 @@ public class UserDtoService {
     }
 
     public TUserMeta dtoToUserMeta(UserMetaRequestDto userMetaRequestDto){
+
+        if(userMetaRequestDto == null){
+            return null;
+        }
 
         var country = new TCountry();
         country.setId(userMetaRequestDto.countryId());
@@ -85,6 +103,10 @@ public class UserDtoService {
     }
 
     public UserMetaResponseDto userMetaToDto(TUserMeta userMeta){
+
+        if(userMeta == null){
+            return null;
+        }
 
         return new UserMetaResponseDto(
                 userMeta.getId(),
@@ -113,6 +135,10 @@ public class UserDtoService {
 
     public UserApprovalResponseDto userApprovalToDto(TUserApproval userApproval){
 
+        if(userApproval == null){
+            return null;
+        }
+
         return new UserApprovalResponseDto(
                 userApproval.getId(),
                 userApproval.getCreatedOn(),
@@ -125,6 +151,11 @@ public class UserDtoService {
     }
 
     public RoleResponseDto roleToDto(TRole role){
+
+        if(role == null){
+            return null;
+        }
+
         return new RoleResponseDto(
                 role.getId(),
                 role.getCreatedOn(),
@@ -136,6 +167,10 @@ public class UserDtoService {
 
     public TRole dtoToTRole(RoleRequestDto roleRequestDto){
 
+        if(roleRequestDto == null){
+            return null;
+        }
+
         var role = new TRole();
         role.setName(roleRequestDto.name());
         role.setNote(role.getNote());
@@ -144,6 +179,10 @@ public class UserDtoService {
     }
 
     public PermissionResponseDto permissionToDto(TPermission permission){
+
+        if(permission == null){
+            return null;
+        }
 
         return new PermissionResponseDto(
                 permission.getId(),
@@ -156,6 +195,11 @@ public class UserDtoService {
     }
 
     public GroupAuthorityResponseDto groupAuthorityToDto(TGroupAuthority groupAuthority){
+
+        if(groupAuthority == null){
+            return null;
+        }
+
         return new GroupAuthorityResponseDto(
                 groupAuthority.getId(),
                 groupAuthority.getCreatedOn(),
@@ -166,6 +210,11 @@ public class UserDtoService {
     }
 
     public TGroupAuthority dtoToGroupAuthority(GroupAuthorityRequestDto groupAuthorityRequestDto){
+
+        if(groupAuthorityRequestDto == null){
+            return null;
+        }
+
         var permission = new TPermission();
         permission.setId(groupAuthorityRequestDto.permissionId());
 
@@ -180,6 +229,11 @@ public class UserDtoService {
     }
 
     public UserGroupResponseDto userGroupToDto(TUserGroup userGroup){
+
+        if(userGroup == null){
+            return null;
+        }
+
         return new UserGroupResponseDto(
                 userGroup.getId(),
                 userGroup.getCreatedOn(),
@@ -190,6 +244,11 @@ public class UserDtoService {
     }
 
     public TUserGroup dtoToTUserGroup(UserGroupRequestDto userGroupRequestDto){
+
+        if(userGroupRequestDto == null){
+            return null;
+        }
+
         var userGroup = new TUserGroup();
         userGroup.setName(userGroupRequestDto.name());
         userGroup.setNote(userGroupRequestDto.note());

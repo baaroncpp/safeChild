@@ -2,6 +2,8 @@ package com.bwongo.core.user_mgt.model.jpa;
 
 import com.bwongo.core.base.model.enums.UserTypeEnum;
 import com.bwongo.core.base.model.jpa.BaseEntity;
+import lombok.ToString;
+
 import javax.persistence.*;
 
 
@@ -12,6 +14,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "t_user", schema = "core")
+@ToString
 public class TUser extends BaseEntity {
     private String username;
     private String password;

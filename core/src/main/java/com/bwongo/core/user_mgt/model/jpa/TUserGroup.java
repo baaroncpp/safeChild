@@ -1,6 +1,8 @@
 package com.bwongo.core.user_mgt.model.jpa;
 
 import com.bwongo.core.base.model.jpa.BaseEntity;
+import lombok.ToString;
+
 import javax.persistence.*;
 
 /**
@@ -10,6 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "t_user_group", schema = "core")
+@ToString
 public class TUserGroup extends BaseEntity {
     private String name;
     private String note;

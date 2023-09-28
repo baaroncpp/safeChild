@@ -1,6 +1,7 @@
 package com.nc.safechild.student.models.jpa;
 
 import com.nc.safechild.base.model.jpa.BaseEntity;
+import com.nc.safechild.base.model.jpa.TLocation;
 import com.nc.safechild.student.models.enums.StudentStatus;
 import com.nc.safechild.trip.model.jpa.Trip;
 import jakarta.persistence.*;
@@ -26,6 +27,7 @@ public class StudentTravel extends BaseEntity {
     private String studentUsername;
     private StudentStatus studentStatus;
     private String schoolId;
+    private TLocation location;
 
     @Column(name = "full_name")
     public String getFullName() {
@@ -52,5 +54,11 @@ public class StudentTravel extends BaseEntity {
     @Column(name = "school_id")
     public String getSchoolId() {
         return schoolId;
+    }
+
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    public TLocation getLocation() {
+        return location;
     }
 }

@@ -9,9 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +22,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
  * @Project nc
  * @Date 8/15/23
  **/
-@Tag(name = "Users",description = "Manage users on Kabangali")
-@RolesAllowed("ROLE_ADMIN")
+@Tag(name = "Users",description = "Manage users on SafeChild")
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
@@ -31,64 +30,73 @@ public class UserApi {
 
     private final UserService userService;
 
-    @RolesAllowed({"ROLE_USER.READ","ROLE_ADMIN.READ"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDto get(@PathVariable Long id){
         return userService.getUserById(id);
     }
 
-    @RolesAllowed({"ROLE_USER.WRITE","ROLE_USER.READ"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path = "meta-data/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserMetaResponseDto getMetaData(@PathVariable Long id){
         return userService.getUserMetaData(id);
     }
 
-    @RolesAllowed({"ROLE_USER.WRITE","ROLE_USER.READ"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path = "email/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserMetaResponseDto getByEmail(@PathVariable String email){
         return userService.getUserByEmail(email);
     }
 
-    @RolesAllowed({"ROLE_USER.WRITE","ROLE_USER.READ"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path = "phone-number/{phoneNumber}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserMetaResponseDto getByPhoneNumber(@PathVariable String phoneNumber){
         return userService.getUserByPhoneNumber(phoneNumber);
     }
 
-    @RolesAllowed({"ROLE_ADMIN.WRITE","ROLE_USER.WRITE"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.WRITE')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDto add(@RequestBody UserRequestDto userDto) {
         return userService.addUser(userDto);
     }
 
-    @RolesAllowed({"ROLE_ADMIN.WRITE","ROLE_USER.WRITE"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.WRITE')")
+    @PostMapping(path = "school",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public SchoolUserResponseDto addSchoolUser(@RequestBody SchoolUserRequestDto userDto) {
+        return userService.addSchoolUser(userDto);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.WRITE')")
     @PostMapping(path = "meta-data/user-id/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserMetaResponseDto addUserMeta(@RequestBody UserMetaRequestDto userMetaDto,
                                            @PathVariable("id") Long userId) {
         return userService.addUserMetaData(userId, userMetaDto);
     }
 
-    @RolesAllowed({"ROLE_USER.WRITE","ROLE_ADMIN.WRITE"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.UPDATE')")
     @PutMapping(path = "user-id/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDto update(@RequestBody UserRequestDto userRequestDto,
                                   @PathVariable("id") Long id) {
         return userService.updateUser(id, userRequestDto);
     }
 
-    @RolesAllowed({"ROLE_USER.WRITE","ROLE_USER.READ"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.UPDATE')")
     @PatchMapping(path = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDto update(@PathVariable("id") Long id,
                           @RequestBody Map<String, Object> fields) {
         return userService.updateByField(id, fields);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.DELETE')")
     @DeleteMapping(path="/delete", produces = APPLICATION_JSON)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public boolean delete(Long id) {
         return userService.deleteUserAccount(id);
     }
 
-    @RolesAllowed({"ROLE_USER.WRITE","ROLE_USER.READ"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path="pageable", produces = APPLICATION_JSON)
     public List<UserResponseDto> getAllUsers(@RequestParam(name = "page", required = true) int page,
                                      @RequestParam(name = "size", required = true) int size) {
@@ -96,38 +104,39 @@ public class UserApi {
         return userService.getAll(pageable);
     }
 
-    @RolesAllowed({"ROLE_ADMIN.READ","ROLE_USER.READ"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path="/count/{user_type}", produces = APPLICATION_JSON)
     public Long getNumberOfUsersByType(@PathVariable("user_type") String userType) {
         return userService.getNumberOfUsersByType(userType);
     }
 
-    @RolesAllowed({"ROLE_ADMIN.WRITE"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.UPDATE')")
     @PatchMapping(path = "re_assign/group", produces = APPLICATION_JSON)
     public UserResponseDto reAssignUserToGroup(@RequestParam(name = "groupId", required = true) Long groupId,
                                        @RequestParam(name = "userId", required = true) Long userId){
         return userService.reAssignUserToGroup(groupId, userId);
     }
 
-    @RolesAllowed({"ROLE_ADMIN.WRITE"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.WRITE')")
     @PostMapping(path = "approve", produces = APPLICATION_JSON, consumes = APPLICATION_JSON)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public UserResponseDto approveUser(@RequestBody UserApprovalRequestDto userApprovalDto){
         return userService.approveUser(userApprovalDto);
     }
 
-    @RolesAllowed({"ROLE_ADMIN.WRITE"})
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.UPDATE')")
     @PatchMapping(path = "suspend/{id}")
     public boolean suspendUserAccount(@PathVariable("id") Long id){
         return userService.suspendUserAccount(id);
     }
 
     @GetMapping(path = "approvals", produces = APPLICATION_JSON)
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     public List<UserApprovalResponseDto> getUserApprovals(@RequestParam(name = "page", required = true) int page,
                                                           @RequestParam(name = "size", required = true) int size,
                                                           @RequestParam(name = "status", required = true) String status){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
-        return userService.getUserApprovals(status);
+        return userService.getUserApprovals(status, pageable);
     }
 
 }

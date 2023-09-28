@@ -16,9 +16,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @ComponentScan("com.bwongo.core.security.config")
 @EnableJpaRepositories({"com.bwongo.core.user_mgt.repository",
+                        "com.bwongo.core.school_mgt.repository",
+                        "com.bwongo.core.student_mgt.repository",
                         "com.bwongo.core.base.repository"})
 @EntityScan({"com.bwongo.core.user_mgt.model.jpa",
-             "com.bwongo.core.base.model.jpa"})
+             "com.bwongo.core.school_mgt.model.jpa",
+             "com.bwongo.core.base.model.jpa",
+             "com.bwongo.core.student_mgt.model.jpa"})
 public class AppConfig {
     @Bean
     public PasswordEncoder getPasswordEncoder(){

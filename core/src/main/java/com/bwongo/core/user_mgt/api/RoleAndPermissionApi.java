@@ -17,7 +17,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
  * @Project nc
  * @Date 8/16/23
  **/
-@Tag(name = "Roles", description = "Manage user access permissions in system")
+@Tag(name = "Roles", description = "Manage user access permissions in SafeChild")
 @RolesAllowed({"ROLE_ADMIN.WRITE", "ROLE_PERMISSION.WRITE"})
 @RestController
 @RequestMapping("api/v1")

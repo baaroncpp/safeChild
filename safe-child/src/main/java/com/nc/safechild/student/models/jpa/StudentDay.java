@@ -1,6 +1,7 @@
 package com.nc.safechild.student.models.jpa;
 
 import com.nc.safechild.base.model.jpa.BaseEntity;
+import com.nc.safechild.base.model.jpa.TLocation;
 import com.nc.safechild.student.models.enums.StudentStatus;
 import jakarta.persistence.*;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class StudentDay extends BaseEntity {
     private String schoolId;
     private Date schoolDate;
     private boolean onTrip;
+    private TLocation location;
 
     @Column(name = "full_name")
     public String getFullName() {
@@ -64,5 +66,11 @@ public class StudentDay extends BaseEntity {
     @Column(name = "on_trip")
     public boolean isOnTrip() {
         return onTrip;
+    }
+
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    public TLocation getLocation() {
+        return location;
     }
 }

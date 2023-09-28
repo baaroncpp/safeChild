@@ -16,3 +16,12 @@ create table t_district (
     created_on timestamp not null default now(),
     modified_on timestamp
 );
+
+create table t_location (
+    id BIGSERIAL primary key,
+    country_id SERIAL references t_country(id),
+    latitude double precision not null,
+    longitude double precision not null,
+    created_on timestamp not null default now(),
+    modified_on timestamp
+);

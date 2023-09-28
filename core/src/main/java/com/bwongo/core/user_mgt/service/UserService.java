@@ -4,12 +4,17 @@ import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
+import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
+import com.bwongo.core.school_mgt.repository.SchoolRepository;
+import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
+import com.bwongo.core.school_mgt.service.SchoolDtoService;
 import com.bwongo.core.user_mgt.model.dto.UserRequestDto;
 import com.bwongo.core.user_mgt.model.dto.UserResponseDto;
 import com.bwongo.core.user_mgt.model.dto.*;
 
 import com.bwongo.core.user_mgt.model.jpa.TUser;
 import com.bwongo.core.user_mgt.model.jpa.TUserApproval;
+import com.bwongo.core.user_mgt.model.jpa.TUserMeta;
 import com.bwongo.core.user_mgt.repository.*;
 import com.bwongo.core.base.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +34,7 @@ import java.util.stream.Collectors;
 import static com.bwongo.core.base.utils.BasicMsgConstants.COUNTRY_WITH_ID_NOT_FOUND;
 import static com.bwongo.core.base.utils.EnumValidations.isApprovalStatus;
 import static com.bwongo.core.base.utils.EnumValidations.isUserType;
+import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.SCHOOL_NOT_FOUND;
 import static com.bwongo.core.user_mgt.utils.UserManagementUtils.checkThatUserIsAssignable;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 
@@ -53,6 +59,9 @@ public class UserService {
     private final AuditService auditService;
     private final PasswordEncoder passwordEncoder;
     private final UserDtoService userDtoService;
+    private final SchoolRepository schoolRepository;
+    private final SchoolUserRepository schoolUserRepository;
+    private final SchoolDtoService schoolDtoService;
 
     @Transactional
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
@@ -89,6 +98,53 @@ public class UserService {
         return userDtoService.tUserToDto(savedUser);
     }
 
+    @Transactional
+    public SchoolUserResponseDto addSchoolUser(SchoolUserRequestDto schoolUserRequestDto){
+
+        schoolUserRequestDto.validate();
+        var existingUserUsername = userRepository.findByUsername(schoolUserRequestDto.username());
+        Validate.isTrue(existingUserUsername.isEmpty(), ExceptionType.BAD_REQUEST,USERNAME_TAKEN, schoolUserRequestDto.username());
+
+        var existingUserGroup = userGroupRepository.findById(schoolUserRequestDto.userGroupId());
+        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
+        final var userGroup = existingUserGroup.get();
+
+        var existingSchool = schoolRepository.findById(schoolUserRequestDto.schoolId());
+        Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, schoolUserRequestDto.schoolId());
+        var school= existingSchool.get();
+
+        var user = userDtoService.dtoToTUser(mapSchoolUserRequestDtoToUserRequestDto(schoolUserRequestDto));
+        user.setAccountExpired(Boolean.FALSE);
+        user.setAccountLocked(Boolean.FALSE);
+        user.setApproved(Boolean.FALSE);
+        user.setDeleted(Boolean.FALSE);
+        user.setInitialPasswordReset(Boolean.FALSE);
+        user.setPassword(passwordEncoder.encode(schoolUserRequestDto.password()));
+        user.setUserGroup(userGroup);
+        user.setUserType(UserTypeEnum.valueOf(schoolUserRequestDto.userType()));
+
+        auditService.stampLongEntity(user);
+        var savedUser = userRepository.save(user);
+
+        var schoolUser = new TSchoolUser();
+        schoolUser.setSchool(school);
+        schoolUser.setUser(savedUser);
+        auditService.stampAuditedEntity(schoolUser);
+
+        schoolUserRepository.save(schoolUser);
+
+        //initiate user approval
+        var userApproval = new TUserApproval();
+        userApproval.setUserId(user.getId());
+        userApproval.setStatus(ApprovalEnum.PENDING);
+        auditService.stampAuditedEntity(userApproval);
+
+        userApprovalRepository.save(userApproval);
+
+        return schoolDtoService.tUserToUserSchoolDto(savedUser, school);
+    }
+
+    @Transactional
     public UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto) {
 
         userRequestDto.validate();
@@ -141,7 +197,11 @@ public class UserService {
         var existingUser = userRepository.findById(id);
         Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
 
-        return userDtoService.tUserToDto(existingUser.get());
+        var user = new TUser();
+        if(existingUser.isPresent())
+            user = existingUser.get();
+
+        return userDtoService.tUserToDto(user);
     }
 
     public UserMetaResponseDto getUserByEmail(String email) {
@@ -149,14 +209,22 @@ public class UserService {
         var existingUser = userMetaRepository.findByEmail(email);
         Validate.isPresent(existingUser, USER_WITH_EMAIL_DOES_NOT_EXIST, email);
 
-        return userDtoService.userMetaToDto(existingUser.get());
+        var userMeta = new TUserMeta();
+        if(existingUser.isPresent())
+            userMeta = existingUser.get();
+
+        return userDtoService.userMetaToDto(userMeta);
     }
 
     public UserMetaResponseDto getUserByPhoneNumber(String phoneNumber) {
         var existingUser = userMetaRepository.findByPhoneNumber(phoneNumber);
         Validate.isPresent(existingUser, USER_WITH_PHONE_NUMBER_DOES_NOT_EXIST, phoneNumber);
 
-        return userDtoService.userMetaToDto(existingUser.get());
+        var userMeta = new TUserMeta();
+        if(existingUser.isPresent())
+            userMeta = existingUser.get();
+
+        return userDtoService.userMetaToDto(userMeta);
     }
 
     public UserResponseDto reAssignUserToGroup(Long groupId, Long userId) {
@@ -209,8 +277,6 @@ public class UserService {
 
         userRepository.save(user);
 
-        System.out.println(result.toString());
-
         return userDtoService.userMetaToDto(result);
     }
 
@@ -220,7 +286,11 @@ public class UserService {
         var existingUserMeta = userMetaRepository.findById(id);
         Validate.isPresent(existingUserMeta, USER_DOES_NOT_EXIST, id);
 
-        return userDtoService.userMetaToDto(existingUserMeta.get());
+        var userMeta = new TUserMeta();
+        if(existingUserMeta.isPresent())
+            userMeta = existingUserMeta.get();
+
+        return userDtoService.userMetaToDto(userMeta);
     }
 
     public Long getNumberOfUsersByType(String userType) {
@@ -297,13 +367,23 @@ public class UserService {
         return Boolean.TRUE;
     }
 
-    public List<UserApprovalResponseDto> getUserApprovals(String status) {
+    public List<UserApprovalResponseDto> getUserApprovals(String status, Pageable pageable) {
 
         Validate.isTrue(isApprovalStatus(status), ExceptionType.BAD_REQUEST, INVALID_APPROVAL_STATUS);
         var approvalEnum = ApprovalEnum.valueOf(status);
 
-        return userApprovalRepository.findAllByStatus(approvalEnum).stream()
+        return userApprovalRepository.findAllByStatus(approvalEnum, pageable).stream()
                 .map(userDtoService::userApprovalToDto)
                 .collect(Collectors.toList());
+    }
+
+    private UserRequestDto mapSchoolUserRequestDtoToUserRequestDto(SchoolUserRequestDto schoolUserRequestDto){
+        return new UserRequestDto(
+                schoolUserRequestDto.username(),
+                schoolUserRequestDto.password(),
+                schoolUserRequestDto.userGroupId(),
+                schoolUserRequestDto.approvedBy(),
+                schoolUserRequestDto.userType()
+        );
     }
 }

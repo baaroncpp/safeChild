@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS t_student_travel(
    trip_id INTEGER REFERENCES t_trip(id) NOT NULL,
    student_username VARCHAR(50) NOT NULL,
    school_id VARCHAR(20) NOT NULL,
-   STUDENT_status VARCHAR(32) NOT NULL
+   STUDENT_status VARCHAR(32) NOT NULL,
+   location_id INTEGER NOT NULL REFERENCES t_location(id)
 );
 
 CREATE TABLE IF NOT EXISTS t_student_day(
@@ -51,7 +52,8 @@ CREATE TABLE IF NOT EXISTS t_student_day(
     staff_username VARCHAR(50) NOT NULL,
     school_id VARCHAR(20) NOT NULL,
     student_status VARCHAR(32) NOT NULL,
-    on_trip BOOLEAN DEFAULT false
+    on_trip BOOLEAN DEFAULT false,
+    location_id INTEGER NOT NULL REFERENCES t_location(id)
 );
 
 ALTER TABLE t_student_travel ADD full_name VARCHAR(100);

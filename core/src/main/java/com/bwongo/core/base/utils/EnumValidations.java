@@ -1,9 +1,6 @@
 package com.bwongo.core.base.utils;
 
-import com.bwongo.core.base.model.enums.ApprovalEnum;
-import com.bwongo.core.base.model.enums.IdentificationEnum;
-import com.bwongo.core.base.model.enums.IdentificationType;
-import com.bwongo.core.base.model.enums.UserTypeEnum;
+import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.user_mgt.model.jpa.TPermission;
 import com.bwongo.core.user_mgt.model.jpa.TRole;
 
@@ -40,12 +37,18 @@ public class EnumValidations {
     }
 
     public static boolean isUserType(String value){
+        List<String> userTypeEnumList = List.of(
+                UserTypeEnum.ADMIN.name()
+        );
+        return userTypeEnumList.contains(value);
+
+    }
+
+    public static boolean isSchoolUserType(String value){
         List<String> userTypeEnumList = Arrays.asList(
                 UserTypeEnum.DRIVER.name(),
-                UserTypeEnum.SYSTEM.name(),
-                UserTypeEnum.ADMIN.name(),
-                UserTypeEnum.CUSTOMER.name(),
-                UserTypeEnum.CLIENT.name()
+                UserTypeEnum.SCHOOL_ADMIN.name(),
+                UserTypeEnum.SCHOOL_STAFF.name()
         );
         return userTypeEnumList.contains(value);
 
@@ -77,5 +80,29 @@ public class EnumValidations {
                 IdentificationEnum.NATIONAL_ID.name()
         );
         return identificationEnumList.contains(value);
+    }
+
+    public static boolean isSchoolCategory(String value){
+        List<String> schoolCategoryList = Arrays.asList(
+                SchoolCategory.PRIMARY.name(),
+                SchoolCategory.DAY_CARE.name(),
+                SchoolCategory.SECONDARY.name()
+
+        );
+        return schoolCategoryList.contains(value);
+    }
+
+    public static boolean isRelation(String value){
+        List<String> relationList = Arrays.asList(
+                Relation.FATHER.name(),
+                Relation.MOTHER.name(),
+                Relation.BROTHER.name(),
+                Relation.SISTER.name(),
+                Relation.UNCLE.name(),
+                Relation.AUNT.name(),
+                Relation.OTHERS.name()
+
+        );
+        return relationList.contains(value);
     }
 }

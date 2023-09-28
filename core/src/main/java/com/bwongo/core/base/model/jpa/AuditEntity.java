@@ -19,7 +19,7 @@ public class AuditEntity extends BaseEntity{
     private boolean isDeleted;
 
     @JoinColumn(name = "created_by", referencedColumnName = "id", insertable = true)
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     public TUser getCreatedBy() {
         return createdBy;
     }
@@ -29,7 +29,7 @@ public class AuditEntity extends BaseEntity{
     }
 
     @JoinColumn(name = "modified_by", referencedColumnName = "id", insertable = true)
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     public TUser getModifiedBy() {
         return modifiedBy;
     }

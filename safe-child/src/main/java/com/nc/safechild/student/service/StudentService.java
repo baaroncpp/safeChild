@@ -1,5 +1,7 @@
 package com.nc.safechild.student.service;
 
+import com.nc.safechild.base.model.jpa.TLocation;
+import com.nc.safechild.base.repository.TLocationRepository;
 import com.nc.safechild.base.utils.DateTimeUtil;
 import com.nc.safechild.base.utils.Validate;
 import com.nc.safechild.base.utils.WebServiceUtil;
@@ -83,6 +85,7 @@ public class StudentService {
     private final NotificationRepository notificationRepository;
     private final MessageBrokerService messageBrokerService;
     private final UserStudentStatusCountRepository userStudentStatusCountRepository;
+    private final TLocationRepository locationRepository;
 
     public List<StudentDay> getStudentsByDateAndStudentStatus(StudentDayDto studentDayDto, Pageable pageable){
 
@@ -166,6 +169,14 @@ public class StudentService {
                     STUDENT_IS_ALREADY_SIGNED_OUT,
                     notificationDto.studentUsername());
 
+            var location = new TLocation();
+            location.setLatitude(notificationDto.latitudeCoordinate());
+            location.setLongitude(notificationDto.longitudeCoordinate());
+            location.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+            location.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+            var savedLocation = locationRepository.save(location);
+
             studentDay.setStudentStatus(StudentStatus.SCHOOL_SIGN_OUT);
             studentDay.setOnTrip(isOnTrip);
             studentDay.setCreatedOn(getCurrentUTCTime());
@@ -175,6 +186,7 @@ public class StudentService {
             studentDay.setStaffUsername(notificationDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
             studentDay.setFullName(studentStaffDetails.getStudentUser().getName());
+            studentDay.setLocation(savedLocation);
 
             studentDayRepository.save(studentDay);
 
@@ -240,6 +252,14 @@ public class StudentService {
                     STUDENT_ALREADY_HAS_EVENT,
                     notificationDriverDto.studentUsername());
 
+            var location = new TLocation();
+            location.setLatitude(notificationDriverDto.latitudeCoordinate());
+            location.setLongitude(notificationDriverDto.longitudeCoordinate());
+            location.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+            location.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+            var savedLocation = locationRepository.save(location);
+
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
             studentTravel.setTrip(trip);
             studentTravel.setCreatedOn(getCurrentUTCTime());
@@ -247,6 +267,7 @@ public class StudentService {
             studentTravel.setStudentStatus(StudentStatus.HOME_PICK_UP);
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
             studentTravel.setFullName(studentStaffDetails.getStudentUser().getName());
+            studentTravel.setLocation(savedLocation);
 
             studentTravelRepository.save(studentTravel);
 
@@ -259,6 +280,7 @@ public class StudentService {
             studentDay.setStaffUsername(notificationDriverDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
             studentDay.setFullName(studentStaffDetails.getStudentUser().getName());
+            studentDay.setLocation(savedLocation);
 
             studentDayRepository.save(studentDay);
             changeOpenTripToInProgress(trip);
@@ -271,7 +293,9 @@ public class StudentService {
                 notificationDriverDto.studentUsername(),
                 notificationDriverDto.studentStatus(),
                 notificationDriverDto.performedByUsername(),
-                notificationDriverDto.appRef()
+                notificationDriverDto.appRef(),
+                notificationDriverDto.latitudeCoordinate(),
+                notificationDriverDto.longitudeCoordinate()
         );
 
         if(StudentStatus.SCHOOL_SIGN_IN.equals(StudentStatus.valueOf(notificationDriverDto.studentStatus()))){
@@ -415,7 +439,9 @@ public class StudentService {
                     obj.getStudentUsername(),
                     StudentStatus.SCHOOL_SIGN_IN.name(),
                     trip.getStaffUsername(),
-                    ("NC"+ UUID.randomUUID().toString().replace("-","")).substring(0, 10)
+                    ("NC"+ UUID.randomUUID().toString().replace("-","")).substring(0, 10),
+                    0.0,
+                    0.0
             );
             sendNotificationDriver(notificationDriverDto);
         }
