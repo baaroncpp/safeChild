@@ -117,6 +117,14 @@ public class StudentService {
                 .studentUsername(notificationDto.studentUsername())
                 .build();
 
+        var location = new TLocation();
+        location.setLatitude(notificationDto.latitudeCoordinate());
+        location.setLongitude(notificationDto.longitudeCoordinate());
+        location.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+        location.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+        var savedLocation = locationRepository.save(location);
+
         System.out.println("Staff send sms");
         System.out.println(sendSmsDto.toString());
 
@@ -144,6 +152,7 @@ public class StudentService {
             studentDay.setStaffUsername(notificationDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
             studentDay.setFullName(studentStaffDetails.getStudentUser().getName());
+            studentDay.setLocation(savedLocation);
 
             studentDayRepository.save(studentDay);
 
@@ -168,14 +177,6 @@ public class StudentService {
                     ExceptionType.BAD_REQUEST,
                     STUDENT_IS_ALREADY_SIGNED_OUT,
                     notificationDto.studentUsername());
-
-            var location = new TLocation();
-            location.setLatitude(notificationDto.latitudeCoordinate());
-            location.setLongitude(notificationDto.longitudeCoordinate());
-            location.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
-            location.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
-
-            var savedLocation = locationRepository.save(location);
 
             studentDay.setStudentStatus(StudentStatus.SCHOOL_SIGN_OUT);
             studentDay.setOnTrip(isOnTrip);
@@ -222,6 +223,14 @@ public class StudentService {
                 .studentUsername(notificationDriverDto.studentUsername())
                 .build();
 
+        var location = new TLocation();
+        location.setLatitude(notificationDriverDto.latitudeCoordinate());
+        location.setLongitude(notificationDriverDto.longitudeCoordinate());
+        location.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
+        location.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
+
+        var savedLocation = locationRepository.save(location);
+
         System.out.println("Staff send sms");
         System.out.println(sendSmsDto.toString());
 
@@ -251,14 +260,6 @@ public class StudentService {
                     ExceptionType.BAD_REQUEST,
                     STUDENT_ALREADY_HAS_EVENT,
                     notificationDriverDto.studentUsername());
-
-            var location = new TLocation();
-            location.setLatitude(notificationDriverDto.latitudeCoordinate());
-            location.setLongitude(notificationDriverDto.longitudeCoordinate());
-            location.setCreatedOn(DateTimeUtil.getCurrentUTCTime());
-            location.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
-
-            var savedLocation = locationRepository.save(location);
 
             studentTravel.setStudentUsername(notificationDriverDto.studentUsername());
             studentTravel.setTrip(trip);
@@ -335,6 +336,7 @@ public class StudentService {
             studentTravel.setStudentStatus(StudentStatus.SCHOOL_SIGN_IN);
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
             studentTravel.setFullName(studentStaffDetails.getStudentUser().getName());
+            studentTravel.setLocation(savedLocation);
 
             studentTravelRepository.save(studentTravel);
 
@@ -353,6 +355,7 @@ public class StudentService {
             studentTravel.setStudentStatus(StudentStatus.SCHOOL_SIGN_OUT);
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
             studentTravel.setFullName(studentStaffDetails.getStudentUser().getName());
+            studentTravel.setLocation(savedLocation);
 
             studentTravelRepository.save(studentTravel);
             changeOpenTripToInProgress(trip);
@@ -399,6 +402,7 @@ public class StudentService {
             studentTravel.setStudentStatus(StudentStatus.HOME_DROP_OFF);
             studentTravel.setSchoolId(studentStaffDetails.getStudentSchoolId());
             studentTravel.setFullName(studentStaffDetails.getStudentUser().getName());
+            studentTravel.setLocation(savedLocation);
 
             studentTravelRepository.save(studentTravel);
 
@@ -411,6 +415,7 @@ public class StudentService {
             studentDay.setStaffUsername(notificationDriverDto.performedByUsername());
             studentDay.setSchoolDate(getCurrentOnlyDate());
             studentDay.setFullName(studentStaffDetails.getStudentUser().getName());
+            studentDay.setLocation(savedLocation);
 
             studentDayRepository.save(studentDay);
 
