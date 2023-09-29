@@ -57,7 +57,7 @@ public class StudentTravel extends BaseEntity {
     }
 
     @JoinColumn(name = "location_id", referencedColumnName = "id")
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     public TLocation getLocation() {
         return location;
     }
