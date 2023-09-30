@@ -13,7 +13,7 @@ public class UserMsgConstants {
     public static final String PERMISSION_ID_REQUIRED = "User group ID is required";
     public static final String ROLE_NAME_REQUIRED = "Role name is required";
     public static final String ROLE_DESCRIPTION_REQUIRED = "Role description is required";
-    public static final String USER_GROUP_NAME_ONLY_UPPER_CASE = "User group should be upper case";
+    public static final String USER_GROUP_NAME_ONLY_UPPER_CASE = "User group should contain only upper case";
     public static final String USER_GROUP_NAME_IS_NULL = "User group name is required";
     public static final String USER_GROUP_NOTE_IS_NULL = "User group note is required";
     public static final String USER_ID_REQUIRED = "User ID is required";
@@ -53,7 +53,7 @@ public class UserMsgConstants {
     public static final String USER_DOES_NOT_EXIST = "User with ID: %s not found";
     public static final String USER_WITH_PHONE_NUMBER_DOES_NOT_EXIST = "User with phone number: %s does not exist";
     public static final String USER_WITH_EMAIL_DOES_NOT_EXIST = "User with EMAIL: %s does not exist";
-    public static final String USER_ACCOUNT_NOT_APPROVED = "User account is not approved";
+    public static final String USER_ACCOUNT_NOT_APPROVED = "User with ID: %s is not approved";
     public static final String USER_ACCOUNT_EXPIRED = "User account is expired";
     public static final String USER_ACCOUNT_DELETED = "User account is deleted";
     public static final String USER_ACCOUNT_CREDENTIALS_EXPIRED = "User account is deleted";

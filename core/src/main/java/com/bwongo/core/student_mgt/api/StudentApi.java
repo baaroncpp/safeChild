@@ -65,7 +65,7 @@ public class StudentApi {
     @GetMapping(path = "all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<StudentResponseDto> getAllStudents(@RequestParam("page") int page,
                                                    @RequestParam("size") int size,
-                                                   @RequestParam("SchoolId") Long schoolId){
+                                                   @RequestParam("schoolId") Long schoolId){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return studentService.getAllStudents(pageable, schoolId);
     }

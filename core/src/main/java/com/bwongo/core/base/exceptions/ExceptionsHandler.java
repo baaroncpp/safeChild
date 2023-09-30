@@ -1,6 +1,7 @@
 package com.bwongo.core.base.exceptions;
 
 import com.bwongo.commons.models.exceptions.*;
+import com.bwongo.commons.models.exceptions.model.AccessDeniedException;
 import com.bwongo.commons.models.exceptions.model.ExceptionPayLoad;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -86,6 +87,21 @@ public class ExceptionsHandler {
         var exceptionPayLoad = new ExceptionPayLoad(
                 request.getRequestURI(),
                 defaultException.getMessage(),
+                httpStatus,
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+
+        return new ResponseEntity<>(exceptionPayLoad, httpStatus);
+    }
+
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException accessDeniedException, HttpServletRequest request){
+
+        var httpStatus = HttpStatus.valueOf(403);
+
+        var exceptionPayLoad = new ExceptionPayLoad(
+                request.getRequestURI(),
+                accessDeniedException.getMessage(),
                 httpStatus,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );

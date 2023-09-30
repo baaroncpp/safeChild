@@ -1,6 +1,8 @@
 package com.bwongo.core.school_mgt.repository;
 
+import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
+import com.bwongo.core.user_mgt.model.jpa.TUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +13,5 @@ import org.springframework.stereotype.Repository;
  **/
 @Repository
 public interface SchoolUserRepository extends JpaRepository<TSchoolUser, Long> {
+    boolean existsBySchoolAndUser(TSchool school, TUser user);
 }

@@ -77,6 +77,12 @@ public class RoleService {
         return userDtoService.roleToDto(roleRepository.save(updatedRole));
     }
 
+    public List<RoleResponseDto> getAllRoles(){
+        return roleRepository.findAll().stream()
+                .map(userDtoService::roleToDto)
+                .collect(Collectors.toList());
+    }
+
     public PermissionResponseDto getPermissionById(Long id) {
         var result = permissionRepository.findById(id);
         Validate.isPresent(result, PERMISSION_DOES_NOT_EXIST);
@@ -130,7 +136,7 @@ public class RoleService {
                 .collect(Collectors.toList());
     }
 
-    public void unAssignPermissionFromUserGroup(String permissionName, Long userGroupId) {
+    public boolean unAssignPermissionFromUserGroup(String permissionName, Long userGroupId) {
 
         var existingUserGroup = userGroupRepository.findById(userGroupId);
         Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userGroupId);
@@ -142,7 +148,7 @@ public class RoleService {
         Validate.isTrue(existingGroupAuthority.isPresent(), ExceptionType.BAD_REQUEST, PERMISSION_NOT_ASSIGNED_TO_USER_GROUP, permissionName, existingUserGroup.get().getName());
 
         groupAuthorityRepository.delete(existingGroupAuthority.get());
-
+        return Boolean.TRUE;
     }
 
     public GroupAuthorityResponseDto assignPermissionToUserGroup(String permissionName, Long userGroupId) {
@@ -155,7 +161,7 @@ public class RoleService {
         checkThatPermissionRoleIsAssignable(existingPermission.get());
 
         var existingGroupAuthority = groupAuthorityRepository.findByUserGroupAndPermission(existingUserGroup.get(), existingPermission.get());
-        Validate.isTrue(existingGroupAuthority.isPresent(), ExceptionType.BAD_REQUEST, PERMISSION_ALREADY_ASSIGNED_TO_USER_GROUP, permissionName, existingUserGroup.get().getName());
+        Validate.isTrue(existingGroupAuthority.isEmpty(), ExceptionType.BAD_REQUEST, PERMISSION_ALREADY_ASSIGNED_TO_USER_GROUP, permissionName, existingUserGroup.get().getName());
 
         var groupAuthority = new TGroupAuthority();
         groupAuthority.setUserGroup(existingUserGroup.get());
@@ -163,7 +169,7 @@ public class RoleService {
 
         auditService.stampLongEntity(groupAuthority);
 
-        return userDtoService.groupAuthorityToDto(groupAuthority);
+        return userDtoService.groupAuthorityToDto(groupAuthorityRepository.save(groupAuthority));
     }
 
     public List<GroupAuthorityResponseDto> getUserGroupAuthorities(Long userGroupId) {

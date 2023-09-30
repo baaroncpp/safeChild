@@ -4,6 +4,7 @@ import com.bwongo.commons.models.exceptions.BadCredentialsException;
 import com.bwongo.commons.models.exceptions.BadRequestException;
 import com.bwongo.commons.models.exceptions.InsufficientAuthenticationException;
 import com.bwongo.commons.models.exceptions.ResourceNotFoundException;
+import com.bwongo.commons.models.exceptions.model.AccessDeniedException;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import org.springframework.util.StringUtils;
 
@@ -38,6 +39,10 @@ public class Validate {
             throw new InsufficientAuthenticationException(message, params);
         }
 
+        if (!value && exceptionType.equals(ExceptionType.ACCESS_DENIED)) {
+            throw new AccessDeniedException(message, params);
+        }
+
     }
 
     public static void notNull(Object value, ExceptionType exceptionType, String message, Object ... params){
@@ -56,6 +61,10 @@ public class Validate {
 
         if (value == null && exceptionType.equals(ExceptionType.INSUFFICIENT_AUTH)) {
             throw new InsufficientAuthenticationException(message, params);
+        }
+
+        if (value == null && exceptionType.equals(ExceptionType.ACCESS_DENIED)) {
+            throw new AccessDeniedException(message, params);
         }
 
     }
