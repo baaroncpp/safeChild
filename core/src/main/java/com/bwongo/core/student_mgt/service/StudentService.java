@@ -2,9 +2,11 @@ package com.bwongo.core.student_mgt.service;
 
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.Validate;
+import com.bwongo.core.base.model.enums.UserTypeEnum;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
+import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
 import com.bwongo.core.student_mgt.model.dto.*;
 import com.bwongo.core.student_mgt.model.jpa.TGuardian;
 import com.bwongo.core.student_mgt.model.jpa.TStudent;
@@ -12,15 +14,18 @@ import com.bwongo.core.student_mgt.model.jpa.TStudentGuardian;
 import com.bwongo.core.student_mgt.repository.GuardianRepository;
 import com.bwongo.core.student_mgt.repository.StudentGuardianRepository;
 import com.bwongo.core.student_mgt.repository.StudentRepository;
+import com.bwongo.core.user_mgt.repository.TUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.SCHOOL_NOT_FOUND;
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
+import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.CANT_ASSIGN_SCHOOL;
 
 /**
  * @Author bkaaron
@@ -37,6 +42,16 @@ public class StudentService {
     private final StudentGuardianRepository studentGuardianRepository;
     private final StudentDtoService studentDtoService;
     private final AuditService auditService;
+    private final TUserRepository userRepository;
+    private final SchoolUserRepository schoolUserRepository;
+
+    public List<StudentResponseDto> addStudents(List<StudentRequestDto> studentsRequestDto){
+
+
+        return validateList0fStudentRequests(studentsRequestDto).stream()
+                .map(studentDtoService::studentToDto)
+                .toList();
+    }
 
     public StudentResponseDto addStudent(StudentRequestDto studentRequestDto){
 
@@ -44,8 +59,12 @@ public class StudentService {
         final var nationalIdNumber = studentRequestDto.nationalIdNumber();
         final var schoolIdNumber = studentRequestDto.schoolIdNumber();
         final var schoolId = studentRequestDto.schoolId();
+        final var studentEmail = studentRequestDto.email();
 
         var school = getSchool(schoolId);
+
+        if(!studentEmail.isEmpty())
+            Validate.isTrue(!studentRepository.existsByEmail(studentEmail), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, studentEmail);
 
         if(!nationalIdNumber.isEmpty())
             Validate.isTrue(!studentRepository.existsByNationalIdNumber(nationalIdNumber), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, nationalIdNumber);
@@ -54,6 +73,12 @@ public class StudentService {
 
         var student = studentDtoService.dtoToTStudent(studentRequestDto);
         auditService.stampAuditedEntity(student);
+
+        var existingEditingUser = userRepository.findById(student.getCreatedBy().getId());
+        final var editingUser = existingEditingUser.get();
+
+        if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
+            Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, schoolId);
 
         return studentDtoService.studentToDto(studentRepository.save(student));
     }
@@ -70,14 +95,20 @@ public class StudentService {
         var school = getSchool(schoolId);
 
         if(!nationalIdNumber.isEmpty() && !nationalIdNumber.equals(existingStudent.getNationalIdNumber()))
-            Validate.isTrue(studentRepository.existsByNationalIdNumber(nationalIdNumber), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, nationalIdNumber);
+            Validate.isTrue(!studentRepository.existsByNationalIdNumber(nationalIdNumber), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, nationalIdNumber);
 
         if(!schoolIdNumber.equals(existingStudent.getSchoolIdNumber()))
-            Validate.isTrue(studentRepository.existsBySchoolIdNumberAndSchool(schoolIdNumber, school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, schoolIdNumber);
+            Validate.isTrue(!studentRepository.existsBySchoolIdNumberAndSchool(schoolIdNumber, school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, schoolIdNumber);
 
         var updatedStudent = studentDtoService.dtoToTStudent(studentRequestDto);
         auditService.stampAuditedEntity(updatedStudent);
         updatedStudent.setId(existingStudent.getId());
+
+        var existingEditingUser = userRepository.findById(auditService.getLoggedInUser().getId());
+        final var editingUser = existingEditingUser.get();
+
+        if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
+            Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, schoolId);
 
         return studentDtoService.studentToDto(studentRepository.save(updatedStudent));
     }
@@ -151,7 +182,7 @@ public class StudentService {
 
         return studentGuardianRepository.findAllByGuardian(guardian).stream()
                 .map(studentDtoService::studentGuardianToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<StudentGuardianDto> getGuardiansByStudent(Long studentId){
@@ -160,7 +191,7 @@ public class StudentService {
 
         return studentGuardianRepository.findAllByStudent(student).stream()
                 .map(studentDtoService::studentGuardianToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private TStudent getStudent(Long id){
@@ -179,5 +210,57 @@ public class StudentService {
         var existingSchool = schoolRepository.findById(id);
         Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, id);
         return existingSchool.get();
+    }
+
+    private List<TStudent> validateList0fStudentRequests(List<StudentRequestDto> studentsRequestDto){
+
+        Validate.isTrue(!studentsRequestDto.isEmpty(), ExceptionType.BAD_REQUEST, NULL_STUDENTS);
+
+        //validate schoolId
+        var schoolIds = studentsRequestDto.stream().map(StudentRequestDto::schoolId).collect(Collectors.toSet());
+        Validate.isTrue(schoolIds.size() == 1, ExceptionType.BAD_REQUEST, NOT_SAME_SCHOOL_ID);
+
+        var school = getSchool(schoolIds.stream().findFirst().get());
+
+        var existingEditingUser = userRepository.findById(auditService.getLoggedInUser().getId());
+        final var editingUser = existingEditingUser.get();
+
+        if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
+            Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, school.getId());
+
+
+        //validate each student in list
+        for (StudentRequestDto student : studentsRequestDto) {
+            student.validate();
+            Validate.isTrue(!studentRepository.existsBySchoolIdNumberAndSchool(student.schoolIdNumber(), school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, student.schoolIdNumber());
+
+            if (!student.nationalIdNumber().isEmpty())
+                Validate.isTrue(!studentRepository.existsByNationalIdNumber(student.nationalIdNumber()), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, student.nationalIdNumber());
+
+            if (!student.email().isEmpty())
+                Validate.isTrue(!studentRepository.existsByEmail(student.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, student.email());
+
+            if (!student.email().isEmpty())
+                Validate.isTrue(!studentRepository.existsByNationalIdNumber(student.email()), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, student.email());
+
+        }
+
+        //check duplicate emails
+        var allEmails = studentsRequestDto.stream().map(StudentRequestDto::email).toList();
+        var duplicateEmails = allEmails.stream().filter(email -> Collections.frequency(allEmails, email) > 1).collect(Collectors.joining(", "));
+
+        Validate.isTrue(duplicateEmails.isEmpty(), ExceptionType.BAD_REQUEST, EMAIL_DUPLICATES, duplicateEmails);
+
+        var students = studentsRequestDto.stream()
+                .map(this::getAuditedStudent
+                ).toList();
+
+        return studentRepository.saveAll(students);
+    }
+
+    private TStudent getAuditedStudent(StudentRequestDto studentRequestDto){
+        var student = studentDtoService.dtoToTStudent(studentRequestDto);
+        auditService.stampAuditedEntity(student);
+        return student;
     }
 }

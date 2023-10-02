@@ -30,18 +30,6 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'io.projectreactor:reactor-test'
 
-	//implementation 'org.springframework.boot:spring-boot-starter-web:2.7.0'
-	//implementation 'org.flywaydb:flyway-core:8.5.12'
-	//compileOnly 'org.projectlombok:lombok:1.18.24'
-	//developmentOnly 'org.springframework.boot:spring-boot-devtools:2.7.0'
-	//runtimeOnly 'org.postgresql:postgresql:42.3.6'
-	//annotationProcessor 'org.projectlombok:lombok:1.18.24'
-	//testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.0'
-	//testImplementation group: 'com.h2database', name: 'h2', version: '2.1.214'
-	//testImplementation 'org.springframework.security:spring-security-test:5.7.1'
-	//implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.0'
-	//implementation 'org.springframework.kafka:spring-kafka'
-	//testImplementation 'org.springframework.kafka:spring-kafka-test'
 	implementation group: 'org.springframework.security', name: 'spring-security-jwt', version: '1.1.1.RELEASE'
 	implementation group: 'org.springframework.security.oauth.boot', name: 'spring-security-oauth2-autoconfigure', version: '2.6.4'
 
@@ -51,6 +39,19 @@ dependencies {
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.9'
 
 	implementation project(':commons')
+
+	implementation files('libs/commons-lang-2.5.jar')
+	implementation files('libs/cxf-2.6.1.jar')
+	implementation files('libs/cyclos_3.7.3_ws_client.jar')
+	implementation files('libs/wsdl4j-1.6.2.jar')
+	implementation files('libs/xml-resolver-1.2.jar')
+	implementation files('libs/xmlschema-core-2.0.2.jar')
+
+	implementation 'javax.jws:javax.jws-api:1.1'
+	implementation group: 'javax.xml.ws', name: 'jaxws-api', version: '2.3.1'
+	implementation group: 'org.apache.neethi', name: 'neethi', version: '3.1.1'
+	implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.1'
+	implementation 'com.sun.activation:javax.activation:1.2.0'
 }
 
 tasks.named('test') {

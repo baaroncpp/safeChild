@@ -21,7 +21,11 @@ public class StudentMsgConstant {
     public static final String NULL_CAN_BE_NOTIFIED = "canBeNotified is null or empty";
     public static final String NATIONAL_ID_ALREADY_TAKEN = "national ID: %s already taken";
     public static final String GUARDIAN_PHONE_TAKEN = "phoneNumber: %s already taken";
-    public static final String STUDENT_ID_ALREADY_TAKEN = "school ID: %s already taken";
+    public static final String STUDENT_ID_ALREADY_TAKEN = "student ID: %s already taken";
+    public static final String EMAIL_ALREADY_TAKEN = "email: %s already taken";
     public static final String STUDENT_NOT_FOUND = "student with ID: %s not found";
     public static final String GUARDIAN_NOT_FOUND = "guardian with ID: %s not found";
+    public static final String EMAIL_DUPLICATES = "%s emails are duplicates";
+    public static final String NULL_STUDENTS = "student list is null or empty";
+    public static final String NOT_SAME_SCHOOL_ID = "all students should have the same schoolId";
 }

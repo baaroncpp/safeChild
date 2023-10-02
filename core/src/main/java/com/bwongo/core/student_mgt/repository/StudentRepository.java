@@ -18,6 +18,7 @@ import java.util.Optional;
 public interface StudentRepository extends JpaRepository<TStudent, Long> {
     boolean existsBySchoolIdNumberAndSchool(String schoolIdNumber, TSchool school);
     boolean existsByNationalIdNumber(String nationalIdNumber);
+    boolean existsByEmail(String email);
     Optional<TStudent> findByDeletedAndId(boolean isDeleted, Long id);
     Optional<TStudent> findByDeletedAndSchoolIdNumberAndSchool(boolean isDeleted, String schoolIdNumber, TSchool school);
     List<TStudent> findAllByDeletedAndSchool(Pageable pageable, boolean isDeleted, TSchool school);

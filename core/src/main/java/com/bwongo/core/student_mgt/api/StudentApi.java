@@ -39,6 +39,13 @@ public class StudentApi {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('STUDENT_ROLE.WRITE', 'ADMIN_ROLE.WRITE')")
+    @PostMapping(path = "list", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<StudentResponseDto> addStudents(@RequestBody List<StudentRequestDto> studentsRequestDto){
+        return studentService.addStudents(studentsRequestDto);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('STUDENT_ROLE.UPDATE', 'ADMIN_ROLE.UPDATE')")
     @PutMapping(path = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public StudentResponseDto updateStudent(@PathVariable("id") Long id, @RequestBody StudentRequestDto studentRequestDto){

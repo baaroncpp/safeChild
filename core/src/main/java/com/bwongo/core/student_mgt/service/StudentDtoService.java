@@ -41,6 +41,7 @@ public class StudentDtoService {
         student.setStudentClass(studentRequestDto.studentClass());
         student.setSchool(school);
         student.setCanBeNotified(studentRequestDto.canBeNotified());
+        student.setNationalIdNumber(studentRequestDto.nationalIdNumber());
 
         return student;
     }
