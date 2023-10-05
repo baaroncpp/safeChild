@@ -86,7 +86,9 @@ public class EnumValidations {
         List<String> schoolCategoryList = Arrays.asList(
                 SchoolCategory.PRIMARY.name(),
                 SchoolCategory.DAY_CARE.name(),
-                SchoolCategory.SECONDARY.name()
+                SchoolCategory.PRE_SCHOOL.name(),
+                SchoolCategory.NURSERY.name(),
+                SchoolCategory.KINDERGARTEN.name()
 
         );
         return schoolCategoryList.contains(value);

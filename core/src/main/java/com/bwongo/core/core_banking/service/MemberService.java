@@ -68,7 +68,7 @@ public class MemberService {
 
         List<RegistrationFieldValueVO> customFields = Arrays.asList(
                 new RegistrationFieldValueVO("receiver_phone", school.getPhoneNumber()),
-                new RegistrationFieldValueVO("category", school.getSchoolCategory().name()),
+                new RegistrationFieldValueVO("category", school.getSchoolCategory().getNote()),
                 new RegistrationFieldValueVO("sms_cost", school.getSmsCost().toString()),
                 new RegistrationFieldValueVO("address", school.getDistrict().getName())
         );
