@@ -32,6 +32,9 @@ public class UserMsgConstants {
     public static final String INVALID_EMAIL = "Invalid email address";
     public static final String COUNTRY_ID_REQUIRED = "Country ID is required";
     public static final String INVALID_IDENTIFICATION_TYPE = "Invalid identification type: it should be OTHER, DRIVING_PERMIT, PASSPORT or NATIONAL_ID";
+    public static final String NULL_PIN = "pin is null or empty";
+    public static final String INVALID_PIN = "%s is an invalid pin, only numbers";
+    public static final String PIN_BAD_LENGTH = "pin must be 4 characters";
     public static final String READ_PERMISSION = ".READ";
     public static final String WRITE_PERMISSION = ".WRITE";
     public static final String DELETE_PERMISSION = ".DELETE";

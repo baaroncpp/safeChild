@@ -4,12 +4,14 @@ import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.repository.TLocationRepository;
 import com.bwongo.core.base.service.AuditService;
+import com.bwongo.core.core_banking.service.MemberService;
 import com.bwongo.core.school_mgt.model.dto.SchoolRequestDto;
 import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +31,9 @@ public class SchoolService {
     private final SchoolDtoService schoolDtoService;
     private final AuditService auditService;
     private final TLocationRepository locationRepository;
+    private final MemberService memberService;
 
+    @Transactional
     public SchoolResponseDto addSchool(SchoolRequestDto schoolRequestDto){
 
         schoolRequestDto.validate();
@@ -51,11 +55,15 @@ public class SchoolService {
         var savedLocation = locationRepository.save(location);
         school.setLocation(savedLocation);
 
+        var coreBankingId = memberService.addSchoolToCoreBanking(school);
+        school.setCoreBankingId(coreBankingId);
+
         var result = schoolRepository.save(school);
 
         return schoolDtoService.schoolToDto(result);
     }
 
+    @Transactional
     public SchoolResponseDto updateSchool(Long id, SchoolRequestDto schoolRequestDto){
 
         schoolRequestDto.validate();
@@ -94,7 +102,10 @@ public class SchoolService {
 
         auditService.stampAuditedEntity(updatedSchool);
 
-        return schoolDtoService.schoolToDto(schoolRepository.save(updatedSchool));
+        var savedUpdatedSchool = schoolRepository.save(updatedSchool);
+        memberService.updateSchoolToCoreBanking(savedUpdatedSchool.getCoreBankingId(), savedUpdatedSchool);
+
+        return schoolDtoService.schoolToDto(savedUpdatedSchool);
     }
 
     public SchoolResponseDto getSchoolById(Long id){

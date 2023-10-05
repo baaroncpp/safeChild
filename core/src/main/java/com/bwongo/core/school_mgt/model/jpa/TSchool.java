@@ -33,6 +33,8 @@ public class TSchool extends AuditEntity {
     private SchoolCategory schoolCategory;
     private boolean isAssigned;
     private TLocation location;
+    private String physicalAddress;
+    private Long coreBankingId;
 
     @Column(name = "school_name")
     public String getSchoolName() {
@@ -96,5 +98,15 @@ public class TSchool extends AuditEntity {
     @OneToOne(fetch = FetchType.LAZY)
     public TLocation getLocation() {
         return location;
+    }
+
+    @Column(name = "physical_address")
+    public String getPhysicalAddress() {
+        return physicalAddress;
+    }
+
+    @Column(name = "core_banking_id")
+    public Long getCoreBankingId() {
+        return coreBankingId;
     }
 }

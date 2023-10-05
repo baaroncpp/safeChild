@@ -27,5 +27,6 @@ public class StudentMsgConstant {
     public static final String GUARDIAN_NOT_FOUND = "guardian with ID: %s not found";
     public static final String EMAIL_DUPLICATES = "%s emails are duplicates";
     public static final String NULL_STUDENTS = "student list is null or empty";
+    public static final String NULL_PHYSICAL_ADDRESS = "physicalAddress is null or empty";
     public static final String NOT_SAME_SCHOOL_ID = "all students should have the same schoolId";
 }

@@ -31,3 +31,10 @@ app:
       keystore-password: ${KEYSTORE_PASSWORD:kabangali2022}
       key-alias: ${KEY_ALIAS:kabangali}
       signing-key: ${SIGNING-KEY:123456}
+
+core-banking:
+  group-id:
+    school: 15
+    student: 20
+    driver: 17
+    school-staff: 19

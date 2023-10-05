@@ -25,6 +25,8 @@ public class TStudent extends AuditEntity {
     private String profileImagePathUrl;
     private String idImagePathUrl;
     private boolean canBeNotified;
+    private Long coreBankingId;
+    private String physicalAddress;
 
     @Column(name = "first_name")
     public String getFirstName() {
@@ -75,5 +77,15 @@ public class TStudent extends AuditEntity {
     @Column(name = "can_be_notified")
     public boolean isCanBeNotified() {
         return canBeNotified;
+    }
+
+    @Column(name = "core_banking_id")
+    public Long getCoreBankingId() {
+        return coreBankingId;
+    }
+
+    @Column(name = "physical_address")
+    public String getPhysicalAddress() {
+        return physicalAddress;
     }
 }

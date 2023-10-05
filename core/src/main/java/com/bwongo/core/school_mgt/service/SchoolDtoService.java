@@ -73,7 +73,8 @@ public class SchoolDtoService {
                 school.getReferenceSchoolId(),
                 school.getSchoolCategory(),
                 school.isAssigned(),
-                baseDtoService.locationToDto(school.getLocation())
+                baseDtoService.locationToDto(school.getLocation()),
+                school.getPhysicalAddress()
         );
     }
 
@@ -103,6 +104,7 @@ public class SchoolDtoService {
         school.setSmsCost(schoolRequestDto.smsCost());
         school.setSchoolCategory(SchoolCategory.valueOf(schoolRequestDto.schoolCategory()));
         school.setLocation(location);
+        school.setPhysicalAddress(schoolRequestDto.physicalAddress());
 
         return school;
     }

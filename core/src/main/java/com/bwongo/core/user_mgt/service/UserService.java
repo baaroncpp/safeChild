@@ -124,6 +124,7 @@ public class UserService {
         user.setUserType(UserTypeEnum.valueOf(schoolUserRequestDto.userType()));
 
         auditService.stampLongEntity(user);
+
         var savedUser = userRepository.save(user);
 
         var schoolUser = new TSchoolUser();
@@ -163,6 +164,7 @@ public class UserService {
         return userDtoService.tUserToDto(userRepository.save(user));
     }
 
+    @Transactional
     public UserResponseDto updateByField(Long id, Map<String, Object> fields) {
 
         Validate.isTrue(!fields.containsKey(PASSWORD), ExceptionType.BAD_REQUEST, PASSWORD_CANT_BE_UPDATED);

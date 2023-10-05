@@ -8,6 +8,7 @@ import com.bwongo.core.base.utils.EnumValidations;
 import java.math.BigDecimal;
 
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.*;
+import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.NULL_PHYSICAL_ADDRESS;
 
 /**
  * @Author bkaaron
@@ -24,7 +25,8 @@ public record SchoolRequestDto(
         BigDecimal smsCost,
         String schoolCategory,
         double latitudeCoordinate,
-        double longitudeCoordinate
+        double longitudeCoordinate,
+        String physicalAddress
 ) {
     public void validate(){
         Validate.notEmpty(schoolName, NULL_SCHOOL_NAME);
@@ -40,5 +42,6 @@ public record SchoolRequestDto(
         Validate.isTrue(EnumValidations.isSchoolCategory(schoolCategory), ExceptionType.BAD_REQUEST, INVALID_SCHOOL_CATEGORY);
         Validate.notNull(latitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
         Validate.notNull(longitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
+        Validate.notEmpty(physicalAddress, NULL_PHYSICAL_ADDRESS);
     }
 }

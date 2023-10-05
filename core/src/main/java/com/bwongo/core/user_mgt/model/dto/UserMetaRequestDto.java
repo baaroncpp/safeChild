@@ -26,7 +26,8 @@ public record UserMetaRequestDto(
          String email,
          Long countryId,
          String identificationType,
-         String identificationNumber
+         String identificationNumber,
+         String pin
 ) {
     public void validate(){
         Validate.notEmpty(lastName, LAST_NAME_REQUIRED);
@@ -43,6 +44,9 @@ public record UserMetaRequestDto(
         Validate.notNull(gender, ExceptionType.BAD_REQUEST, GENDER_REQUIRED);
         Validate.notNull(identificationType, ExceptionType.BAD_REQUEST, IDENTIFICATION_TYPE_REQUIRED);
         Validate.isTrue(isIdentificationType(identificationType), ExceptionType.BAD_REQUEST, INVALID_IDENTIFICATION_TYPE);
+        Validate.notEmpty(pin, NULL_PIN);
+        StringRegExUtil.stringOfOnlyNumbers(pin, String.format(INVALID_PIN, pin));
+        Validate.isTrue(pin.length() == 4, ExceptionType.BAD_REQUEST, PIN_BAD_LENGTH);
 
         if(!phoneNumber2.isEmpty()){
             StringRegExUtil.stringOfInternationalPhoneNumber(phoneNumber, INVALID_SECOND_PHONE_NUMBER);

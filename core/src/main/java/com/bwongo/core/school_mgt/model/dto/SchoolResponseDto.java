@@ -33,6 +33,7 @@ public record SchoolResponseDto(
         String referenceSchoolId,
         SchoolCategory schoolCategory,
         boolean isAssigned,
-        LocationResponseDto location
+        LocationResponseDto location,
+        String address
 ) {
 }

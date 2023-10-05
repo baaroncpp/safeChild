@@ -42,6 +42,7 @@ public class StudentDtoService {
         student.setSchool(school);
         student.setCanBeNotified(studentRequestDto.canBeNotified());
         student.setNationalIdNumber(studentRequestDto.nationalIdNumber());
+        student.setPhysicalAddress(studentRequestDto.physicalAddress());
 
         return student;
     }
@@ -67,7 +68,8 @@ public class StudentDtoService {
                 schoolDtoService.schoolToDto(student.getSchool()),
                 student.getProfileImagePathUrl(),
                 student.getIdImagePathUrl(),
-                student.isCanBeNotified()
+                student.isCanBeNotified(),
+                student.getPhysicalAddress()
         );
     }
 

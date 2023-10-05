@@ -105,4 +105,12 @@ public class Validate {
         }
         return false;
     }
+
+    public static void filterException(String message){
+        if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(message, "found")){
+            throw new ResourceNotFoundException(message);
+        }else {
+            throw new BadRequestException(message);
+        }
+    }
 }
