@@ -23,6 +23,8 @@ public class CoreBankingWebServiceUtils {
     public static CyclosWebServicesClientFactory getWebServiceFactory(){
         var factory = new CyclosWebServicesClientFactory();
         factory.setServerRootUrl(CORE_BANKING_URL);
+        factory.setUsername("web");
+        factory.setPassword("web@1234");
         return factory;
     }
 
