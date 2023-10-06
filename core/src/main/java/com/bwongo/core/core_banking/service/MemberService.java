@@ -244,7 +244,7 @@ public class MemberService {
         //memberParameters.setId(id);
         memberParameters.setEmail(defaultUpdateUserDto.email());
         memberParameters.setName(defaultUpdateUserDto.fullName());
-        //memberParameters.setPrincipalType("USER");
+        memberParameters.setPrincipalType("USER");
         memberParameters.setPrincipal(defaultUpdateUserDto.username());
         memberParameters.setFields(defaultUpdateUserDto.customFields());
 
