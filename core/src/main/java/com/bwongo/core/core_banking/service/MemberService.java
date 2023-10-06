@@ -50,7 +50,7 @@ public class MemberService {
                 new RegistrationFieldValueVO("receiver_phone", school.getPhoneNumber()),
                 new RegistrationFieldValueVO("category", school.getSchoolCategory().getNote()),
                 new RegistrationFieldValueVO("sms_amount", school.getSmsCost().toString()),
-                //new RegistrationFieldValueVO("school_id", school.getId().toString()),
+                new RegistrationFieldValueVO("std_school", school.getSchoolName()),
                 new RegistrationFieldValueVO("address", school.getDistrict().getName() +", "+school.getPhysicalAddress())
         );
 
@@ -72,7 +72,7 @@ public class MemberService {
                 new RegistrationFieldValueVO("receiver_phone", school.getPhoneNumber()),
                 new RegistrationFieldValueVO("category", school.getSchoolCategory().getNote()),
                 new RegistrationFieldValueVO("sms_amount", school.getSmsCost().toString()),
-                new RegistrationFieldValueVO("school_id", school.getId().toString()),
+                new RegistrationFieldValueVO("std_school", school.getSchoolName()),
                 new RegistrationFieldValueVO("address", school.getDistrict().getName() +", "+school.getPhysicalAddress())
         );
 
@@ -241,10 +241,10 @@ public class MemberService {
     private void updateCoreBankingUser(Long id, DefaultUpdateUserDto defaultUpdateUserDto){
 
         var memberParameters = new UpdateMemberParameters();
-        memberParameters.setId(id);
+        //memberParameters.setId(id);
         memberParameters.setEmail(defaultUpdateUserDto.email());
         memberParameters.setName(defaultUpdateUserDto.fullName());
-        memberParameters.setPrincipalType("USER");
+        //memberParameters.setPrincipalType("USER");
         memberParameters.setPrincipal(defaultUpdateUserDto.username());
         memberParameters.setFields(defaultUpdateUserDto.customFields());
 
