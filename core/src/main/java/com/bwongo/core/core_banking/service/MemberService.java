@@ -254,6 +254,7 @@ public class MemberService {
             memberWebService.updateMember(memberParameters);
         } catch (Exception e) {
             var errorMsg = e.getMessage();
+            log.info(errorMsg);
             Validate.filterException(errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
         }
     }
