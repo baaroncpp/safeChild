@@ -21,7 +21,7 @@ public class SchoolMsgConstants {
     public static final String NULL_SMS_COST = "smsCost is null or empty";
     public static final String NULL_SCHOOL_CATEGORY = "schoolCategory is null or empty";
     public static final String INVALID_AMOUNT = "amount must be greater than 0.0";
-    public static final String INVALID_SCHOOL_CATEGORY = "invalid school Category, Options: DAY_CARE, PRIMARY, SECONDARY";
+    public static final String INVALID_SCHOOL_CATEGORY = "invalid school Category, Options: DAY_CARE, PRIMARY, KINDERGARTEN, NURSERY, PRE_SCHOOL";
     public static final String SCHOOL_USERNAME_TAKEN = "School username: %s already taken";
     public static final String SCHOOL_PHONE_TAKEN = "School phoneNumber: %s already taken";
     public static final String SCHOOL_EMAIL_TAKEN = "School email: %s already taken";

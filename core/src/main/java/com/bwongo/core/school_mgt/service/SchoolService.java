@@ -1,6 +1,7 @@
 package com.bwongo.core.school_mgt.service;
 
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
+import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.repository.TLocationRepository;
 import com.bwongo.core.base.service.AuditService;
@@ -54,6 +55,9 @@ public class SchoolService {
 
         var savedLocation = locationRepository.save(location);
         school.setLocation(savedLocation);
+        school.setAccountNumber(getNonExistingSchoolAccountNumber());
+
+        System.out.println(school.getAccountNumber());
 
         var coreBankingId = memberService.addSchoolToCoreBanking(school);
         school.setCoreBankingId(coreBankingId);
@@ -123,5 +127,14 @@ public class SchoolService {
         return schoolRepository.findAllByDeleted(Boolean.FALSE, pageable).stream()
                 .map(schoolDtoService::schoolToDto)
                 .collect(Collectors.toList());
+    }
+
+    private String getNonExistingSchoolAccountNumber(){
+        var accountNumber = "";
+        do {
+            accountNumber = StringUtil.getRandom6DigitString();
+        }while(schoolRepository.existsByAccountNumber(accountNumber));
+
+        return accountNumber;
     }
 }

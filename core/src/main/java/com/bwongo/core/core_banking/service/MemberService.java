@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import static com.bwongo.core.core_banking.utils.CoreBankingMsgConstant.*;
 import static com.bwongo.core.core_banking.utils.CoreBankingWebServiceUtils.getWebServiceFactory;
@@ -49,12 +50,13 @@ public class MemberService {
                 new RegistrationFieldValueVO("receiver_phone", school.getPhoneNumber()),
                 new RegistrationFieldValueVO("category", school.getSchoolCategory().getNote()),
                 new RegistrationFieldValueVO("sms_amount", school.getSmsCost().toString()),
+                //new RegistrationFieldValueVO("school_id", school.getId().toString()),
                 new RegistrationFieldValueVO("address", school.getDistrict().getName() +", "+school.getPhysicalAddress())
         );
 
         var coreBankingSchool = new DefaultRegisterUserDto(
                 school.getSchoolName(),
-                school.getUsername(),
+                school.getAccountNumber(),
                 "2023",
                 school.getEmail(),
                 schoolGroupId,
@@ -70,12 +72,13 @@ public class MemberService {
                 new RegistrationFieldValueVO("receiver_phone", school.getPhoneNumber()),
                 new RegistrationFieldValueVO("category", school.getSchoolCategory().getNote()),
                 new RegistrationFieldValueVO("sms_amount", school.getSmsCost().toString()),
-                new RegistrationFieldValueVO("address", school.getDistrict().getName())
+                new RegistrationFieldValueVO("school_id", school.getId().toString()),
+                new RegistrationFieldValueVO("address", school.getDistrict().getName() +", "+school.getPhysicalAddress())
         );
 
         var coreBankingSchool = new DefaultUpdateUserDto(
                 school.getSchoolName(),
-                school.getUsername(),
+                school.getAccountNumber(),
                 school.getEmail(),
                 customFields
         );
@@ -170,6 +173,7 @@ public class MemberService {
                 new RegistrationFieldValueVO("address", student.getPhysicalAddress()),
                 new RegistrationFieldValueVO("std_class", student.getStudentClass()),
                 new RegistrationFieldValueVO("school_account", student.getSchool().getUsername()),
+                new RegistrationFieldValueVO("parent", guardian.getFullName()),
                 new RegistrationFieldValueVO("school_id", student.getSchool().getCoreBankingId().toString())
         );
 
@@ -182,6 +186,29 @@ public class MemberService {
                 customFields
         );
         return defaultUserRegistry(coreBankingStudent);
+    }
+
+    public void updateStudent(Long id, TStudent student, TGuardian guardian) {
+
+        List<RegistrationFieldValueVO> customFields = Arrays.asList(
+                new RegistrationFieldValueVO("receiver_phone", guardian.getPhoneNumber()),
+                new RegistrationFieldValueVO("std_school", student.getSchool().getSchoolName()),
+                new RegistrationFieldValueVO("sms_cost", "0.0"),
+                new RegistrationFieldValueVO("address", student.getPhysicalAddress()),
+                new RegistrationFieldValueVO("std_class", student.getStudentClass()),
+                new RegistrationFieldValueVO("school_account", student.getSchool().getUsername()),
+                new RegistrationFieldValueVO("parent", guardian.getFullName()),
+                new RegistrationFieldValueVO("school_id", student.getSchool().getCoreBankingId().toString())
+        );
+
+        var studentCoreBanking = new DefaultUpdateUserDto(
+                student.getFirstName() +" "+ student.getSecondName(),
+                student.getFirstName(),
+                student.getEmail(),
+                customFields
+        );
+
+        updateCoreBankingUser(id, studentCoreBanking);
     }
 
     private Long defaultUserRegistry(DefaultRegisterUserDto defaultRegisterUserDto){

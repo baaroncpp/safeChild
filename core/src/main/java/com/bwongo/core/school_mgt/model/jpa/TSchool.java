@@ -35,6 +35,7 @@ public class TSchool extends AuditEntity {
     private TLocation location;
     private String physicalAddress;
     private Long coreBankingId;
+    private String accountNumber;
 
     @Column(name = "school_name")
     public String getSchoolName() {
@@ -108,5 +109,10 @@ public class TSchool extends AuditEntity {
     @Column(name = "core_banking_id")
     public Long getCoreBankingId() {
         return coreBankingId;
+    }
+
+    @Column(name = "account_number")
+    public String getAccountNumber() {
+        return accountNumber;
     }
 }

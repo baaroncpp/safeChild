@@ -19,5 +19,6 @@ public interface SchoolRepository extends JpaRepository<TSchool, Long> {
     boolean existsByUsername(String username);
     boolean existsByPhoneNumber(String phoneNumber);
     boolean existsByEmail(String email);
+    boolean existsByAccountNumber(String accountNumber);
     List<TSchool> findAllByDeleted(boolean deleted, Pageable pageable);
 }

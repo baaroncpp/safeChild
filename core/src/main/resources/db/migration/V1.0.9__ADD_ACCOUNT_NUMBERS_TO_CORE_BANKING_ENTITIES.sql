@@ -1,0 +1,1 @@
+ALTER TABLE t_school ADD COLUMN account_number VARCHAR(8) UNIQUE;
