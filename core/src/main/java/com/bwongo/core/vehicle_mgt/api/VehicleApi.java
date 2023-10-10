@@ -20,7 +20,7 @@ import java.util.List;
  * @Project nc
  * @Date 9/30/23
  **/
-@Tag(name = "Students",description = "Manage shuttles on SafeChild")
+@Tag(name = "Shuttles",description = "Manage shuttles on SafeChild")
 @RestController
 @RequestMapping("/api/v1/shuttle")
 @RequiredArgsConstructor

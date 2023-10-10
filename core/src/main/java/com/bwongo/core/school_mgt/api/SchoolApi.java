@@ -19,7 +19,7 @@ import java.util.List;
  * @Project nc
  * @Date 9/7/23
  **/
-@Tag(name = "Users",description = "Manage schools on SafeChild")
+@Tag(name = "Schools",description = "Manage schools on SafeChild")
 @RolesAllowed("ROLE_ADMIN")
 @RestController
 @RequestMapping("/api/v1/school")
