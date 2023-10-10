@@ -289,15 +289,12 @@ public class UserService {
             Validate.isPresent(schoolUser, NOT_ATTACHED_TO_SCHOOL, user.getId());
             var school = schoolUser.get().getSchool();
 
-            Long coreBankingId = null;
-
             if(user.getUserType().equals(UserTypeEnum.DRIVER))
-                coreBankingId = memberService.addSchoolDriver(userMeta, school,user.getUsername());
+                user.setCoreBankingId(memberService.addSchoolDriver(userMeta, school,user.getUsername()));
 
             if(user.getUserType().equals(UserTypeEnum.SCHOOL_STAFF) || user.getUserType().equals(UserTypeEnum.SCHOOL_ADMIN))
-                coreBankingId = memberService.addSchoolStaff(userMeta, school,user.getUsername());
+                user.setCoreBankingId(memberService.addSchoolStaff(userMeta, school,user.getUsername()));
 
-            user.setCoreBankingId(coreBankingId);
         }
         userRepository.save(user);
 

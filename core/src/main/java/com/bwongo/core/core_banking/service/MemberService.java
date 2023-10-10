@@ -90,8 +90,8 @@ public class MemberService {
 
         List<RegistrationFieldValueVO> customFields = Arrays.asList(
                 new RegistrationFieldValueVO("receiver_phone", userMeta.getPhoneNumber()),
-                new RegistrationFieldValueVO("std_school", school.getSchoolName()),
-                new RegistrationFieldValueVO("school_id", school.getCoreBankingId().toString())
+                new RegistrationFieldValueVO("std_school", school.getSchoolName())
+                //new RegistrationFieldValueVO("school_id", school.getCoreBankingId().toString())
         );
 
         var coreBankingSchool = new DefaultRegisterUserDto(
@@ -109,8 +109,8 @@ public class MemberService {
 
         List<RegistrationFieldValueVO> customFields = Arrays.asList(
                 new RegistrationFieldValueVO("receiver_phone", userMeta.getPhoneNumber()),
-                new RegistrationFieldValueVO("std_school", school.getSchoolName()),
-                new RegistrationFieldValueVO("school_id", school.getCoreBankingId().toString())
+                new RegistrationFieldValueVO("std_school", school.getSchoolName())
+                //new RegistrationFieldValueVO("school_id", school.getCoreBankingId().toString())
         );
 
         var coreBankingSchool = new DefaultUpdateUserDto(
