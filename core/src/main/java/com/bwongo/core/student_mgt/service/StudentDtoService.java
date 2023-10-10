@@ -69,7 +69,8 @@ public class StudentDtoService {
                 student.getProfileImagePathUrl(),
                 student.getIdImagePathUrl(),
                 student.isCanBeNotified(),
-                student.getPhysicalAddress()
+                student.getPhysicalAddress(),
+                student.getStudentUsername()
         );
     }
 
@@ -86,6 +87,7 @@ public class StudentDtoService {
         guardian.setRelation(Relation.valueOf(guardianRequestDto.relation()));
         guardian.setIdentificationType(IdentificationType.valueOf(guardianRequestDto.identificationType()));
         guardian.setIdNumber(guardianRequestDto.idNumber());
+        guardian.setNotified(guardianRequestDto.isNotified());
 
         return guardian;
     }
@@ -107,7 +109,8 @@ public class StudentDtoService {
             guardian.getAddress(),
             guardian.getRelation(),
             guardian.getIdentificationType(),
-            guardian.getIdNumber()
+            guardian.getIdNumber(),
+            guardian.isNotified()
         );
     }
 

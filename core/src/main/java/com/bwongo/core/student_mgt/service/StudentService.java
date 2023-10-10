@@ -1,9 +1,11 @@
 package com.bwongo.core.student_mgt.service;
 
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
+import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.enums.UserTypeEnum;
 import com.bwongo.core.base.service.AuditService;
+import com.bwongo.core.core_banking.service.MemberService;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
@@ -18,12 +20,14 @@ import com.bwongo.core.user_mgt.repository.TUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.SCHOOL_NOT_FOUND;
+import static com.bwongo.core.student_mgt.utils.StudentManagementUtils.studentAlreadyHasNotifyingGuardian;
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
 import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.CANT_ASSIGN_SCHOOL;
 
@@ -34,6 +38,7 @@ import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.CANT_ASSIGN_
  **/
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class StudentService {
 
     private final SchoolRepository schoolRepository;
@@ -44,6 +49,7 @@ public class StudentService {
     private final AuditService auditService;
     private final TUserRepository userRepository;
     private final SchoolUserRepository schoolUserRepository;
+    private final MemberService memberService;
 
     public List<StudentResponseDto> addStudents(List<StudentRequestDto> studentsRequestDto){
 
@@ -53,6 +59,7 @@ public class StudentService {
                 .toList();
     }
 
+    @Transactional
     public StudentResponseDto addStudent(StudentRequestDto studentRequestDto){
 
         studentRequestDto.validate();
@@ -72,6 +79,7 @@ public class StudentService {
         Validate.isTrue(!studentRepository.existsBySchoolIdNumberAndSchool(schoolIdNumber, school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, schoolIdNumber);
 
         var student = studentDtoService.dtoToTStudent(studentRequestDto);
+        student.setStudentUsername(getNonExistingStudentUsername());
         auditService.stampAuditedEntity(student);
 
         var existingEditingUser = userRepository.findById(student.getCreatedBy().getId());
@@ -83,6 +91,7 @@ public class StudentService {
         return studentDtoService.studentToDto(studentRepository.save(student));
     }
 
+    @Transactional
     public StudentResponseDto updateStudent(Long id, StudentRequestDto studentRequestDto){
 
         studentRequestDto.validate();
@@ -137,6 +146,7 @@ public class StudentService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public StudentGuardianDto addStudentGuardian(GuardianRequestDto guardianRequestDto){
 
         guardianRequestDto.validate();
@@ -155,23 +165,31 @@ public class StudentService {
 
         var savedGuardian = guardianRepository.save(guardian);
 
-        var studentGuardian = new TStudentGuardian();
-        studentGuardian.setGuardian(savedGuardian);
-        studentGuardian.setStudent(existingStudent);
-        auditService.stampAuditedEntity(studentGuardian);
-
-        return studentDtoService.studentGuardianToDto(studentGuardianRepository.save(studentGuardian));
+        return getStudentGuardianDto(existingStudent, savedGuardian);
     }
 
+    @Transactional
     public StudentGuardianDto assignGuardianToStudent(Long studentId, Long guardianId){
 
         var existingStudent = getStudent(studentId);
         var existingGuardian = getGuardian(guardianId);
 
+        return getStudentGuardianDto(existingStudent, existingGuardian);
+    }
+
+    private StudentGuardianDto getStudentGuardianDto(TStudent existingStudent, TGuardian existingGuardian) {
         var studentGuardian = new TStudentGuardian();
         studentGuardian.setGuardian(existingGuardian);
         studentGuardian.setStudent(existingStudent);
         auditService.stampAuditedEntity(studentGuardian);
+
+        var studentGuardians = studentGuardianRepository.findAllByStudent(existingStudent);
+
+        if(existingGuardian.isNotified() && !studentAlreadyHasNotifyingGuardian(studentGuardians)) {
+            var coreBankingId = memberService.addStudent(existingStudent, existingGuardian);
+            existingStudent.setCoreBankingId(coreBankingId);
+            studentRepository.save(existingStudent);
+        }
 
         return studentDtoService.studentGuardianToDto(studentGuardianRepository.save(studentGuardian));
     }
@@ -262,5 +280,14 @@ public class StudentService {
         var student = studentDtoService.dtoToTStudent(studentRequestDto);
         auditService.stampAuditedEntity(student);
         return student;
+    }
+
+    private String getNonExistingStudentUsername(){
+        var studentUsername = "";
+        do {
+            studentUsername = StringUtil.getRandom6DigitString();
+        }while(studentRepository.existsByStudentUsername(studentUsername));
+
+        return studentUsername;
     }
 }

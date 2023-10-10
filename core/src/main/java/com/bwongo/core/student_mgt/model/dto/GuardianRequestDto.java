@@ -7,6 +7,7 @@ import com.bwongo.core.student_mgt.utils.StudentMsgConstant;
 import static com.bwongo.core.base.utils.EnumValidations.isIdentificationType;
 import static com.bwongo.core.base.utils.EnumValidations.isRelation;
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.NULL_PHONE_NUMBER;
+import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.NULL_IS_NOTIFIED;
 
 /**
  * @Author bkaaron
@@ -20,7 +21,8 @@ public record GuardianRequestDto(
         String relation,
         String identificationType,
         String idNumber,
-        Long studentId
+        Long studentId,
+        boolean isNotified
 ) {
     public void validate(){
         Validate.notEmpty(fullName, StudentMsgConstant.NULL_FULL_NAME);
@@ -29,6 +31,7 @@ public record GuardianRequestDto(
         Validate.notEmpty(relation, StudentMsgConstant.NULL_RELATION);
         Validate.isTrue(isRelation(relation), ExceptionType.BAD_REQUEST, StudentMsgConstant.INVALID_RELATION);
         Validate.notNull(studentId, ExceptionType.BAD_REQUEST, StudentMsgConstant.NULL_STUDENT_ID);
+        Validate.notNull(isNotified, ExceptionType.BAD_REQUEST, NULL_IS_NOTIFIED);
 
         if(!identificationType.isEmpty())
             Validate.isTrue(isIdentificationType(identificationType), ExceptionType.BAD_REQUEST, StudentMsgConstant.INVALID_IDENTIFICATION_TYPE);

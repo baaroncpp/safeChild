@@ -30,6 +30,7 @@ public class TUser extends BaseEntity {
     private Long approvedBy;
     private UserTypeEnum userType;
     private Long userMetaId;
+    private Long coreBankingId;
 
     @Column(name = "username")
     public String getUsername() {
@@ -91,5 +92,10 @@ public class TUser extends BaseEntity {
     @Column(name = "user_meta_id")
     public Long getUserMetaId() {
         return userMetaId;
+    }
+
+    @Column(name = "core_banking_id")
+    public Long getCoreBankingId() {
+        return coreBankingId;
     }
 }

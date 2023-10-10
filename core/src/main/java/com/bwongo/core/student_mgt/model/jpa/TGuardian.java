@@ -24,6 +24,7 @@ public class TGuardian extends AuditEntity {
     private Relation relation;
     private IdentificationType identificationType;
     private String idNumber;
+    private boolean isNotified;
 
     @Column(name = "full_name")
     public String getFullName() {
@@ -53,5 +54,10 @@ public class TGuardian extends AuditEntity {
     @Column(name = "id_number")
     public String getIdNumber() {
         return idNumber;
+    }
+
+    @Column(name = "is_notified")
+    public boolean isNotified() {
+        return isNotified;
     }
 }

@@ -26,6 +26,7 @@ public record StudentResponseDto(
         String profileImagePathUrl,
         String idImagePathUrl,
         boolean canBeNotified,
-        String physicalAddress
+        String physicalAddress,
+        String studentUsername
 ) {
 }

@@ -107,7 +107,7 @@ public class SchoolService {
         auditService.stampAuditedEntity(updatedSchool);
 
         var savedUpdatedSchool = schoolRepository.save(updatedSchool);
-        memberService.updateSchoolToCoreBanking(savedUpdatedSchool.getCoreBankingId(), savedUpdatedSchool);
+        //memberService.updateSchoolToCoreBanking(savedUpdatedSchool.getCoreBankingId(), savedUpdatedSchool);
 
         return schoolDtoService.schoolToDto(savedUpdatedSchool);
     }

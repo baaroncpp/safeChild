@@ -2,6 +2,7 @@ package com.bwongo.core.user_mgt.utils;
 
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.Validate;
+import com.bwongo.core.base.model.enums.UserTypeEnum;
 import com.bwongo.core.user_mgt.model.jpa.TPermission;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
 
@@ -14,6 +15,13 @@ import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
  **/
 public class UserManagementUtils {
     private UserManagementUtils() {}
+
+    public static boolean checkThatUserIsSchoolUser(TUser user){
+        if(user.getUserType().equals(UserTypeEnum.DRIVER) || user.getUserType().equals(UserTypeEnum.SCHOOL_STAFF) || user.getUserType().equals(UserTypeEnum.SCHOOL_ADMIN)){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 
     public static void checkThatUserIsAssignable(TUser user){
         Validate.isTrue(user.isApproved(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_NOT_APPROVED, user.getId());

@@ -129,8 +129,8 @@ public class MemberService {
                 new RegistrationFieldValueVO("receiver_phone", userMeta.getPhoneNumber()),
                 new RegistrationFieldValueVO("std_school", school.getSchoolName()),
                 new RegistrationFieldValueVO("sms_cost", school.getSmsCost().toString()),
-                new RegistrationFieldValueVO("address", userMeta.getPhysicalAddress()),
-                new RegistrationFieldValueVO("school_id", school.getCoreBankingId().toString())
+                new RegistrationFieldValueVO("address", userMeta.getPhysicalAddress())
+                //new RegistrationFieldValueVO("school_id", school.getCoreBankingId().toString())
         );
 
         var coreBankingSchool = new DefaultRegisterUserDto(
@@ -150,8 +150,8 @@ public class MemberService {
                 new RegistrationFieldValueVO("receiver_phone", userMeta.getPhoneNumber()),
                 new RegistrationFieldValueVO("std_school", school.getSchoolName()),
                 new RegistrationFieldValueVO("sms_cost", school.getSmsCost().toString()),
-                new RegistrationFieldValueVO("address", userMeta.getPhysicalAddress()),
-                new RegistrationFieldValueVO("school_id", school.getCoreBankingId().toString())
+                new RegistrationFieldValueVO("address", userMeta.getPhysicalAddress())
+                //new RegistrationFieldValueVO("school_id", school.getCoreBankingId().toString())
         );
 
         var coreBankingSchool = new DefaultUpdateUserDto(
@@ -172,9 +172,9 @@ public class MemberService {
                 new RegistrationFieldValueVO("sms_cost", "0.0"),
                 new RegistrationFieldValueVO("address", student.getPhysicalAddress()),
                 new RegistrationFieldValueVO("std_class", student.getStudentClass()),
-                new RegistrationFieldValueVO("school_account", student.getSchool().getUsername()),
-                new RegistrationFieldValueVO("parent", guardian.getFullName()),
-                new RegistrationFieldValueVO("school_id", student.getSchool().getCoreBankingId().toString())
+                new RegistrationFieldValueVO("school_account", student.getSchool().getAccountNumber()),
+                new RegistrationFieldValueVO("parent", guardian.getFullName())
+                //new RegistrationFieldValueVO("school_id", student.getSchool().getCoreBankingId().toString())
         );
 
         var coreBankingStudent = new DefaultRegisterUserDto(
@@ -197,8 +197,8 @@ public class MemberService {
                 new RegistrationFieldValueVO("address", student.getPhysicalAddress()),
                 new RegistrationFieldValueVO("std_class", student.getStudentClass()),
                 new RegistrationFieldValueVO("school_account", student.getSchool().getUsername()),
-                new RegistrationFieldValueVO("parent", guardian.getFullName()),
-                new RegistrationFieldValueVO("school_id", student.getSchool().getCoreBankingId().toString())
+                new RegistrationFieldValueVO("parent", guardian.getFullName())
+                //new RegistrationFieldValueVO("school_id", student.getSchool().getCoreBankingId().toString())
         );
 
         var studentCoreBanking = new DefaultUpdateUserDto(

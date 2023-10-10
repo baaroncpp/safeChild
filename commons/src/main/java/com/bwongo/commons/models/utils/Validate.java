@@ -109,6 +109,8 @@ public class Validate {
     public static void filterException(String message){
         if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(message, "found")){
             throw new ResourceNotFoundException(message);
+        }else if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(message, "Could not send Message")){
+            throw new BadRequestException(message + " Core banking service cannot be accessed");
         }else {
             throw new BadRequestException(message);
         }

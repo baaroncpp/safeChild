@@ -12,6 +12,7 @@ public class StudentMsgConstant {
     public static final String NULL_ADDRESS = "address is null or empty";
     public static final String NULL_RELATION = "relation is null or empty";
     public static final String INVALID_RELATION = "invalid relation, Options: FATHER, MOTHER, BROTHER, SISTER, UNCLE, AUNT, OTHERS";
+    public static final String NULL_IS_NOTIFIED = "isNotified is null or empty";
     public static final String INVALID_IDENTIFICATION_TYPE = "invalid identificationType, Options: DRIVING_PERMIT, PASSPORT, NATIONAL_ID";
     public static final String NULL_STUDENT_ID = "studentId is null or empty";
     public static final String NULL_SCHOOL_CARD_ID = "schoolIdNumber is null or empty";

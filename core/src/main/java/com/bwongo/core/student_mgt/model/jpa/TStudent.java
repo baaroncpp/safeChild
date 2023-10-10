@@ -15,6 +15,7 @@ import javax.persistence.*;
 @Table(name = "t_student", schema = "core")
 @Setter
 public class TStudent extends AuditEntity {
+    private String studentUsername;
     private String firstName;
     private String secondName;
     private String schoolIdNumber;
@@ -27,6 +28,11 @@ public class TStudent extends AuditEntity {
     private boolean canBeNotified;
     private Long coreBankingId;
     private String physicalAddress;
+
+    @Column(name = "student_username")
+    public String getStudentUsername() {
+        return studentUsername;
+    }
 
     @Column(name = "first_name")
     public String getFirstName() {

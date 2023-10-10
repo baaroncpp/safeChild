@@ -22,6 +22,7 @@ public record GuardianResponseDto(
         String address,
         Relation relation,
         IdentificationType identificationType,
-        String idNumber
+        String idNumber,
+        boolean isNotified
 ) {
 }

@@ -1,9 +1,12 @@
 package com.bwongo.core.user_mgt.service;
 
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
+import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
+import com.bwongo.core.core_banking.service.MemberService;
+import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
@@ -36,6 +39,7 @@ import static com.bwongo.core.base.utils.EnumValidations.isApprovalStatus;
 import static com.bwongo.core.base.utils.EnumValidations.isUserType;
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.SCHOOL_NOT_FOUND;
 import static com.bwongo.core.user_mgt.utils.UserManagementUtils.checkThatUserIsAssignable;
+import static com.bwongo.core.user_mgt.utils.UserManagementUtils.checkThatUserIsSchoolUser;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 
 /**
@@ -46,6 +50,7 @@ import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private static final String PASSWORD = "password";
@@ -62,6 +67,7 @@ public class UserService {
     private final SchoolRepository schoolRepository;
     private final SchoolUserRepository schoolUserRepository;
     private final SchoolDtoService schoolDtoService;
+    private final MemberService memberService;
 
     @Transactional
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
@@ -102,8 +108,6 @@ public class UserService {
     public SchoolUserResponseDto addSchoolUser(SchoolUserRequestDto schoolUserRequestDto){
 
         schoolUserRequestDto.validate();
-        var existingUserUsername = userRepository.findByUsername(schoolUserRequestDto.username());
-        Validate.isTrue(existingUserUsername.isEmpty(), ExceptionType.BAD_REQUEST,USERNAME_TAKEN, schoolUserRequestDto.username());
 
         var existingUserGroup = userGroupRepository.findById(schoolUserRequestDto.userGroupId());
         Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
@@ -141,6 +145,8 @@ public class UserService {
         auditService.stampAuditedEntity(userApproval);
 
         userApprovalRepository.save(userApproval);
+
+        addUserMetaData(savedUser.getId(), schoolUserDtoToUserMetaRequestDto(schoolUserRequestDto));
 
         return schoolDtoService.tUserToUserSchoolDto(savedUser, school);
     }
@@ -256,7 +262,8 @@ public class UserService {
         var existingUser = userRepository.findById(userId);
         Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, userId);
         final var user = existingUser.get();
-        checkThatUserIsAssignable(user);
+        if(user.getUserType().equals(UserTypeEnum.ADMIN))
+            checkThatUserIsAssignable(user);
 
         var existingCountry = countryRepository.findById(userMetaRequestDto.countryId());
         Validate.isPresent(existingCountry, COUNTRY_WITH_ID_NOT_FOUND, userMetaRequestDto.countryId());
@@ -277,6 +284,14 @@ public class UserService {
         user.setUserMetaId(result.getId());
         auditService.stampLongEntity(user);
 
+        if(checkThatUserIsSchoolUser(user)){
+            var schoolUser = schoolUserRepository.findByUser(user);
+            Validate.isPresent(schoolUser, NOT_ATTACHED_TO_SCHOOL, user.getId());
+            var school = schoolUser.get().getSchool();
+
+            var coreBankingId = memberService.addSchoolDriver(userMeta, school,user.getUsername());
+            user.setCoreBankingId(coreBankingId);
+        }
         userRepository.save(user);
 
         return userDtoService.userMetaToDto(result);
@@ -381,11 +396,39 @@ public class UserService {
 
     private UserRequestDto mapSchoolUserRequestDtoToUserRequestDto(SchoolUserRequestDto schoolUserRequestDto){
         return new UserRequestDto(
-                schoolUserRequestDto.username(),
+                getNonExistingUserUsername(),
                 schoolUserRequestDto.password(),
                 schoolUserRequestDto.userGroupId(),
                 schoolUserRequestDto.approvedBy(),
                 schoolUserRequestDto.userType()
         );
+    }
+
+    private String getNonExistingUserUsername(){
+        var username = "";
+        do {
+            username = StringUtil.getRandom6DigitString();
+        }while(userRepository.existsByUsername(username));
+
+        return username;
+    }
+
+    private UserMetaRequestDto schoolUserDtoToUserMetaRequestDto(SchoolUserRequestDto schoolUserRequestDto){
+
+        return new UserMetaRequestDto(
+                schoolUserRequestDto.firstName(),
+                schoolUserRequestDto.lastName(),
+                schoolUserRequestDto.middleName(),
+                schoolUserRequestDto.phoneNumber(),
+                schoolUserRequestDto.phoneNumber2(),
+                schoolUserRequestDto.gender(),
+                schoolUserRequestDto.birthDate(),
+                schoolUserRequestDto.email(),
+                schoolUserRequestDto.countryId(),
+                schoolUserRequestDto.identificationType(),
+                schoolUserRequestDto.identificationNumber(),
+                schoolUserRequestDto.pin()
+        );
+
     }
 }
