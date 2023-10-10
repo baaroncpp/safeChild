@@ -169,7 +169,7 @@ public class MemberService {
         List<RegistrationFieldValueVO> customFields = Arrays.asList(
                 new RegistrationFieldValueVO("receiver_phone", guardian.getPhoneNumber()),
                 new RegistrationFieldValueVO("std_school", student.getSchool().getSchoolName()),
-                new RegistrationFieldValueVO("sms_cost", "0.0"),
+                //new RegistrationFieldValueVO("sms_cost", sms),
                 new RegistrationFieldValueVO("address", student.getPhysicalAddress()),
                 new RegistrationFieldValueVO("std_class", student.getStudentClass()),
                 new RegistrationFieldValueVO("school_account", student.getSchool().getAccountNumber()),
