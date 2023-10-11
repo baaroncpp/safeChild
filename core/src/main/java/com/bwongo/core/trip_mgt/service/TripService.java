@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.*;
+import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
 import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.*;
 
 import java.util.Date;
@@ -90,6 +91,8 @@ public class TripService {
     }
 
     private TStudent getStudentByUsername(String username){
-        return studentRepository.findByStudentUsername(username).get();
+        var student = studentRepository.findByStudentUsername(username);
+        Validate.isPresent(student, STUDENT_NOT_FOUND_USERNAME, username);
+        return student.get();
     }
 }

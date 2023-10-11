@@ -25,6 +25,7 @@ public class StudentMsgConstant {
     public static final String STUDENT_ID_ALREADY_TAKEN = "student ID: %s already taken";
     public static final String EMAIL_ALREADY_TAKEN = "email: %s already taken";
     public static final String STUDENT_NOT_FOUND = "student with ID: %s not found";
+    public static final String STUDENT_NOT_FOUND_USERNAME = "student with username: %s not found";
     public static final String GUARDIAN_NOT_FOUND = "guardian with ID: %s not found";
     public static final String EMAIL_DUPLICATES = "%s emails are duplicates";
     public static final String NULL_STUDENTS = "student list is null or empty";
