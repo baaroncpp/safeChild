@@ -20,68 +20,67 @@ import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
  * @Date 8/16/23
  **/
 @Tag(name = "Roles", description = "Manage user access permissions in SafeChild")
-@RolesAllowed({"ROLE_ADMIN.WRITE", "ROLE_PERMISSION.WRITE"})
 @RestController
 @RequestMapping("api/v1")
 @RequiredArgsConstructor
 public class RoleAndPermissionApi {
     private final RoleService roleService;
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "roles", produces = APPLICATION_JSON)
     public List<RoleResponseDto> getAllRoles(){
         return roleService.getAllRoles();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.WRITE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @PostMapping(path = "role", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     public RoleResponseDto addRole(@RequestBody RoleRequestDto role){
         return roleService.addRole(role);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "permission/{id}", produces = APPLICATION_JSON)
     public PermissionResponseDto getPermissionById(@PathVariable("id") Long id){
         return roleService.getPermissionById(id);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "permissions/{roleName}", produces = APPLICATION_JSON)
     public List<PermissionResponseDto> getPermissionByRoleName(@PathVariable("roleName") String roleName){
         return roleService.getAllPermissionsByRoleName(roleName);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.UPDATE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
     @PutMapping(path = "permission/activate/{id}", produces = APPLICATION_JSON)
     public PermissionResponseDto activatePermission(@PathVariable("id") Long id){
         return roleService.activatePermission(id);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.UPDATE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
     @PutMapping(path = "permission/de-activate/{id}", produces = APPLICATION_JSON)
     public PermissionResponseDto deactivatePermission(@PathVariable("id") Long id){
         return roleService.deactivatePermission(id);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "assignable/permissions", produces = APPLICATION_JSON)
     public List<PermissionResponseDto> getAllAssignablePermissions(){
         return roleService.getAllPermissionsAssignable();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "group/authorities", produces = APPLICATION_JSON)
     public List<GroupAuthorityResponseDto> getAllGroupAuthorities(){
         return roleService.getAllGroups();
     }
 
-    @RolesAllowed("ROLE_ADMIN.READ")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "group/authorities/{userGroupId}", produces = APPLICATION_JSON)
     public List<GroupAuthorityResponseDto> getUserGroupAuthorities(@PathVariable("userGroupId") Long userGroupId){
         return roleService.getUserGroupAuthorities(userGroupId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.UPDATE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
     @PutMapping(path = "permission/assign-to-group", produces = APPLICATION_JSON)
     public GroupAuthorityResponseDto assignPermissionToUserGroup(@RequestParam("permissionName") String permissionName,
                                                                  @RequestParam("userGroupId") Long userGroupId){
@@ -89,20 +88,20 @@ public class RoleAndPermissionApi {
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.UPDATE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
     @PutMapping(path = "permission/un-assign-to-group", produces = APPLICATION_JSON)
     public boolean unAssignPermissionFromUserGroup(@RequestParam("permissionName") String permissionName,
                                                    @RequestParam("userGroupId") Long userGroupId){
         return roleService.unAssignPermissionFromUserGroup(permissionName, userGroupId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "groups", produces = APPLICATION_JSON)
     public List<UserGroupResponseDto> getAllUserGroups(){
         return roleService.getAllUserGroups();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.WRITE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @PostMapping(path = "group")
     public UserGroupResponseDto addUserGroup(@RequestBody UserGroupRequestDto userGroupDto){
         return roleService.addUserGroup(userGroupDto);

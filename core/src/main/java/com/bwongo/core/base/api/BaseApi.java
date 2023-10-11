@@ -19,7 +19,7 @@ import java.util.List;
  * @Project nc
  * @Date 9/28/23
  **/
-@Tag(name = "Countries and Districts",description = "Manage users on SafeChild")
+@Tag(name = "Countries and Districts",description = "Manage countries and districts on SafeChild")
 @RestController
 @RequestMapping("/api/v1/")
 @RequiredArgsConstructor

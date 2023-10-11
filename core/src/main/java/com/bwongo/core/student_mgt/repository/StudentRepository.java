@@ -20,6 +20,7 @@ public interface StudentRepository extends JpaRepository<TStudent, Long> {
     boolean existsByNationalIdNumber(String nationalIdNumber);
     boolean existsByEmail(String email);
     boolean existsByStudentUsername(String username);
+    Optional<TStudent> findByStudentUsername(String username);
     Optional<TStudent> findByDeletedAndId(boolean isDeleted, Long id);
     Optional<TStudent> findByDeletedAndSchoolIdNumberAndSchool(boolean isDeleted, String schoolIdNumber, TSchool school);
     List<TStudent> findAllByDeletedAndSchool(Pageable pageable, boolean isDeleted, TSchool school);

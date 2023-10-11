@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -19,8 +20,7 @@ import java.util.List;
  * @Project nc
  * @Date 9/7/23
  **/
-@Tag(name = "Schools",description = "Manage schools on SafeChild")
-@RolesAllowed("ROLE_ADMIN")
+@Tag(name = "Schools", description = "Manage schools on SafeChild")
 @RestController
 @RequestMapping("/api/v1/school")
 @RequiredArgsConstructor
@@ -28,26 +28,26 @@ public class SchoolApi {
 
     private final SchoolService schoolService;
 
-    @RolesAllowed({"ADMIN_ROLE.WRITE"})
+    @PreAuthorize("hasAnyAuthority('SCHOOL_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public SchoolResponseDto addSchool(@RequestBody SchoolRequestDto schoolRequestDto) {
         return schoolService.addSchool(schoolRequestDto);
     }
 
-    @RolesAllowed({"ADMIN_ROLE.UPDATE"})
+    @PreAuthorize("hasAnyAuthority('SCHOOL_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
     @PutMapping(path = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public SchoolResponseDto updateSchool(@RequestBody SchoolRequestDto schoolRequestDto,
                                           @PathVariable("id") Long id) {
         return schoolService.updateSchool(id, schoolRequestDto);
     }
 
-    @RolesAllowed({"ADMIN_ROLE.READ"})
+    @PreAuthorize("hasAnyAuthority('SCHOOL_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public SchoolResponseDto getSchoolById(@PathVariable("id") Long id){
         return schoolService.getSchoolById(id);
     }
 
-    @RolesAllowed({"ADMIN_ROLE.READ"})
+    @PreAuthorize("hasAnyAuthority('SCHOOL_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SchoolResponseDto> getSchools(@RequestParam(name = "page", required = true) int page,
                                               @RequestParam(name = "size", required = true) int size){

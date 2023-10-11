@@ -16,6 +16,5 @@ import java.util.Optional;
 public interface TUserRepository extends JpaRepository<TUser, Long> {
     Optional<TUser> findByUsername(String username);
     long countByUserType(UserTypeEnum userType);
-
     boolean existsByUsername(String username);
 }

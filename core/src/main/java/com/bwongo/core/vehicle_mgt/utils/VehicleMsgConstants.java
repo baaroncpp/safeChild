@@ -16,6 +16,7 @@ public class VehicleMsgConstants {
     public static final String NULL_SCHOOL_ID = "schoolId is null or empty";
     public static final String DRIVER_NOT_FOUND = "driver with ID: %s not found";
     public static final String USER_NOT_DRIVER = "user with ID: %s is not a driver";
+    public static final String DRIVER_NOT_FOUND_BY_USERNAME = "driver with username: %s not found";
     public static final String DRIVER_DONT_BELONG_TO_SCHOOL = "driver ID: %s does not belong to school ID: %s";
     public static final String VEHICLE_PLATE_ALREADY_EXISTS = "vehicle with plate: %s already exists";
     public static final String CANT_ASSIGN_SCHOOL = "cannot assign school with ID: %s, does not match the school you belong";

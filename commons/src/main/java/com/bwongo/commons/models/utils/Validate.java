@@ -9,6 +9,9 @@ import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,6 +116,16 @@ public class Validate {
             throw new BadRequestException(message + " Core banking service cannot be accessed");
         }else {
             throw new BadRequestException(message);
+        }
+    }
+
+    public static void isAcceptableDateFormat(String stringDate){
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setLenient(false);
+        try {
+            sdf.parse(stringDate);
+        } catch (ParseException e) {
+            throw new BadRequestException("invalid date format, use: yyyy-MM-dd HH:mm:ss");
         }
     }
 }
