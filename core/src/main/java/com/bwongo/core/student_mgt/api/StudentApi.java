@@ -1,9 +1,6 @@
 package com.bwongo.core.student_mgt.api;
 
-import com.bwongo.core.student_mgt.model.dto.GuardianRequestDto;
-import com.bwongo.core.student_mgt.model.dto.StudentGuardianDto;
-import com.bwongo.core.student_mgt.model.dto.StudentRequestDto;
-import com.bwongo.core.student_mgt.model.dto.StudentResponseDto;
+import com.bwongo.core.student_mgt.model.dto.*;
 import com.bwongo.core.student_mgt.service.StudentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -104,5 +101,12 @@ public class StudentApi {
     @GetMapping(path = "{id}/guardian", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<StudentGuardianDto> getGuardiansByStudent(@PathVariable("id") Long studentId){
         return studentService.getGuardiansByStudent(studentId);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyAuthority('STUDENT_ROLE.READ', 'ADMIN_ROLE.READ')")
+    @GetMapping(path = "guardian-id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public GuardianResponseDto getGuardian(@PathVariable("id") Long id){
+        return studentService.getGuardianById(id);
     }
 }

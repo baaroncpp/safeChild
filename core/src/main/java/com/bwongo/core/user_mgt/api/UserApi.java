@@ -69,6 +69,13 @@ public class UserApi {
     }
 
     @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
+    @GetMapping(path = "school/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<SchoolUserResponseDto> getSchoolUser(@RequestParam(name = "userType", required = true) String userType,
+                                                     @PathVariable("id") Long schoolId) {
+        return userService.getSchoolUser(userType, schoolId);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @PostMapping(path = "meta-data/user-id/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserMetaResponseDto addUserMeta(@RequestBody UserMetaRequestDto userMetaDto,
                                            @PathVariable("id") Long userId) {
@@ -99,7 +106,7 @@ public class UserApi {
     @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path="pageable", produces = APPLICATION_JSON)
     public List<UserResponseDto> getAllUsers(@RequestParam(name = "page", required = true) int page,
-                                     @RequestParam(name = "size", required = true) int size) {
+                                             @RequestParam(name = "size", required = true) int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return userService.getAll(pageable);
     }

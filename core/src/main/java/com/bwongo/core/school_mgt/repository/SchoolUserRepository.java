@@ -6,6 +6,7 @@ import com.bwongo.core.user_mgt.model.jpa.TUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,6 +17,7 @@ import java.util.Optional;
 @Repository
 public interface SchoolUserRepository extends JpaRepository<TSchoolUser, Long> {
     boolean existsBySchoolAndUser(TSchool school, TUser user);
+    List<TSchoolUser> findAllBySchool(TSchool school);
 
     Optional<TSchoolUser> findByUser(TUser user);
 }

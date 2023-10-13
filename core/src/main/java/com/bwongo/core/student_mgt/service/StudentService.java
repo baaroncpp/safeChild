@@ -212,6 +212,14 @@ public class StudentService {
                 .toList();
     }
 
+    public GuardianResponseDto getGuardianById(Long id){
+        var existingGuardian = guardianRepository.findById(id);
+        Validate.isPresent(existingGuardian, GUARDIAN_NOT_FOUND, id);
+        var guardian = existingGuardian.get();
+
+        return studentDtoService.guardianToDto(guardian);
+    }
+
     private TStudent getStudent(Long id){
         var existingStudent = studentRepository.findByDeletedAndId(Boolean.FALSE, id);
         Validate.isPresent(existingStudent, STUDENT_NOT_FOUND, id);

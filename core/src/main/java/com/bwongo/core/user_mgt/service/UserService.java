@@ -5,6 +5,7 @@ import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
+import com.bwongo.core.base.utils.EnumValidations;
 import com.bwongo.core.core_banking.service.MemberService;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
@@ -149,6 +150,23 @@ public class UserService {
         addUserMetaData(savedUser.getId(), schoolUserDtoToUserMetaRequestDto(schoolUserRequestDto));
 
         return schoolDtoService.tUserToUserSchoolDto(savedUser, school);
+    }
+
+    public List<SchoolUserResponseDto> getSchoolUser(String userType, Long schoolId){
+
+        EnumValidations.isSchoolUserType(userType);
+        var userTypeEnum = UserTypeEnum.valueOf(userType);
+
+        var existingSchool = schoolRepository.findById(schoolId);
+        Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, schoolId);
+        var school= existingSchool.get();
+
+        var schoolUsers = schoolUserRepository.findAllBySchool(school);
+
+        return schoolUsers.stream()
+                .filter(schoolUser -> schoolUser.getUser().getUserType().equals(userTypeEnum))
+                .map(schoolUser -> schoolDtoService.tUserToUserSchoolDto(schoolUser.getUser(), schoolUser.getSchool()))
+                .collect(Collectors.toList());
     }
 
     @Transactional

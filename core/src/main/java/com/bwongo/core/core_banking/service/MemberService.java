@@ -173,13 +173,13 @@ public class MemberService {
                 new RegistrationFieldValueVO("address", student.getPhysicalAddress()),
                 new RegistrationFieldValueVO("std_class", student.getStudentClass()),
                 new RegistrationFieldValueVO("school_account", student.getSchool().getAccountNumber()),
-                new RegistrationFieldValueVO("parent", guardian.getFullName())
-                //new RegistrationFieldValueVO("school_id", student.getSchool().getCoreBankingId().toString())
+                new RegistrationFieldValueVO("parent", guardian.getFullName()),
+                new RegistrationFieldValueVO("school_id", student.getSchool().getUsername())
         );
 
         var coreBankingStudent = new DefaultRegisterUserDto(
                 student.getFirstName() +" "+ student.getSecondName(),
-                student.getFirstName(),
+                student.getStudentUsername(),
                 "2023",
                 student.getEmail(),
                 studentGroupId,
