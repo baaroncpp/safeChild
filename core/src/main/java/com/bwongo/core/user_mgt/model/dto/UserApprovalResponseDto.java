@@ -15,7 +15,7 @@ public record UserApprovalResponseDto(
          Date modifiedOn,
          UserResponseDto createdBy,
          UserResponseDto modifiedBy,
-         Long userId,
+         UserResponseDto user,
          ApprovalEnum status
 ) {
 }

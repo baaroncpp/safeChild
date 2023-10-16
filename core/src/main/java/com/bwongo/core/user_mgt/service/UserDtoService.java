@@ -146,7 +146,7 @@ public class UserDtoService {
                 userApproval.getModifiedOn(),
                 tUserToDto(userApproval.getCreatedBy()),
                 tUserToDto(userApproval.getModifiedBy()),
-                userApproval.getUserId(),
+                tUserToDto(userApproval.getUser()),
                 userApproval.getStatus()
         );
     }

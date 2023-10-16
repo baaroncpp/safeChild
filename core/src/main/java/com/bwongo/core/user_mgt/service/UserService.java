@@ -96,7 +96,7 @@ public class UserService {
 
         //initiate user approval
         var userApproval = new TUserApproval();
-        userApproval.setUserId(user.getId());
+        userApproval.setUser(user);
         userApproval.setStatus(ApprovalEnum.PENDING);
         auditService.stampAuditedEntity(userApproval);
 
@@ -141,7 +141,7 @@ public class UserService {
 
         //initiate user approval
         var userApproval = new TUserApproval();
-        userApproval.setUserId(user.getId());
+        userApproval.setUser(user);
         userApproval.setStatus(ApprovalEnum.PENDING);
         auditService.stampAuditedEntity(userApproval);
 
@@ -358,8 +358,8 @@ public class UserService {
 
         userApprovalRepository.save(userApproval);
 
-        var existingUser = userRepository.findById(userApproval.getUserId());
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, userApproval.getUserId());
+        var existingUser = userRepository.findById(userApproval.getUser().getId());
+        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, userApproval.getUser().getId());
         final var user = existingUser.get();
 
         if(userApproval.getStatus().equals(ApprovalEnum.APPROVED)) {

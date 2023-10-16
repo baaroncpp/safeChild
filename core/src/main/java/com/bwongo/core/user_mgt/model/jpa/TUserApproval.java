@@ -2,6 +2,8 @@ package com.bwongo.core.user_mgt.model.jpa;
 
 import com.bwongo.core.base.model.enums.ApprovalEnum;
 import com.bwongo.core.base.model.jpa.AuditEntity;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 /**
@@ -11,27 +13,21 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "t_user_approval", schema = "core")
+@Setter
 public class TUserApproval extends AuditEntity {
-    private Long userId;
+    private TUser user;
     private ApprovalEnum status;
 
-    @Column(name = "user_id")
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    public TUser getUser() {
+        return user;
     }
 
     @Column(name = "status")
     @Enumerated(value = EnumType.STRING)
     public ApprovalEnum getStatus() {
         return status;
-    }
-
-    public void setStatus(ApprovalEnum status) {
-        this.status = status;
     }
 
 }
