@@ -1,0 +1,1 @@
+ALTER TABLE t_vehicle ALTER COLUMN plate_number TYPE VARCHAR(8);

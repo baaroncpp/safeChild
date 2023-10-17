@@ -41,9 +41,9 @@ public class SchoolService {
 
         var email = schoolRequestDto.email();
         var phone = schoolRequestDto.phoneNumber();
-        var username = schoolRequestDto.username();
+        //var username = schoolRequestDto.username();
 
-        Validate.isTrue(!schoolRepository.existsByUsername(username), ExceptionType.BAD_REQUEST, SCHOOL_USERNAME_TAKEN, username);
+        //Validate.isTrue(!schoolRepository.existsByUsername(username), ExceptionType.BAD_REQUEST, SCHOOL_USERNAME_TAKEN, username);
         Validate.isTrue(!schoolRepository.existsByPhoneNumber(phone), ExceptionType.BAD_REQUEST, SCHOOL_PHONE_TAKEN, phone);
         Validate.isTrue(!schoolRepository.existsByEmail(email), ExceptionType.BAD_REQUEST, SCHOOL_EMAIL_TAKEN, email);
 
@@ -54,10 +54,12 @@ public class SchoolService {
         auditService.stampAuditedEntity(school);
 
         var savedLocation = locationRepository.save(location);
-        school.setLocation(savedLocation);
-        school.setAccountNumber(getNonExistingSchoolAccountNumber());
 
-        System.out.println(school.getAccountNumber());
+        var accountNumber = getNonExistingSchoolAccountNumber();
+
+        school.setLocation(savedLocation);
+        school.setUsername( accountNumber);
+        school.setAccountNumber(accountNumber);
 
         var coreBankingId = memberService.addSchoolToCoreBanking(school);
         school.setCoreBankingId(coreBankingId);
@@ -78,12 +80,8 @@ public class SchoolService {
 
         var email = schoolRequestDto.email();
         var phone = schoolRequestDto.phoneNumber();
-        var username = schoolRequestDto.username();
 
         Validate.isTrue(!school.isDeleted(), ExceptionType.BAD_REQUEST, SCHOOL_NOT_FOUND, id);
-
-        if(!username.equals(school.getUsername()))
-            Validate.isTrue(!schoolRepository.existsByUsername(username), ExceptionType.BAD_REQUEST, SCHOOL_USERNAME_TAKEN, username);
 
         if(!email.equals(school.getEmail()))
             Validate.isTrue(!schoolRepository.existsByEmail(email), ExceptionType.BAD_REQUEST, SCHOOL_EMAIL_TAKEN, email);
@@ -102,6 +100,8 @@ public class SchoolService {
         var savedUpdatedLocation = locationRepository.save(currentLocation);
 
         updatedSchool.setId(id);
+        updatedSchool.setUsername(school.getUsername());
+        updatedSchool.setAccountNumber(school.getAccountNumber());
         updatedSchool.setLocation(savedUpdatedLocation);
 
         auditService.stampAuditedEntity(updatedSchool);

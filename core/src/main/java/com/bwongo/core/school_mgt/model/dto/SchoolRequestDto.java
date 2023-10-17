@@ -17,7 +17,7 @@ import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.NULL_PHYSICAL
  **/
 public record SchoolRequestDto(
         String schoolName,
-        String username,
+        //String username,
         String email,
         Long districtId,
         Long countryId,
@@ -30,7 +30,7 @@ public record SchoolRequestDto(
 ) {
     public void validate(){
         Validate.notEmpty(schoolName, NULL_SCHOOL_NAME);
-        Validate.notEmpty(username, NULL_USERNAME);
+        //Validate.notEmpty(username, NULL_USERNAME);
         Validate.notEmpty(email, NULL_EMAIL);
         StringRegExUtil.stringOfEmail(email, INVALID_EMAIL, email);
         Validate.notNull(districtId, ExceptionType.BAD_REQUEST, NULL_DISTRICT_ID);

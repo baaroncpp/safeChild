@@ -96,7 +96,7 @@ public class SchoolDtoService {
 
         var school = new TSchool();
         school.setSchoolName(schoolRequestDto.schoolName());
-        school.setUsername(schoolRequestDto.username());
+        //school.setUsername(schoolRequestDto.username());
         school.setEmail(schoolRequestDto.email());
         school.setDistrict(district);
         school.setCountry(country);

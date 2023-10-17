@@ -69,6 +69,15 @@ public class UserApi {
     }
 
     @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
+    @PutMapping(path = "school/{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public SchoolUserResponseDto updateSchoolUser(@PathVariable("id") Long id ,@RequestBody SchoolUserRequestDto userDto) {
+        return userService.updateSchoolUser(id, userDto);
+    }
+
+
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @GetMapping(path = "school/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SchoolUserResponseDto> getSchoolUser(@RequestParam(name = "userType", required = true) String userType,
                                                      @PathVariable("id") Long schoolId) {

@@ -54,6 +54,8 @@ public class UserMsgConstants {
     public static final String USER_GROUP_DOES_NOT_EXIST = "User group with ID: %s does not exist";
     public static final String PASSWORD_CANT_BE_UPDATED = "Password field cannot be updated";
     public static final String USER_DOES_NOT_EXIST = "User with ID: %s not found";
+    public static final String USER_META_NOT_FOUND = "user metaData with ID: %s not found";
+    public static final String SCHOOL_USER_NOT_FOUND = "school user with ID: %s not found";
     public static final String NOT_ATTACHED_TO_SCHOOL = "User with ID: %s not attached to school";
     public static final String USER_WITH_PHONE_NUMBER_DOES_NOT_EXIST = "User with phone number: %s does not exist";
     public static final String USER_WITH_EMAIL_DOES_NOT_EXIST = "User with EMAIL: %s does not exist";

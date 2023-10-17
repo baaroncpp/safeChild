@@ -12,6 +12,7 @@ public class VehicleMsgConstants {
     public static final String NULL_CURRENT_DRIVER_ID = "currentDriverId is null or empty";
     public static final String NULL_PLATE_NUMBER = "plateNumber is null or empty";
     public static final String NULL_VEHICLE_MODEL = "vehicleModel is null or empty";
+    public static final String PLATE_MUST_BE = "plateNumber must be 8 characters";
     public static final String INVALID_MAX_CAPACITY = "maximumCapacity must be greater than 0";
     public static final String NULL_SCHOOL_ID = "schoolId is null or empty";
     public static final String DRIVER_NOT_FOUND = "driver with ID: %s not found";

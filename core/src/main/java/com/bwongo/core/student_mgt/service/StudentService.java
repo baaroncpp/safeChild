@@ -298,4 +298,10 @@ public class StudentService {
 
         return studentUsername;
     }
+
+    public List<StudentResponseDto> getAllStudents(Pageable pageable){
+        return studentRepository.findAll(pageable).stream()
+                .map(studentDtoService::studentToDto)
+                .collect(Collectors.toList());
+    }
 }

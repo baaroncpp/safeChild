@@ -1,6 +1,7 @@
 package com.bwongo.core.user_mgt.model.dto;
 
 import com.bwongo.core.base.model.enums.ApprovalEnum;
+import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
 
 import java.util.Date;
 

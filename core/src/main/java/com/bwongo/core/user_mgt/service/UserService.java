@@ -33,6 +33,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.bwongo.core.base.utils.BasicMsgConstants.COUNTRY_WITH_ID_NOT_FOUND;
@@ -151,6 +152,58 @@ public class UserService {
 
         return schoolDtoService.tUserToUserSchoolDto(savedUser, school);
     }
+
+    @Transactional
+    public SchoolUserResponseDto updateSchoolUser(Long id, SchoolUserRequestDto schoolUserRequestDto){
+
+        schoolUserRequestDto.validate();
+
+        var existingUser = userRepository.findById(id);
+        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
+        var user = existingUser.get();
+
+        var existingSchoolUser = schoolUserRepository.findByUser(user);
+        Validate.isPresent(existingSchoolUser, SCHOOL_USER_NOT_FOUND, user.getId());
+        var schoolUser = existingSchoolUser.get();
+
+        var newSchool = schoolRepository.findById(schoolUserRequestDto.schoolId());
+        Validate.isPresent(newSchool, SCHOOL_NOT_FOUND, schoolUserRequestDto.schoolId());
+        var existingSchool = newSchool.get();
+
+        var existingUserGroup = userGroupRepository.findById(schoolUserRequestDto.userGroupId());
+        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
+        final var userGroup = existingUserGroup.get();
+
+        var updatedUser = userDtoService.dtoToTUser(mapSchoolUserRequestDtoToUserRequestDto(schoolUserRequestDto));
+        updatedUser.setId(user.getId());
+        updatedUser.setAccountExpired(user.isAccountExpired());
+        updatedUser.setAccountLocked(user.isAccountLocked());
+        updatedUser.setApproved(user.isApproved());
+        updatedUser.setDeleted(user.getDeleted());
+        updatedUser.setInitialPasswordReset(user.isInitialPasswordReset());
+        updatedUser.setPassword(passwordEncoder.encode(schoolUserRequestDto.password()));
+        updatedUser.setUserGroup(userGroup);
+        updatedUser.setUserMetaId(user.getUserMetaId());
+        updatedUser.setApprovedBy(user.getApprovedBy());
+        updatedUser.setUserType(UserTypeEnum.valueOf(schoolUserRequestDto.userType()));
+
+        auditService.stampLongEntity(updatedUser);
+
+        var savedUser = userRepository.save(updatedUser);
+
+        var updatedSchoolUser = new TSchoolUser();
+        updatedSchoolUser.setId(schoolUser.getId());
+        updatedSchoolUser.setSchool(existingSchool);
+        updatedSchoolUser.setUser(savedUser);
+        auditService.stampAuditedEntity(updatedSchoolUser);
+
+        schoolUserRepository.save(updatedSchoolUser);
+
+        updateUserMetaData(savedUser.getUserMetaId(), schoolUserDtoToUserMetaRequestDto(schoolUserRequestDto));
+
+        return schoolDtoService.tUserToUserSchoolDto(savedUser, existingSchool);
+    }
+
 
     public List<SchoolUserResponseDto> getSchoolUser(String userType, Long schoolId){
 
@@ -317,6 +370,37 @@ public class UserService {
         userRepository.save(user);
 
         return userDtoService.userMetaToDto(result);
+    }
+
+    @Transactional
+    public UserMetaResponseDto updateUserMetaData(Long id, UserMetaRequestDto userMetaRequestDto) {
+
+        var existingMetaData = userMetaRepository.findById(id);
+        Validate.isPresent(existingMetaData, USER_META_NOT_FOUND, id);
+        var metaData = existingMetaData.get();
+
+        var existingCountry = countryRepository.findById(userMetaRequestDto.countryId());
+        Validate.isPresent(existingCountry, COUNTRY_WITH_ID_NOT_FOUND, userMetaRequestDto.countryId());
+        final var country = existingCountry.get();
+
+        if(!metaData.getEmail().equals(userMetaRequestDto.email()))
+            Validate.isTrue(!userMetaRepository.existsByEmail(userMetaRequestDto.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, userMetaRequestDto.email());
+
+        if(!metaData.getPhoneNumber().equals(userMetaRequestDto.phoneNumber()))
+            Validate.isTrue(!userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
+
+        if(!metaData.getPhoneNumber2().equals(userMetaRequestDto.phoneNumber2()))
+            Validate.isTrue(!userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
+
+        var userMeta = userDtoService.dtoToUserMeta(userMetaRequestDto);
+        userMeta.setId(id);
+        userMeta.setCountry(country);
+        userMeta.setDisplayName(metaData.getDisplayName());
+        userMeta.setNonVerifiedEmail(Boolean.FALSE);
+        userMeta.setNonVerifiedPhoneNumber(Boolean.TRUE);
+        auditService.stampAuditedEntity(userMeta);
+
+        return userDtoService.userMetaToDto(userMetaRepository.save(userMeta));
     }
 
 
