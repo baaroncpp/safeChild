@@ -4,6 +4,7 @@ import com.bwongo.core.base.model.enums.GenderEnum;
 import com.bwongo.core.base.model.enums.IdentificationType;
 import com.bwongo.core.base.model.jpa.TCountry;
 import com.bwongo.core.base.service.BaseDtoService;
+import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.service.SchoolDtoService;
 import com.bwongo.core.user_mgt.model.dto.*;
@@ -134,7 +135,7 @@ public class UserDtoService {
         );
     }
 
-    public UserApprovalResponseDto userApprovalToDto(TUserApproval userApproval){
+    public UserApprovalResponseDto userApprovalToDto(TUserApproval userApproval, SchoolResponseDto school){
 
         if(userApproval == null){
             return null;
@@ -147,7 +148,8 @@ public class UserDtoService {
                 tUserToDto(userApproval.getCreatedBy()),
                 tUserToDto(userApproval.getModifiedBy()),
                 tUserToDto(userApproval.getUser()),
-                userApproval.getStatus()
+                userApproval.getStatus(),
+                school
         );
     }
 

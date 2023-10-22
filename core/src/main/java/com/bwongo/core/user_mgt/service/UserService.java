@@ -7,6 +7,7 @@ import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.base.utils.EnumValidations;
 import com.bwongo.core.core_banking.service.MemberService;
+import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
@@ -520,7 +521,15 @@ public class UserService {
         var approvalEnum = ApprovalEnum.valueOf(status);
 
         return userApprovalRepository.findAllByStatus(approvalEnum, pageable).stream()
-                .map(userDtoService::userApprovalToDto)
+                .map(approval -> {
+                    SchoolResponseDto school = null;
+                    if(approval.getUser().getUserType().equals(UserTypeEnum.DRIVER)
+                            || approval.getUser().getUserType().equals(UserTypeEnum.SCHOOL_STAFF)
+                            || approval.getUser().getUserType().equals(UserTypeEnum.SCHOOL_ADMIN)){
+                        school = getUserSchool(approval.getUser());
+                    }
+                    return userDtoService.userApprovalToDto(approval, school);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -560,5 +569,9 @@ public class UserService {
                 schoolUserRequestDto.pin()
         );
 
+    }
+
+    private SchoolResponseDto getUserSchool(TUser user){
+        return schoolDtoService.schoolToDto(schoolUserRepository.findByUser(user).get().getSchool());
     }
 }
