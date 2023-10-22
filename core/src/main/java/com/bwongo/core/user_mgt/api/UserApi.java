@@ -85,6 +85,12 @@ public class UserApi {
     }
 
     @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
+    @GetMapping(path = "school-user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public SchoolUserResponseDto getSchoolUser(@PathVariable("id") Long id){
+        return userService.getSchoolUser(id);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @PostMapping(path = "meta-data/user-id/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserMetaResponseDto addUserMeta(@RequestBody UserMetaRequestDto userMetaDto,
                                            @PathVariable("id") Long userId) {

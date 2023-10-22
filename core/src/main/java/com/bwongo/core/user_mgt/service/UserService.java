@@ -153,6 +153,30 @@ public class UserService {
         return schoolDtoService.tUserToUserSchoolDto(savedUser, school);
     }
 
+    public SchoolUserResponseDto getSchoolUser(Long id){
+
+        var existingUser = userRepository.findById(id);
+        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
+        var user= existingUser.get();
+
+        var existingSchoolUser = schoolUserRepository.findByUser(user);
+        Validate.isPresent(existingSchoolUser, SCHOOL_USER_NOT_FOUND, id);
+        var schoolUser = existingSchoolUser.get();
+
+        var existingEventUser = userRepository.findById(auditService.getLoggedInUser().getId());
+        var eventUser = existingEventUser.get();
+
+        if(!eventUser.getUserType().equals(UserTypeEnum.ADMIN)){
+            var existingEventSchoolUser = schoolUserRepository.findByUser(user);
+            Validate.isPresent(existingEventSchoolUser, SCHOOL_USER_NOT_FOUND, id);
+            var eventSchoolUser = existingSchoolUser.get();
+
+            Validate.isTrue(Objects.equals(schoolUser.getSchool().getId(), eventSchoolUser.getSchool().getId()), ExceptionType.ACCESS_DENIED, USER_NOT_IN_SIMILAR_SCHOOL);
+        }
+
+        return schoolDtoService.tUserToUserSchoolDto(user, schoolUser.getSchool());
+    }
+
     @Transactional
     public SchoolUserResponseDto updateSchoolUser(Long id, SchoolUserRequestDto schoolUserRequestDto){
 
