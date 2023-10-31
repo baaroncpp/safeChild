@@ -16,6 +16,7 @@ import com.bwongo.core.trip_mgt.model.dto.TripRequestDto;
 import com.bwongo.core.trip_mgt.model.dto.TripResponseDto;
 import com.bwongo.core.trip_mgt.model.jpa.Trip;
 import com.bwongo.core.trip_mgt.repository.TripRepository;
+import com.bwongo.core.user_mgt.model.jpa.TUser;
 import com.bwongo.core.user_mgt.repository.TUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.USERNAME_NOT_FOUND;
+import static com.bwongo.core.user_mgt.utils.UserMsgConstants.USER_DOES_NOT_EXIST;
 import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.*;
 
 /**
@@ -99,9 +101,9 @@ public class TripService {
         return student.get();
     }
 
-    public List<TripResponseDto> getTripsByStaffUsername(String staffUsername, Pageable pageable){
-        var existingStaff = userRepository.findByUsername(staffUsername);
-        Validate.isPresent(existingStaff, USERNAME_NOT_FOUND, staffUsername);
+    public List<TripResponseDto> getTripsByStaffUsername(Pageable pageable){
+        var existingStaff = userRepository.findById(auditService.getLoggedInUser().getId());
+        Validate.isPresent(existingStaff, USER_DOES_NOT_EXIST, auditService.getLoggedInUser().getId());
         var staff = existingStaff.get();
 
         return tripRepository.findAllBySchoolStaff(staff, pageable).stream()
@@ -109,11 +111,11 @@ public class TripService {
                 .collect(Collectors.toList());
     }
 
-    public TripResponseDto getExistingOpenOrInProgressTrip(String username){
+    public TripResponseDto getExistingOpenOrInProgressTrip(){
         Optional<Trip> result;
 
-        var existingDriver = userRepository.findByUsername(username);
-        Validate.isPresent(existingDriver, DRIVER_NOT_FOUND_BY_USERNAME, username);
+        var existingDriver = userRepository.findById(auditService.getLoggedInUser().getId());
+        Validate.isPresent(existingDriver, USER_DOES_NOT_EXIST, auditService.getLoggedInUser().getId());
         var driver = existingDriver.get();
 
         result = tripRepository.findBySchoolStaffAndTripStatus(driver, IN_PROGRESS);
@@ -121,7 +123,7 @@ public class TripService {
         if(result.isEmpty())
             result = tripRepository.findBySchoolStaffAndTripStatus(driver, TripStatus.OPEN);
 
-        Validate.isPresent(result, NO_OPEN_IN_PROGRESS_TRIPS, username);
+        Validate.isPresent(result, NO_OPEN_IN_PROGRESS_TRIPS, driver.getUsername());
 
         return tripDtoService.tripToDto(result.get());
     }

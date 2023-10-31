@@ -24,10 +24,9 @@ public class TripMobileAppApi {
 
     @GetMapping(path = "trips", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getTripsByUsername(@RequestParam("page") int page,
-                                     @RequestParam("size") int size,
-                                     @RequestParam("username") String username){
+                                     @RequestParam("size") int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
-        return tripService.getTripsByStaffUsername(username, pageable);
+        return tripService.getTripsByStaffUsername(pageable);
     }
 
     @PostMapping(path = "trip/student-status", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,9 +37,9 @@ public class TripMobileAppApi {
         return tripService.getStudentsTripByStatus(travelStudentDto, pageable);
     }
 
-    @GetMapping(path = "trip/driver/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getDriverOpenTrip(@PathVariable("username") String username){
-        return tripService.getExistingOpenOrInProgressTrip(username);
+    @GetMapping(path = "trips/open-and-in-progress", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getDriverOpenTrip(){
+        return tripService.getExistingOpenOrInProgressTrip();
     }
 
     @PostMapping(path = "trip", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
