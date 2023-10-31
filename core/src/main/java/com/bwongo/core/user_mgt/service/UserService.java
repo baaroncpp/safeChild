@@ -202,6 +202,7 @@ public class UserService {
         var updatedUser = userDtoService.dtoToTUser(mapSchoolUserRequestDtoToUserRequestDto(schoolUserRequestDto));
         updatedUser.setId(user.getId());
         updatedUser.setAccountExpired(user.isAccountExpired());
+        updatedUser.setUsername(user.getUsername());
         updatedUser.setAccountLocked(user.isAccountLocked());
         updatedUser.setApproved(user.isApproved());
         updatedUser.setDeleted(user.getDeleted());
@@ -225,6 +226,8 @@ public class UserService {
         schoolUserRepository.save(updatedSchoolUser);
 
         updateUserMetaData(savedUser.getUserMetaId(), schoolUserDtoToUserMetaRequestDto(schoolUserRequestDto));
+
+        userRepository.save(savedUser);
 
         return schoolDtoService.tUserToUserSchoolDto(savedUser, existingSchool);
     }
@@ -476,8 +479,11 @@ public class UserService {
             user.setAccountExpired(Boolean.FALSE);
             user.setAccountLocked(Boolean.FALSE);
             user.setDeleted(Boolean.FALSE);
+            user.setApprovedBy(auditService.getLoggedInUser().getId());
         }
+
         auditService.stampLongEntity(user);
+
         var approvedUser = userRepository.save(user);
 
         return userDtoService.tUserToDto(approvedUser);

@@ -48,6 +48,7 @@ public class UserMsgConstants {
     public static final String PASSWORD_REQUIRED = "Password is required";
     public static final String USER_TYPE_REQUIRED = "User type is required";
     public static final String USERNAME_SHOULD_CONTAIN_ONLY_CHARS_AND_NUMBERS = "Username contains invalid characters";
+    public static final String USERNAME_NOT_FOUND = "user with username: %s not found";
     public static final String STANDARD_PASSWORD = "Password should be 8 to 50 characters long, with at least a digit, a lower case, an upper case and a special character";
     public static final String VALID_USER_TYPE = "Invalid userType: it should be ADMIN";
     public static final String VALID_SCHOOL_USER_TYPE = "Invalid userType: it should be DRIVER or SCHOOL_ADMIN or SCHOOL_STAFF";

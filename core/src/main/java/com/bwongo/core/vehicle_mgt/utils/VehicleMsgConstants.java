@@ -16,6 +16,7 @@ public class VehicleMsgConstants {
     public static final String INVALID_MAX_CAPACITY = "maximumCapacity must be greater than 0";
     public static final String NULL_SCHOOL_ID = "schoolId is null or empty";
     public static final String DRIVER_NOT_FOUND = "driver with ID: %s not found";
+    public static final String DRIVER_WITH_USERNAME_FOUND = "driver with username: %s not found";
     public static final String USER_NOT_DRIVER = "user with ID: %s is not a driver";
     public static final String DRIVER_NOT_FOUND_BY_USERNAME = "driver with username: %s not found";
     public static final String DRIVER_DONT_BELONG_TO_SCHOOL = "driver ID: %s does not belong to school ID: %s";

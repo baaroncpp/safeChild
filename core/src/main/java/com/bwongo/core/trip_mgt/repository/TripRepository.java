@@ -2,6 +2,7 @@ package com.bwongo.core.trip_mgt.repository;
 
 import com.bwongo.core.base.model.enums.TripStatus;
 import com.bwongo.core.trip_mgt.model.jpa.Trip;
+import com.bwongo.core.user_mgt.model.jpa.TUser;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ import java.util.Optional;
  **/
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
-    Optional<Trip> findByStaffUsernameAndTripStatus(String driverUsername, TripStatus tripStatus);
-    List<Trip> findAllByStaffUsername(String staffUsername, Pageable pageable);
-    List<Trip> findAllByStaffUsernameAndCreatedOnBetween(String staffUsername, Date fromDate, Date toDate, Pageable pageable);
+    Optional<Trip> findBySchoolStaffAndTripStatus(TUser user, TripStatus tripStatus);
+    List<Trip> findAllBySchoolStaff(TUser user, Pageable pageable);
+    List<Trip> findAllBySchoolStaffAndCreatedOnBetween(TUser user, Date fromDate, Date toDate, Pageable pageable);
 }

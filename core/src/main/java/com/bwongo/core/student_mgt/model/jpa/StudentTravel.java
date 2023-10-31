@@ -1,8 +1,10 @@
-package com.bwongo.core.trip_mgt.model.jpa;
+package com.bwongo.core.student_mgt.model.jpa;
 
 import com.bwongo.core.base.model.enums.StudentStatus;
-import com.bwongo.core.base.model.jpa.BaseEntity;
+import com.bwongo.core.base.model.jpa.AuditEntity;
 import com.bwongo.core.base.model.jpa.TLocation;
+import com.bwongo.core.school_mgt.model.jpa.TSchool;
+import com.bwongo.core.trip_mgt.model.jpa.Trip;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -17,20 +19,20 @@ import javax.persistence.*;
         schema = "core",
         uniqueConstraints =
         {
-            @UniqueConstraint(columnNames = {"student_username", "student_status", "trip_id"})
+            @UniqueConstraint(columnNames = {"student_id", "student_status", "trip_id"})
         })
 @Setter
-public class StudentTravel extends BaseEntity {
-    private String fullName;
+public class StudentTravel extends AuditEntity {
     private Trip trip;
-    private String studentUsername;
+    private TStudent student;
     private StudentStatus studentStatus;
-    private String schoolId;
+    private TSchool school;
     private TLocation location;
 
-    @Column(name = "full_name")
-    public String getFullName() {
-        return fullName;
+    @JoinColumn(name = "school_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    public TSchool getSchool() {
+        return school;
     }
 
     @JoinColumn(name = "trip_id", referencedColumnName = "id")
@@ -39,20 +41,16 @@ public class StudentTravel extends BaseEntity {
         return trip;
     }
 
-    @Column(name = "student_username")
-    public String getStudentUsername() {
-        return studentUsername;
+    @JoinColumn(name = "student_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    public TStudent getStudent() {
+        return student;
     }
 
     @Column(name = "student_status")
     @Enumerated(EnumType.STRING)
     public StudentStatus getStudentStatus() {
         return studentStatus;
-    }
-
-    @Column(name = "school_id")
-    public String getSchoolId() {
-        return schoolId;
     }
 
     @JoinColumn(name = "location_id", referencedColumnName = "id")

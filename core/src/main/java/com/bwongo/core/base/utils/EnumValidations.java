@@ -107,4 +107,24 @@ public class EnumValidations {
         );
         return relationList.contains(value);
     }
+
+    public static boolean isTripType(String value){
+        List<String> tripTypeList = Arrays.asList(
+                TripType.PICK_UP.name(),
+                TripType.DROP_OFF.name()
+        );
+
+        return tripTypeList.contains(value);
+    }
+
+    public static boolean isStudentStatus(String value){
+        List<String> studentStatusList = Arrays.asList(
+                StudentStatus.SCHOOL_SIGN_OUT.name(),
+                StudentStatus.HOME_PICK_UP.name(),
+                StudentStatus.SCHOOL_SIGN_IN.name(),
+                StudentStatus.HOME_DROP_OFF.name(),
+                StudentStatus.IN_CLASS.name()
+        );
+        return studentStatusList.contains(value);
+    }
 }
