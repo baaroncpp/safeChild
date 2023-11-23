@@ -4,6 +4,11 @@ server:
     include-message: always
 
 spring:
+  rabbitmq:
+    host: ${QUEUE_HOST:localhost}
+    port: ${QUEUE_PORT:5672}
+    username: ${QUEUE_USERNAME:guest}
+    password: ${QUEUE_PASSWORD:guest}
   datasource:
     url: jdbc:postgresql://${KB_DB_HOST:localhost}:${KB_DB_PORT:5432}/${KB_DB:safe_child_db}
     username: ${KB_DB_USERNAME:aaron}
@@ -38,3 +43,25 @@ core-banking:
     student: 20
     driver: 17
     school-staff: 19
+
+accounts:
+  sms: SCH2023
+
+transfer-type:
+  sms-notification: 29
+
+notification:
+  routing:
+    key:
+      sms: sms.routing
+  queue:
+    name:
+      sms: sms.queue
+  exchange:
+    name: notification.exchange
+  sms:
+    sender: SAFE CHILD
+    drop-off: Hi Parent! Your Child With ID %s has been Dropped off from %s by a %s with ID %s at %s
+    pick-up: Hi Parent! Your Child With ID %s has been picked up from home by a %s with ID %s at %s
+    on-school: Hi Parent! Your Child With ID %s has been received at %s by a %s with ID %s at %s
+    off-school: Hi Parent! Your Child With ID %s has been signed out by a %s with ID %s from %s at %s

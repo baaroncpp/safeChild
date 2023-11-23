@@ -30,6 +30,13 @@ public class UserApi {
 
     private final UserService userService;
 
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
+    @PostMapping(path = "/change-password", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Boolean changePassword(@RequestBody ChangePasswordRequestDto changePasswordRequestDto){
+        return userService.changePassword(changePasswordRequestDto);
+    }
+
     @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDto get(@PathVariable Long id){

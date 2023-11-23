@@ -10,6 +10,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author bkaaron
@@ -24,7 +25,7 @@ import java.util.Date;
 @ToString
 public class Notification extends BaseEntity {
     private Long id;
-    private String receiver;
+    private List<String> receivers;
     private String sender;
     private String message;
     private SmsStatus status;
@@ -40,8 +41,9 @@ public class Notification extends BaseEntity {
     }
 
     @Column(name = "receiver")
-    public String getReceiver() {
-        return receiver;
+    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+    public List<String> getReceivers() {
+        return receivers;
     }
 
     @Column(name = "sender")

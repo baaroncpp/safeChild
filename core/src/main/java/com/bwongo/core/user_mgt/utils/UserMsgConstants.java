@@ -50,6 +50,11 @@ public class UserMsgConstants {
     public static final String USERNAME_SHOULD_CONTAIN_ONLY_CHARS_AND_NUMBERS = "Username contains invalid characters";
     public static final String USERNAME_NOT_FOUND = "user with username: %s not found";
     public static final String STANDARD_PASSWORD = "Password should be 8 to 50 characters long, with at least a digit, a lower case, an upper case and a special character";
+    public static final String NULL_NEW_PASSWORD = "null or empty newPassword";
+    public static final String NULL_OLD_PASSWORD = "null or empty oldPassword";
+    public static final String OLD_NEW_SAME_PASSWORD = "oldPassword and newPassword cannot be the same";
+    public static final String OLD_PASSWORDS_DONT_MATCH = "oldPassword does not match the current password";
+    public static final String PASSWORD_USED_BEFORE = "newPassword has been used before";
     public static final String VALID_USER_TYPE = "Invalid userType: it should be ADMIN";
     public static final String VALID_SCHOOL_USER_TYPE = "Invalid userType: it should be DRIVER or SCHOOL_ADMIN or SCHOOL_STAFF";
     public static final String USER_GROUP_DOES_NOT_EXIST = "User group with ID: %s does not exist";
@@ -57,6 +62,7 @@ public class UserMsgConstants {
     public static final String USER_DOES_NOT_EXIST = "User with ID: %s not found";
     public static final String USER_META_NOT_FOUND = "user metaData with ID: %s not found";
     public static final String SCHOOL_USER_NOT_FOUND = "school user with ID: %s not found";
+    public static final String CANNOT_UPDATE_PASSWORD = "cannot update password";
     public static final String USER_NOT_IN_SIMILAR_SCHOOL = "Cannot access school user from different school";
     public static final String NOT_ATTACHED_TO_SCHOOL = "User with ID: %s not attached to school";
     public static final String USER_WITH_PHONE_NUMBER_DOES_NOT_EXIST = "User with phone number: %s does not exist";

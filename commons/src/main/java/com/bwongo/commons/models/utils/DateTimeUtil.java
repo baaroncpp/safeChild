@@ -1,5 +1,6 @@
 package com.bwongo.commons.models.utils;
 
+import com.bwongo.commons.models.exceptions.BadRequestException;
 import com.bwongo.commons.models.text.StringUtil;
 
 import org.apache.logging.log4j.LogManager;
@@ -166,6 +167,17 @@ public class DateTimeUtil {
             logger.error("parse date error", e);
         }
         return localDateStr;
+    }
+
+    public static Date getCurrentOnlyDate(){
+        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        Date today = DateTimeUtil.getCurrentUTCTime();
+        try {
+            return formatter.parse(formatter.format(today));
+        } catch (ParseException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     public static String getCurrentLocalTime(final String dateFormat) {

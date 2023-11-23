@@ -1,6 +1,7 @@
 package com.bwongo.core.user_mgt.service;
 
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
+import com.bwongo.commons.models.text.StringRegExUtil;
 import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.enums.*;
@@ -8,7 +9,6 @@ import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.base.utils.EnumValidations;
 import com.bwongo.core.core_banking.service.MemberService;
 import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
-import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
@@ -16,7 +16,7 @@ import com.bwongo.core.school_mgt.service.SchoolDtoService;
 import com.bwongo.core.user_mgt.model.dto.UserRequestDto;
 import com.bwongo.core.user_mgt.model.dto.UserResponseDto;
 import com.bwongo.core.user_mgt.model.dto.*;
-
+import com.bwongo.core.user_mgt.model.jpa.TPreviousPassword;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
 import com.bwongo.core.user_mgt.model.jpa.TUserApproval;
 import com.bwongo.core.user_mgt.model.jpa.TUserMeta;
@@ -71,11 +71,58 @@ public class UserService {
     private final SchoolUserRepository schoolUserRepository;
     private final SchoolDtoService schoolDtoService;
     private final MemberService memberService;
+    private final TPreviousPasswordRepository previousPasswordRepository;
+
+    @Transactional
+    public boolean changePassword(ChangePasswordRequestDto changePasswordRequestDto){
+
+        changePasswordRequestDto.validate();
+        var existingUser = userRepository.findById(auditService.getLoggedInUser().getId());
+        var user = existingUser.get();
+
+        var newPassword = changePasswordRequestDto.newPassword();
+        var oldPassword = changePasswordRequestDto.oldPassword();
+        var oldEncryptedPassword = user.getPassword();
+
+        Validate.isTrue(passwordEncoder.matches(oldPassword, oldEncryptedPassword), ExceptionType.BAD_REQUEST, OLD_PASSWORDS_DONT_MATCH);
+        Validate.isTrue(!newPassword.equals(oldPassword), ExceptionType.BAD_REQUEST, OLD_NEW_SAME_PASSWORD);
+
+        var previousPasswords = previousPasswordRepository.findAllByUser(user);
+
+        System.out.println(previousPasswords.size());
+
+        previousPasswords.forEach(previousPassword -> Validate.isTrue(!(passwordEncoder.matches(newPassword, previousPassword.getPreviousPassword())) ,
+                        ExceptionType.BAD_REQUEST,
+                        PASSWORD_USED_BEFORE));
+
+        var optionalMaxPasswordCount = previousPasswords.stream().mapToInt(TPreviousPassword::getPasswordChangeCount).max();
+        int maxPasswordCount = 0;
+
+        if(optionalMaxPasswordCount.isPresent())
+            maxPasswordCount = optionalMaxPasswordCount.getAsInt();
+
+        var previousPassword = userDtoService.dtoToTPreviousPassword(changePasswordRequestDto);
+        previousPassword.setPreviousPassword(oldEncryptedPassword);
+        previousPassword.setPasswordChangeCount(maxPasswordCount + 1);
+        previousPassword.setUser(user);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        auditService.stampLongEntity(user);
+        userRepository.save(user);
+
+        auditService.stampLongEntity(previousPassword);
+        previousPasswordRepository.save(previousPassword);
+
+        return Boolean.TRUE;
+    }
 
     @Transactional
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
 
         userRequestDto.validate();
+        Validate.notEmpty(userRequestDto.password(), PASSWORD_REQUIRED);
+        StringRegExUtil.stringOfStandardPassword(userRequestDto.password(), STANDARD_PASSWORD);
+
         var existingUserUsername = userRepository.findByUsername(userRequestDto.username());
         Validate.isTrue(existingUserUsername.isEmpty(), ExceptionType.BAD_REQUEST,USERNAME_TAKEN, userRequestDto.username());
 
@@ -111,6 +158,8 @@ public class UserService {
     public SchoolUserResponseDto addSchoolUser(SchoolUserRequestDto schoolUserRequestDto){
 
         schoolUserRequestDto.validate();
+        Validate.notEmpty(schoolUserRequestDto.password(), PASSWORD_REQUIRED);
+        StringRegExUtil.stringOfStandardPassword(schoolUserRequestDto.password(), STANDARD_PASSWORD);
 
         var existingUserGroup = userGroupRepository.findById(schoolUserRequestDto.userGroupId());
         Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
@@ -182,6 +231,7 @@ public class UserService {
     public SchoolUserResponseDto updateSchoolUser(Long id, SchoolUserRequestDto schoolUserRequestDto){
 
         schoolUserRequestDto.validate();
+        Validate.isTrue(schoolUserRequestDto.password().isEmpty(), ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
 
         var existingUser = userRepository.findById(id);
         Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
@@ -207,7 +257,7 @@ public class UserService {
         updatedUser.setApproved(user.isApproved());
         updatedUser.setDeleted(user.getDeleted());
         updatedUser.setInitialPasswordReset(user.isInitialPasswordReset());
-        updatedUser.setPassword(passwordEncoder.encode(schoolUserRequestDto.password()));
+        //updatedUser.setPassword(passwordEncoder.encode(schoolUserRequestDto.password()));
         updatedUser.setUserGroup(userGroup);
         updatedUser.setUserMetaId(user.getUserMetaId());
         updatedUser.setApprovedBy(user.getApprovedBy());
@@ -254,6 +304,7 @@ public class UserService {
     public UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto) {
 
         userRequestDto.validate();
+        Validate.isTrue(userRequestDto.password().isEmpty(), ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
 
         var existingUser = userRepository.findById(userId);
         Validate.isPresent(existingUser, String.format(USER_DOES_NOT_EXIST, userId));
@@ -263,7 +314,7 @@ public class UserService {
         final var userGroup = existingUserGroup.get();
 
         var user = userDtoService.dtoToTUser(userRequestDto);
-        user.setPassword(passwordEncoder.encode(userRequestDto.password()));
+        //user.setPassword(passwordEncoder.encode(userRequestDto.password()));
         user.setUserGroup(userGroup);
 
         return userDtoService.tUserToDto(userRepository.save(user));

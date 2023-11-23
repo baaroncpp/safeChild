@@ -35,11 +35,11 @@ public record SchoolUserRequestDto (
         Long schoolId
 ) {
     public void validate(){
-        Validate.notEmpty(password, PASSWORD_REQUIRED);
+        //Validate.notEmpty(password, PASSWORD_REQUIRED);
         Validate.notNull(userGroupId, ExceptionType.BAD_REQUEST, USER_GROUP_ID_REQUIRED);
         Validate.notNull(userType, ExceptionType.BAD_REQUEST, USER_TYPE_REQUIRED);
         Validate.isTrue(isSchoolUserType(userType), ExceptionType.BAD_REQUEST, VALID_SCHOOL_USER_TYPE);
-        StringRegExUtil.stringOfStandardPassword(password, STANDARD_PASSWORD);
+        //StringRegExUtil.stringOfStandardPassword(password, STANDARD_PASSWORD);
         Validate.notNull(schoolId, ExceptionType.BAD_REQUEST, NULL_SCHOOL_ID);
 
         Validate.notEmpty(lastName, LAST_NAME_REQUIRED);

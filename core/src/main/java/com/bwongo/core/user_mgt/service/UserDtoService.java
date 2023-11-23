@@ -23,6 +23,18 @@ public class UserDtoService {
 
     private final BaseDtoService baseDtoService;
 
+    public TPreviousPassword dtoToTPreviousPassword(ChangePasswordRequestDto changePasswordRequestDto){
+
+        if(changePasswordRequestDto == null){
+            return null;
+        }
+
+        var previousPassword = new TPreviousPassword();
+        previousPassword.setPreviousPassword(changePasswordRequestDto.oldPassword());
+
+        return previousPassword;
+    }
+
     public UserGroupResponseDto tUserGroupToDto(TUserGroup userGroup){
 
         if(userGroup == null){

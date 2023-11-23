@@ -4,6 +4,7 @@ import com.bwongo.core.student_mgt.model.jpa.TGuardian;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**

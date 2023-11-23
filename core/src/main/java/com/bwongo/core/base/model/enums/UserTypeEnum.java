@@ -6,5 +6,18 @@ package com.bwongo.core.base.model.enums;
  * @Date 27/05/2022
  */
 public enum UserTypeEnum {
-    ADMIN, DRIVER, SCHOOL_ADMIN, SCHOOL_STAFF
+    ADMIN("Admin"),
+    DRIVER("Driver"),
+    SCHOOL_ADMIN("School Admin"),
+    SCHOOL_STAFF("School Staff");
+
+    String note;
+
+    UserTypeEnum(String note) {
+        this.note = note;
+    }
+
+    public String getNote() {
+        return note;
+    }
 }
