@@ -160,6 +160,8 @@ public class UserService {
         schoolUserRequestDto.validate();
         Validate.notEmpty(schoolUserRequestDto.password(), PASSWORD_REQUIRED);
         StringRegExUtil.stringOfStandardPassword(schoolUserRequestDto.password(), STANDARD_PASSWORD);
+        Validate.notEmpty(schoolUserRequestDto.pin(), NULL_PIN);
+        StringRegExUtil.stringOfOnlyNumbers(schoolUserRequestDto.pin(), String.format(INVALID_PIN, schoolUserRequestDto.pin()));
 
         var existingUserGroup = userGroupRepository.findById(schoolUserRequestDto.userGroupId());
         Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
@@ -231,7 +233,8 @@ public class UserService {
     public SchoolUserResponseDto updateSchoolUser(Long id, SchoolUserRequestDto schoolUserRequestDto){
 
         schoolUserRequestDto.validate();
-        Validate.isTrue(schoolUserRequestDto.password().isEmpty(), ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
+        Validate.isTrue(schoolUserRequestDto.password() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
+        Validate.isTrue(schoolUserRequestDto.pin() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PIN);
 
         var existingUser = userRepository.findById(id);
         Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
@@ -304,7 +307,7 @@ public class UserService {
     public UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto) {
 
         userRequestDto.validate();
-        Validate.isTrue(userRequestDto.password().isEmpty(), ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
+        Validate.isTrue(userRequestDto.password() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
 
         var existingUser = userRepository.findById(userId);
         Validate.isPresent(existingUser, String.format(USER_DOES_NOT_EXIST, userId));
