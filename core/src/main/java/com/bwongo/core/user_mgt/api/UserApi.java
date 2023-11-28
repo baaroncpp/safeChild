@@ -168,4 +168,15 @@ public class UserApi {
         return userService.getUserApprovals(status, pageable);
     }
 
+    @GetMapping(path = "permissions", produces = APPLICATION_JSON)
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
+    public List<PermissionResponseDto> getPermissions(){
+        return userService.getPermissions();
+    }
+
+    @GetMapping(path = "permissions/{id}", produces = APPLICATION_JSON)
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
+    public List<PermissionResponseDto> getPermissionsById(@PathVariable Long id){
+        return userService.getUserPermissionsById(id);
+    }
 }

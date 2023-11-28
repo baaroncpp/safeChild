@@ -25,6 +25,7 @@ import com.bwongo.core.base.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,6 +73,7 @@ public class UserService {
     private final SchoolDtoService schoolDtoService;
     private final MemberService memberService;
     private final TPreviousPasswordRepository previousPasswordRepository;
+    private final TGroupAuthorityRepository groupAuthorityRepository;
 
     @Transactional
     public boolean changePassword(ChangePasswordRequestDto changePasswordRequestDto){
@@ -355,14 +357,7 @@ public class UserService {
     }
 
     public UserResponseDto getUserById(Long id) {
-        var existingUser = userRepository.findById(id);
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
-
-        var user = new TUser();
-        if(existingUser.isPresent())
-            user = existingUser.get();
-
-        return userDtoService.tUserToDto(user);
+        return userDtoService.tUserToDto(getUser(id));
     }
 
     public UserMetaResponseDto getUserByEmail(String email) {
@@ -593,6 +588,21 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public List<PermissionResponseDto> getPermissions(){
+        return getUserPermissionsById(auditService.getLoggedInUser().getId());
+    }
+
+    public List<PermissionResponseDto> getUserPermissionsById(Long id){
+
+        var user = getUser(id);
+        var groupAuthorities = groupAuthorityRepository.findByUserGroup(user.getUserGroup());
+
+        return groupAuthorities
+                .stream()
+                .map(groupAuthority -> userDtoService.permissionToDto(groupAuthority.getPermission()))
+                .collect(Collectors.toList());
+    }
+
     private UserRequestDto mapSchoolUserRequestDtoToUserRequestDto(SchoolUserRequestDto schoolUserRequestDto){
         return new UserRequestDto(
                 getNonExistingUserUsername(),
@@ -633,5 +643,16 @@ public class UserService {
 
     private SchoolResponseDto getUserSchool(TUser user){
         return schoolDtoService.schoolToDto(schoolUserRepository.findByUser(user).get().getSchool());
+    }
+
+    private TUser getUser(Long id){
+        var existingUser = userRepository.findById(id);
+        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
+
+        var user = new TUser();
+        if(existingUser.isPresent())
+            user = existingUser.get();
+
+        return user;
     }
 }
