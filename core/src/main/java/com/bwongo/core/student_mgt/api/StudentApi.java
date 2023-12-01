@@ -50,7 +50,7 @@ public class StudentApi {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ', 'STUDENT_ROLE.UPDATE')")
     @GetMapping(path = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public StudentResponseDto getStudentById(@PathVariable("id") Long id){
         return studentService.getStudentById(id);
