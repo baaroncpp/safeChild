@@ -1,5 +1,6 @@
 package com.bwongo.core.security.models;
 
+import com.bwongo.core.user_mgt.model.jpa.TUserGroup;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +28,9 @@ public class LoginUser  implements UserDetails {
 
     @Getter
     private boolean isCompanyUser;
+
+    @Getter
+    private TUserGroup userGroup;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

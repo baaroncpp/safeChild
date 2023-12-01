@@ -5,6 +5,7 @@ import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.security.models.LoginUser;
 import com.bwongo.core.user_mgt.model.jpa.TGroupAuthority;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
+import com.bwongo.core.user_mgt.model.jpa.TUserGroup;
 import com.bwongo.core.user_mgt.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -51,6 +52,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(permission -> new SimpleGrantedAuthority(permission.getPermission().getName()))
                 .collect(Collectors.toSet());
 
+        var logInUser = getLoginUser(user, permissions, userGroup);
+
+        return Optional.of(logInUser);
+    }
+
+    private static LoginUser getLoginUser(TUser user, Set<SimpleGrantedAuthority> permissions, TUserGroup userGroup) {
         var logInUser = new LoginUser();
 
         logInUser.setUsername(user.getUsername());
@@ -61,7 +68,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         logInUser.setCredentialsNonExpired(!user.isCredentialExpired());
         logInUser.setId(user.getId());
         logInUser.setGrantedAuthorities(permissions);
-
-        return Optional.of(logInUser);
+        logInUser.setUserGroup(userGroup);
+        return logInUser;
     }
 }
