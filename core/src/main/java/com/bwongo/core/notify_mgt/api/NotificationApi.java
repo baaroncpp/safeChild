@@ -1,20 +1,23 @@
 package com.bwongo.core.notify_mgt.api;
 
+import com.bwongo.core.notify_mgt.model.dto.BulkSignInRequestDto;
+import com.bwongo.core.notify_mgt.model.dto.BulkSignInResponse;
 import com.bwongo.core.notify_mgt.model.dto.NotificationDriverDto;
 import com.bwongo.core.notify_mgt.model.dto.NotificationDto;
 import com.bwongo.core.notify_mgt.service.NotificationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author bkaaron
  * @Project nc
  * @Date 11/11/23
  **/
+@Tag(name = "Notifications",description = "School staff and drivers send student scan notifications")
+@RestController
+@RequestMapping("/api/v1/")
 @RequiredArgsConstructor
 public class NotificationApi {
 
@@ -30,8 +33,8 @@ public class NotificationApi {
         return notificationService.sendNotificationStaff(notificationDto, Boolean.FALSE);
     }
 
-    @GetMapping(path = "bulk/school-sign-in/trip/{id}")
-    public Object sendBulkNotification(@PathVariable("id") Long id) {
-        return notificationService.bulkOnSchool(id);
+    @PostMapping(path = "bulk/school-sign-in/trip", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public BulkSignInResponse sendBulkNotification(@RequestBody BulkSignInRequestDto bulkSignInRequestDto) {
+        return notificationService.bulkOnSchool(bulkSignInRequestDto);
     }
 }

@@ -96,6 +96,7 @@ public class TUserMeta extends AuditEntity {
     }
 
     @Column(name = "identification")
+    @Enumerated(EnumType.STRING)
     public IdentificationType getIdentificationType() {
         return identificationType;
     }
