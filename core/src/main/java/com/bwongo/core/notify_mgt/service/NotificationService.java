@@ -1,6 +1,7 @@
 package com.bwongo.core.notify_mgt.service;
 
 import com.bwongo.commons.models.exceptions.BadRequestException;
+import com.bwongo.commons.models.utils.DateTimeUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.core.base.model.enums.*;
@@ -30,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.bwongo.commons.models.utils.DateTimeUtil.*;
 import static com.bwongo.core.notify_mgt.utils.NotificationMsgConstants.*;
@@ -38,6 +38,7 @@ import static com.bwongo.core.notify_mgt.utils.NotificationUtils.*;
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
 import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.TRIP_ENDED;
 import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.TRIP_NOT_FOUND;
+import static com.bwongo.core.trip_mgt.utils.TripUtils.getRemainingStudentsOnTrip;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.SCHOOL_USER_NOT_FOUND;
 
 /**
@@ -66,6 +67,7 @@ public class NotificationService {
     private String offSchoolSms;
     private static final String SUCCESS = "SUCCESS";
     private static final String SUCCESS_NOTE = "Successfully signed in all students on trip";
+    private static final String FAILED_NOTIFICATION = "Failed to send notification";
 
     private final StudentDayRepository studentDayRepository;
     private final StudentTravelRepository studentTravelRepository;
@@ -132,7 +134,7 @@ public class NotificationService {
         List<String> guardianPhoneNumbers = studentGuardianRepository.findAllByStudent(student).stream()
                 .filter(studentGuardian -> studentGuardian.getGuardian().isNotified())
                 .map(studentGuardian -> studentGuardian.getGuardian().getPhoneNumber())
-                .collect(Collectors.toList());
+                .toList();
 
         switch(studentStatus) {
             case HOME_PICK_UP:
@@ -162,40 +164,8 @@ public class NotificationService {
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
             default:
-                throw new BadRequestException("Failed to send notification");
+                throw new BadRequestException(FAILED_NOTIFICATION);
         }
-    }
-
-    private NotificationResponseDto sendNotification(TLocation location, TStudent student, TSchool school, Trip trip, TUser staff, StudentStatus studentStatus, List<String> guardianPhoneNumbers){
-
-        var studentTravel = new StudentTravel();
-        var studentDay = new StudentDay();
-
-        studentDay.setStaff(staff);
-        studentDay.setStudent(student);
-        studentDay.setSchool(school);
-        studentDay.setSchoolDate(getCurrentOnlyDate());
-        studentDay.setOnTrip(Boolean.FALSE);
-        studentDay.setLocation(location);
-
-        auditService.stampAuditedEntity(studentDay);
-        studentDayRepository.save(studentDay);
-
-        studentTravel.setStudent(student);
-        studentTravel.setTrip(trip);
-        studentTravel.setStudentStatus(studentStatus);
-        studentTravel.setSchool(school);
-        studentTravel.setLocation(location);
-
-        auditService.stampAuditedEntity(studentTravel);
-        studentTravelRepository.save(studentTravel);
-
-        return sendSms(guardianPhoneNumbers,
-                studentStatus,
-                student.getStudentUsername(),
-                staff.getUsername(),
-                staff.getUserType(),
-                school.getSchoolName());
     }
 
     @Transactional
@@ -246,7 +216,7 @@ public class NotificationService {
         List<String> guardianPhoneNumbers = studentGuardianRepository.findAllByStudent(student).stream()
                 .filter(studentGuardian -> studentGuardian.getGuardian().isNotified())
                 .map(studentGuardian -> studentGuardian.getGuardian().getPhoneNumber())
-                .collect(Collectors.toList());
+                .toList();
 
         return sendSms(guardianPhoneNumbers,
                 StudentStatus.valueOf(stringStudentStatus),
@@ -256,6 +226,7 @@ public class NotificationService {
                 schoolUser.getSchool().getSchoolName());
     }
 
+    @Transactional
     public BulkSignInResponse bulkOnSchool(BulkSignInRequestDto bulkSignInRequestDto) {
 
         bulkSignInRequestDto.validate();
@@ -268,9 +239,10 @@ public class NotificationService {
         if(existingTrip.isPresent())
             trip = existingTrip.get();
 
+        Validate.isTrue(trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, BULK_ONLY_PICK_UP);
         Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
 
-        var studentTravelList = getStudentsOnPickUpTrip(trip);
+        var studentTravelList = getStudentsStillOnTrip(trip);
 
         for(StudentTravel obj : studentTravelList){
             var notificationDriverDto = new NotificationDriverDto(
@@ -284,7 +256,7 @@ public class NotificationService {
             sendNotificationDriver(notificationDriverDto);
         }
         trip.setTripStatus(TripStatus.ENDED);
-        trip.setModifiedOn(new Date());
+        trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
         tripRepository.save(trip);
 
         return new BulkSignInResponse(
@@ -292,6 +264,38 @@ public class NotificationService {
                 SUCCESS,
                 SUCCESS_NOTE
         );
+    }
+
+    private NotificationResponseDto sendNotification(TLocation location, TStudent student, TSchool school, Trip trip, TUser staff, StudentStatus studentStatus, List<String> guardianPhoneNumbers){
+
+        var studentTravel = new StudentTravel();
+        var studentDay = new StudentDay();
+
+        studentDay.setStaff(staff);
+        studentDay.setStudent(student);
+        studentDay.setSchool(school);
+        studentDay.setSchoolDate(getCurrentOnlyDate());
+        studentDay.setOnTrip(Boolean.FALSE);
+        studentDay.setLocation(location);
+
+        auditService.stampAuditedEntity(studentDay);
+        studentDayRepository.save(studentDay);
+
+        studentTravel.setStudent(student);
+        studentTravel.setTrip(trip);
+        studentTravel.setStudentStatus(studentStatus);
+        studentTravel.setSchool(school);
+        studentTravel.setLocation(location);
+
+        auditService.stampAuditedEntity(studentTravel);
+        studentTravelRepository.save(studentTravel);
+
+        return sendSms(guardianPhoneNumbers,
+                studentStatus,
+                student.getStudentUsername(),
+                staff.getUsername(),
+                staff.getUserType(),
+                school.getSchoolName());
     }
 
     private NotificationResponseDto sendSms(List<String> guardianPhoneNumbers, StudentStatus studentStatus,
@@ -325,28 +329,25 @@ public class NotificationService {
 
         Validate.isTrue(existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_HAS_ALREADY_BEEN_IN_STATUS, student.getStudentUsername(), studentStatus);
 
+        //TODO must be revised if students that did not check in should not be allowed to check out
         if (studentStatus.equals(StudentStatus.SCHOOL_SIGN_OUT)) {
             var studentDays = studentDayRepository.findBySchoolDateAndStudent(schoolDate, student);
             Validate.isTrue(!studentDays.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_NOT_CHECKED_IN, student.getStudentUsername());
         }
     }
 
-    private List<StudentTravel> getStudentsOnPickUpTrip(Trip trip){
+    private List<StudentTravel> getStudentsStillOnTrip(Trip trip){
 
-        var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
-        var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
-        var pickUpList = new ArrayList<StudentTravel>();
-
-        for(StudentTravel obj : studentTravelPickUpList){
-            if(studentTravelSignInList.stream().noneMatch(t -> t.getStudent().getStudentUsername().equals(obj.getStudent().getStudentUsername()))){
-                pickUpList.add(obj);
-            }
-        }
-
-        return pickUpList;
+        var studentTravelPickUpList = getStudentTravelsByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+        var studentTravelSignInList = getStudentTravelsByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
+        return getRemainingStudentsOnTrip(studentTravelPickUpList, studentTravelSignInList);
     }
 
-    public String getSms(StudentStatus status,
+    private List<StudentTravel> getStudentTravelsByTripAndStudentStatus(Trip trip, StudentStatus studentStatus){
+        return studentTravelRepository.findAllByTripAndStudentStatus(trip, studentStatus);
+    }
+
+    private String getSms(StudentStatus status,
                                 String studentUsername,
                                 String schoolName,
                                 String schoolUserType,

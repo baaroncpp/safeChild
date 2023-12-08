@@ -1,5 +1,6 @@
 package com.bwongo.core.trip_mgt.api;
 
+import com.bwongo.core.base.model.enums.TripStatus;
 import com.bwongo.core.trip_mgt.model.dto.StudentEventLocationDto;
 import com.bwongo.core.trip_mgt.model.dto.TripResponseDto;
 import com.bwongo.core.trip_mgt.service.TripService;
@@ -40,9 +41,15 @@ public class TripApi {
 
     @PreAuthorize("hasAnyAuthority('TRIP_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "{id}/event-coordinates", produces = MediaType.APPLICATION_JSON_VALUE)
-    List<StudentEventLocationDto> getEventCoordinates(@PathVariable("id") Long id){
+    public List<StudentEventLocationDto> getEventCoordinates(@PathVariable("id") Long id){
         return tripService.getStudentEventLocation(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('TRIP_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
+    @PutMapping(path = "change-trip-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public TripResponseDto changeTripStatus(@RequestParam("id") Long id,
+                                            @RequestParam("tripStatus") TripStatus tripStatus){
+        return tripService.changeTripStatus(id, tripStatus);
+    }
 
 }

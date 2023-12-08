@@ -7,7 +7,6 @@ import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
-import com.bwongo.core.student_mgt.model.jpa.TStudent;
 import com.bwongo.core.student_mgt.repository.StudentRepository;
 import com.bwongo.core.student_mgt.repository.StudentTravelRepository;
 import com.bwongo.core.trip_mgt.model.dto.StudentEventLocationDto;
@@ -25,14 +24,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.bwongo.core.base.model.enums.TripStatus.*;
-import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
 import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.bwongo.core.user_mgt.utils.UserMsgConstants.USERNAME_NOT_FOUND;
-import static com.bwongo.core.user_mgt.utils.UserMsgConstants.USER_DOES_NOT_EXIST;
+import static com.bwongo.core.trip_mgt.utils.TripUtils.getRemainingStudentsOnTrip;
+import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.*;
 
 /**
@@ -66,7 +64,9 @@ public class TripService {
 
         var existingDriver = userRepository.findByUsername(driverUsername);
         Validate.isPresent(existingDriver, DRIVER_NOT_FOUND_BY_USERNAME, driverUsername);
-        var driver = existingDriver.get();
+        TUser driver = null;
+        if(existingDriver.isPresent())
+            driver = existingDriver.get();
 
         var driverTrips = tripRepository.findAllBySchoolStaffAndCreatedOnBetween(driver, fromDate, toDate, pageable);
         Validate.notNull(driverTrips, ExceptionType.BAD_REQUEST, NO_TRIPS_FOUND);
@@ -93,12 +93,6 @@ public class TripService {
     private Date getDateFromString(String stringDate){
         Validate.isAcceptableDateFormat(stringDate);
         return DateTimeUtil.stringToDate(stringDate, DATE_TIME_FORMAT);
-    }
-
-    private TStudent getStudentByUsername(String username){
-        var student = studentRepository.findByStudentUsername(username);
-        Validate.isPresent(student, STUDENT_NOT_FOUND_USERNAME, username);
-        return student.get();
     }
 
     public List<TripResponseDto> getTripsByStaffUsername(Pageable pageable){
@@ -226,15 +220,7 @@ public class TripService {
 
         var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
         var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
-        var pickUpList = new ArrayList<StudentTravel>();
-
-        for(StudentTravel obj : studentTravelPickUpList){
-            if(studentTravelSignInList.stream().noneMatch(t -> t.getStudent().getStudentUsername().equals(obj.getStudent().getStudentUsername()))){
-                pickUpList.add(obj);
-            }
-        }
-
-        return pickUpList;
+        return getRemainingStudentsOnTrip(studentTravelPickUpList, studentTravelSignInList);
     }
 
     public List<StudentTravel> getStudentsTripByStatus(TravelStudentDto travelStudentDto, Pageable pageable){
@@ -254,15 +240,7 @@ public class TripService {
 
         var studentTravelSignOutList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
         var studentTravelDropOffList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
-        var result = new ArrayList<StudentTravel>();
-
-        for(StudentTravel obj : studentTravelSignOutList){
-            if(studentTravelDropOffList.stream().noneMatch(t -> t.getStudent().getStudentUsername().equals(obj.getStudent().getStudentUsername()))){
-                result.add(obj);
-            }
-        }
-
-        return result;
+        return getRemainingStudentsOnTrip(studentTravelSignOutList, studentTravelDropOffList);
     }
 
     private Trip getTrip(Long id){

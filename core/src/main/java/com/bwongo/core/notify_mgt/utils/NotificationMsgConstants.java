@@ -18,5 +18,6 @@ public class NotificationMsgConstants {
     public static final String STUDENT_NOT_PICKED_UP = "student : %s not picked up on this trip";
     public static final String STUDENT_WAS_NOT_SIGNED_OUT = "Student %s was not signed out";
     public static final String STUDENT_NOT_ON_TRIP = "Student %s not on the trip";
+    public static final String BULK_ONLY_PICK_UP = "Can only do BULK DROP OFF on PICK_UP trip";
 
 }
