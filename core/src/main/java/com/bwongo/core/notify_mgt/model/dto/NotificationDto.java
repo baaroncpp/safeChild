@@ -21,11 +21,11 @@ public record NotificationDto(
         double longitudeCoordinate
 ) {
     public void validate(){
-        Validate.notEmpty(studentUsername, NULL_USERNAME);
-        Validate.notEmpty(studentStatus, NULL_STUDENT_STATUS);
-        Validate.isTrue(isStudentStatus(studentStatus), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS, studentStatus);
-        Validate.notEmpty(appRef, NULL_APP_REF);
-        Validate.notNull(latitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
-        Validate.notNull(longitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
+        Validate.notEmpty(this, studentUsername, NULL_USERNAME);
+        Validate.notEmpty(this, studentStatus, NULL_STUDENT_STATUS);
+        Validate.isTrue(this, isStudentStatus(studentStatus), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS, studentStatus);
+        Validate.notEmpty(this, appRef, NULL_APP_REF);
+        Validate.notNull(this, latitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
+        Validate.notNull(this, longitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
     }
 }

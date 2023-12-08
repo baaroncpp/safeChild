@@ -30,7 +30,7 @@ public class BaseService {
     public List<DistrictResponseDto> getAllDistrictByCountryId(Long countryId, Pageable pageable){
 
         var existingCountry = countryRepository.findById(countryId);
-        Validate.isPresent(existingCountry, COUNTRY_WITH_ID_NOT_FOUND, countryId);
+        Validate.isPresent(this, existingCountry, COUNTRY_WITH_ID_NOT_FOUND, countryId);
         final var country = existingCountry.get();
 
         return districtRepository.findAllByCountry(country, pageable).stream()

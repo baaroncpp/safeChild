@@ -30,26 +30,26 @@ public record UserMetaRequestDto(
          String pin
 ) {
     public void validate(){
-        Validate.notEmpty(lastName, LAST_NAME_REQUIRED);
-        Validate.notEmpty(firstName, FIRST_NAME_REQUIRED);
-        StringRegExUtil.stringOfOnlyCharsNoneCaseSensitive(lastName, LAST_NAME_ONLY_CHARACTERS);
-        StringRegExUtil.stringOfOnlyCharsNoneCaseSensitive(lastName, FIRST_NAME_ONLY_CHARACTERS);
-        Validate.notEmpty(phoneNumber, PHONE_NUMBER_REQUIRED);
-        StringRegExUtil.stringOfInternationalPhoneNumber(phoneNumber, INVALID_PHONE_NUMBER);
-        Validate.notEmpty(email, EMAIL_REQUIRED);
-        StringRegExUtil.stringOfEmail(email, INVALID_EMAIL);
-        Validate.notEmpty(identificationNumber, IDENTIFICATION_NUMBER_REQUIRED);
-        Validate.notNull(countryId, ExceptionType.BAD_REQUEST, COUNTRY_ID_REQUIRED);
-        Validate.notNull(birthDate, ExceptionType.BAD_REQUEST, DOB_REQUIRED);
-        Validate.notNull(gender, ExceptionType.BAD_REQUEST, GENDER_REQUIRED);
-        Validate.notNull(identificationType, ExceptionType.BAD_REQUEST, IDENTIFICATION_TYPE_REQUIRED);
-        Validate.isTrue(isIdentificationType(identificationType), ExceptionType.BAD_REQUEST, INVALID_IDENTIFICATION_TYPE);
-        Validate.notEmpty(pin, NULL_PIN);
-        StringRegExUtil.stringOfOnlyNumbers(pin, String.format(INVALID_PIN, pin));
-        Validate.isTrue(pin.length() == 4, ExceptionType.BAD_REQUEST, PIN_BAD_LENGTH);
+        Validate.notEmpty(this, lastName, LAST_NAME_REQUIRED);
+        Validate.notEmpty(this, firstName, FIRST_NAME_REQUIRED);
+        StringRegExUtil.stringOfOnlyCharsNoneCaseSensitive(this, lastName, LAST_NAME_ONLY_CHARACTERS);
+        StringRegExUtil.stringOfOnlyCharsNoneCaseSensitive(this, lastName, FIRST_NAME_ONLY_CHARACTERS);
+        Validate.notEmpty(this, phoneNumber, PHONE_NUMBER_REQUIRED);
+        StringRegExUtil.stringOfInternationalPhoneNumber(this, phoneNumber, INVALID_PHONE_NUMBER);
+        Validate.notEmpty(this, email, EMAIL_REQUIRED);
+        StringRegExUtil.stringOfEmail(this, email, INVALID_EMAIL);
+        Validate.notEmpty(this, identificationNumber, IDENTIFICATION_NUMBER_REQUIRED);
+        Validate.notNull(this, countryId, ExceptionType.BAD_REQUEST, COUNTRY_ID_REQUIRED);
+        Validate.notNull(this, birthDate, ExceptionType.BAD_REQUEST, DOB_REQUIRED);
+        Validate.notNull(this, gender, ExceptionType.BAD_REQUEST, GENDER_REQUIRED);
+        Validate.notNull(this, identificationType, ExceptionType.BAD_REQUEST, IDENTIFICATION_TYPE_REQUIRED);
+        Validate.isTrue(this, isIdentificationType(identificationType), ExceptionType.BAD_REQUEST, INVALID_IDENTIFICATION_TYPE);
+        Validate.notEmpty(this, pin, NULL_PIN);
+        StringRegExUtil.stringOfOnlyNumbers(this, pin, String.format(INVALID_PIN, pin));
+        Validate.isTrue(this, pin.length() == 4, ExceptionType.BAD_REQUEST, PIN_BAD_LENGTH);
 
         if(!phoneNumber2.isEmpty()){
-            StringRegExUtil.stringOfInternationalPhoneNumber(phoneNumber, INVALID_SECOND_PHONE_NUMBER);
+            StringRegExUtil.stringOfInternationalPhoneNumber(this, phoneNumber, INVALID_SECOND_PHONE_NUMBER);
         }
     }
 }

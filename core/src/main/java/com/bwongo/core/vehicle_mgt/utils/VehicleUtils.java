@@ -19,7 +19,7 @@ public class VehicleUtils {
 
     public static void  checkIfUserCanBeDriver(TUser user){
         checkThatUserIsAssignable(user);
-        Validate.isTrue(user.getUserType().equals(UserTypeEnum.DRIVER), ExceptionType.BAD_REQUEST, USER_NOT_DRIVER, user.getId());
+        Validate.isTrue(VehicleUtils.class, user.getUserType().equals(UserTypeEnum.DRIVER), ExceptionType.BAD_REQUEST, USER_NOT_DRIVER, user.getId());
     }
 
 }

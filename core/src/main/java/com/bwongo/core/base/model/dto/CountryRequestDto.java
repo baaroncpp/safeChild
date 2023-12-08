@@ -19,9 +19,9 @@ public record CountryRequestDto(
         Integer countryCode
 ) {
     public void validate(){
-        Validate.notEmpty(name, COUNTRY_NAME_REQUIRED);
-        Validate.notEmpty(isoAlpha2, COUNTRY_ISO_ALPHA2_REQUIRED);
-        Validate.notEmpty(name, COUNTRY_ISO_ALPHA3_REQUIRED);
-        Validate.notNull(countryCode, ExceptionType.BAD_REQUEST, COUNTRY_CODE_REQUIRED);
+        Validate.notEmpty(this, name, COUNTRY_NAME_REQUIRED);
+        Validate.notEmpty(this, isoAlpha2, COUNTRY_ISO_ALPHA2_REQUIRED);
+        Validate.notEmpty(this, name, COUNTRY_ISO_ALPHA3_REQUIRED);
+        Validate.notNull(this, countryCode, ExceptionType.BAD_REQUEST, COUNTRY_CODE_REQUIRED);
     }
 }

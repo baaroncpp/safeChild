@@ -106,7 +106,7 @@ public class CoreBankingWebServiceUtils {
         }
 
         if(Boolean.TRUE.equals(throwException)){
-            throw new BadRequestException(responseMsg);
+            throw new BadRequestException(CoreBankingWebServiceUtils.class, responseMsg);
         }
     }
 
@@ -118,9 +118,9 @@ public class CoreBankingWebServiceUtils {
             result = memberWebService.loadByUsername(username);
         }catch(Exception e){
             var errorMsg = e.getMessage();
-            Validate.filterException(errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
+            Validate.filterException(CoreBankingWebServiceUtils.class, errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
         }
-        Validate.notNull(result, ExceptionType.RESOURCE_NOT_FOUND, STUDENT_NOT_FOUND, username);
+        Validate.notNull(CoreBankingWebServiceUtils.class, result, ExceptionType.RESOURCE_NOT_FOUND, STUDENT_NOT_FOUND, username);
 
         return result;
     }

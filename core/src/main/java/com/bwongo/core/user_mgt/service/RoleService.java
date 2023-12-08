@@ -48,7 +48,7 @@ public class RoleService {
         roleRequestDto.validate();
 
         var existing = roleRepository.findByName(roleRequestDto.name());
-        Validate.isTrue(existing.isEmpty(), ExceptionType.BAD_REQUEST, ROLE_EXISTS, roleRequestDto.name());
+        Validate.isTrue(this, existing.isEmpty(), ExceptionType.BAD_REQUEST, ROLE_EXISTS, roleRequestDto.name());
 
         var role = userDtoService.dtoToTRole(roleRequestDto);
         auditService.stampLongEntity(role);
@@ -69,7 +69,7 @@ public class RoleService {
 
         roleRequestDto.validate();
         var existing = roleRepository.findById(roleId);
-        Validate.isPresent(existing, ROLE_DOES_NOT_EXIST, roleId);
+        Validate.isPresent(this, existing, ROLE_DOES_NOT_EXIST, roleId);
 
         var updatedRole = userDtoService.dtoToTRole(roleRequestDto);
         auditService.stampLongEntity(updatedRole);
@@ -85,14 +85,14 @@ public class RoleService {
 
     public PermissionResponseDto getPermissionById(Long id) {
         var result = permissionRepository.findById(id);
-        Validate.isPresent(result, PERMISSION_DOES_NOT_EXIST);
+        Validate.isPresent(this, result, PERMISSION_DOES_NOT_EXIST);
         return userDtoService.permissionToDto(result.get());
     }
 
     public PermissionResponseDto deactivatePermission(Long id) {
         var existing = permissionRepository.findById(id);
-        Validate.isPresent(existing, PERMISSION_DOES_NOT_EXIST, id);
-        Validate.isTrue(existing.get().getAssignable(), ExceptionType.BAD_REQUEST, PERMISSION_IS_ALREADY_IN_ACTIVE, id);
+        Validate.isPresent(this, existing, PERMISSION_DOES_NOT_EXIST, id);
+        Validate.isTrue(this, existing.get().getAssignable(), ExceptionType.BAD_REQUEST, PERMISSION_IS_ALREADY_IN_ACTIVE, id);
 
         var permission = existing.get();
         permission.setAssignable(Boolean.FALSE);
@@ -104,8 +104,8 @@ public class RoleService {
     public PermissionResponseDto activatePermission(Long id) {
 
         var existing = permissionRepository.findById(id);
-        Validate.isPresent(existing, PERMISSION_DOES_NOT_EXIST, id);
-        Validate.isTrue(!existing.get().getAssignable(), ExceptionType.BAD_REQUEST, PERMISSION_IS_ALREADY_ACTIVE, id);
+        Validate.isPresent(this, existing, PERMISSION_DOES_NOT_EXIST, id);
+        Validate.isTrue(this, !existing.get().getAssignable(), ExceptionType.BAD_REQUEST, PERMISSION_IS_ALREADY_ACTIVE, id);
 
         var permission = existing.get();
         permission.setAssignable(Boolean.TRUE);
@@ -116,14 +116,14 @@ public class RoleService {
 
     public void deletePermission(Long id) {
         var existing = permissionRepository.findById(id);
-        Validate.isPresent(existing, PERMISSION_DOES_NOT_EXIST, id);
+        Validate.isPresent(this, existing, PERMISSION_DOES_NOT_EXIST, id);
 
     }
 
     public List<PermissionResponseDto> getAllPermissionsByRoleName(String roleName) {
 
         var existingRole = roleRepository.findByName(roleName);
-        Validate.isPresent(existingRole, ROLE_NAME_DOES_NOT_EXIST, roleName);
+        Validate.isPresent(this, existingRole, ROLE_NAME_DOES_NOT_EXIST, roleName);
 
         return permissionRepository.findAllByRole(existingRole.get()).stream()
                 .map(userDtoService::permissionToDto)
@@ -139,13 +139,13 @@ public class RoleService {
     public boolean unAssignPermissionFromUserGroup(String permissionName, Long userGroupId) {
 
         var existingUserGroup = userGroupRepository.findById(userGroupId);
-        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userGroupId);
+        Validate.isPresent(this, existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userGroupId);
 
         var existingPermission = permissionRepository.findByName(permissionName);
-        Validate.isPresent(existingPermission, PERMISSION_NAME_DOES_NOT_EXIST, permissionName);
+        Validate.isPresent(this, existingPermission, PERMISSION_NAME_DOES_NOT_EXIST, permissionName);
 
         var existingGroupAuthority = groupAuthorityRepository.findByUserGroupAndPermission(existingUserGroup.get(), existingPermission.get());
-        Validate.isTrue(existingGroupAuthority.isPresent(), ExceptionType.BAD_REQUEST, PERMISSION_NOT_ASSIGNED_TO_USER_GROUP, permissionName, existingUserGroup.get().getName());
+        Validate.isTrue(this, existingGroupAuthority.isPresent(), ExceptionType.BAD_REQUEST, PERMISSION_NOT_ASSIGNED_TO_USER_GROUP, permissionName, existingUserGroup.get().getName());
 
         groupAuthorityRepository.delete(existingGroupAuthority.get());
         return Boolean.TRUE;
@@ -154,14 +154,14 @@ public class RoleService {
     public GroupAuthorityResponseDto assignPermissionToUserGroup(String permissionName, Long userGroupId) {
 
         var existingUserGroup = userGroupRepository.findById(userGroupId);
-        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userGroupId);
+        Validate.isPresent(this, existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userGroupId);
 
         var existingPermission = permissionRepository.findByName(permissionName);
-        Validate.isPresent(existingPermission, PERMISSION_NAME_DOES_NOT_EXIST, permissionName);
+        Validate.isPresent(this, existingPermission, PERMISSION_NAME_DOES_NOT_EXIST, permissionName);
         checkThatPermissionRoleIsAssignable(existingPermission.get());
 
         var existingGroupAuthority = groupAuthorityRepository.findByUserGroupAndPermission(existingUserGroup.get(), existingPermission.get());
-        Validate.isTrue(existingGroupAuthority.isEmpty(), ExceptionType.BAD_REQUEST, PERMISSION_ALREADY_ASSIGNED_TO_USER_GROUP, permissionName, existingUserGroup.get().getName());
+        Validate.isTrue(this, existingGroupAuthority.isEmpty(), ExceptionType.BAD_REQUEST, PERMISSION_ALREADY_ASSIGNED_TO_USER_GROUP, permissionName, existingUserGroup.get().getName());
 
         var groupAuthority = new TGroupAuthority();
         groupAuthority.setUserGroup(existingUserGroup.get());
@@ -175,7 +175,7 @@ public class RoleService {
     public List<GroupAuthorityResponseDto> getUserGroupAuthorities(Long userGroupId) {
 
         var existingUserGroup = userGroupRepository.findById(userGroupId);
-        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userGroupId);
+        Validate.isPresent(this, existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userGroupId);
 
         return groupAuthorityRepository.findByUserGroup(existingUserGroup.get()).stream()
                 .map(userDtoService::groupAuthorityToDto)
@@ -198,7 +198,7 @@ public class RoleService {
 
         userGroupDto.validate();
         var existingUserGroup = userGroupRepository.findTUserGroupByName(userGroupDto.name()+USER_GROUP_SUFFIX);
-        Validate.isTrue(existingUserGroup.isEmpty(), ExceptionType.BAD_REQUEST, USER_GROUP_ALREADY_EXISTS, userGroupDto.name()+USER_GROUP_SUFFIX);
+        Validate.isTrue(this, existingUserGroup.isEmpty(), ExceptionType.BAD_REQUEST, USER_GROUP_ALREADY_EXISTS, userGroupDto.name()+USER_GROUP_SUFFIX);
 
         var userGroup = userDtoService.dtoToTUserGroup(userGroupDto);
         userGroup.setName(userGroupDto.name()+USER_GROUP_SUFFIX);

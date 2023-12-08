@@ -21,8 +21,8 @@ public record DistrictRequestDto(
           String region
 ) {
     public void validate(){
-        Validate.notEmpty(name, DISTRICT_NAME_REQUIRED);
-        Validate.notEmpty(region, DISTRICT_REGION_REQUIRED);
-        Validate.notNull(countryId, ExceptionType.BAD_REQUEST,COUNTRY_ID_REQUIRED);
+        Validate.notEmpty(this, name, DISTRICT_NAME_REQUIRED);
+        Validate.notEmpty(this, region, DISTRICT_REGION_REQUIRED);
+        Validate.notNull(this, countryId, ExceptionType.BAD_REQUEST,COUNTRY_ID_REQUIRED);
     }
 }

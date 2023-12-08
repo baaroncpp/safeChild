@@ -25,21 +25,21 @@ import static com.bwongo.commons.models.utils.ConstantMessages.*;
 public class Validate {
     private Validate() {}
 
-    public static void isTrue(boolean value, ExceptionType exceptionType, String message, Object ... params){
+    public static void isTrue(Object errorClass, boolean value, ExceptionType exceptionType, String message, Object ... params){
         if (!value && exceptionType.equals(ExceptionType.BAD_REQUEST)) {
-            throw new BadRequestException(message, params);
+            throw new BadRequestException(errorClass, message, params);
         }
 
         if (!value && exceptionType.equals(ExceptionType.RESOURCE_NOT_FOUND)) {
-            throw new ResourceNotFoundException(message, params);
+            throw new ResourceNotFoundException(errorClass, message, params);
         }
 
         if (!value && exceptionType.equals(ExceptionType.BAD_CREDENTIALS)) {
-            throw new BadCredentialsException(message, params);
+            throw new BadCredentialsException(errorClass, message, params);
         }
 
         if (!value && exceptionType.equals(ExceptionType.INSUFFICIENT_AUTH)) {
-            throw new InsufficientAuthenticationException(message, params);
+            throw new InsufficientAuthenticationException(errorClass, message, params);
         }
 
         if (!value && exceptionType.equals(ExceptionType.ACCESS_DENIED)) {
@@ -48,22 +48,22 @@ public class Validate {
 
     }
 
-    public static void notNull(Object value, ExceptionType exceptionType, String message, Object ... params){
+    public static void notNull(Object errorClass, Object value, ExceptionType exceptionType, String message, Object ... params){
 
         if (value == null && exceptionType.equals(ExceptionType.BAD_REQUEST)) {
-            throw new BadRequestException(message, params);
+            throw new BadRequestException(errorClass, message, params);
         }
 
         if (value == null && exceptionType.equals(ExceptionType.RESOURCE_NOT_FOUND)) {
-            throw new ResourceNotFoundException(message, params);
+            throw new ResourceNotFoundException(errorClass, message, params);
         }
 
         if (value == null && exceptionType.equals(ExceptionType.BAD_CREDENTIALS)) {
-            throw new BadCredentialsException(message, params);
+            throw new BadCredentialsException(errorClass, message, params);
         }
 
         if (value == null && exceptionType.equals(ExceptionType.INSUFFICIENT_AUTH)) {
-            throw new InsufficientAuthenticationException(message, params);
+            throw new InsufficientAuthenticationException(errorClass, message, params);
         }
 
         if (value == null && exceptionType.equals(ExceptionType.ACCESS_DENIED)) {
@@ -72,30 +72,30 @@ public class Validate {
 
     }
 
-    public static void notEmpty(String value, String message, Object ... params){
+    public static void notEmpty(Object errorClass, String value, String message, Object ... params){
         if (!StringUtils.hasLength(value)) {
-            throw new BadRequestException(message, params);
+            throw new BadRequestException(errorClass, message, params);
         }
     }
 
-    public static void isPresent(Optional<?> value, String message, Object ... params){
+    public static void isPresent(Object errorClass, Optional<?> value, String message, Object ... params){
         if(value.isEmpty()){
-            throw new ResourceNotFoundException(String.format(message,params));
+            throw new ResourceNotFoundException(errorClass, String.format(message,params));
         }
     }
 
-    private static void checkForbiddenWord(String word){
+    private static void checkForbiddenWord(Object object, String word){
         boolean anyMatch = FORBIDDEN_WORDS.stream()
                 .anyMatch(fw -> fw.contains(word));
 
         if(anyMatch){
-            throw new BadRequestException(String.format(IS_FORBIDDEN_WORD, word));
+            throw new BadRequestException(object, String.format(IS_FORBIDDEN_WORD, word));
         }
     }
 
-    public static void doesObjectContainFields(Object object, List<String> fields){
+    public static void doesObjectContainFields(Object errorClass, Object object, List<String> fields){
         for(String value : fields){
-            Validate.isTrue(doesObjectContainField(object, value), ExceptionType.BAD_REQUEST , String.format(IS_INVALID_FIELD, value));
+            Validate.isTrue(errorClass, doesObjectContainField(object, value), ExceptionType.BAD_REQUEST , String.format(IS_INVALID_FIELD, value));
         }
     }
 
@@ -109,23 +109,23 @@ public class Validate {
         return false;
     }
 
-    public static void filterException(String message){
+    public static void filterException(Object errorClass, String message){
         if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(message, "found")){
-            throw new ResourceNotFoundException(message);
+            throw new ResourceNotFoundException(errorClass, message);
         }else if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(message, "Could not send Message")){
-            throw new BadRequestException(message + " Core banking service cannot be accessed");
+            throw new BadRequestException(errorClass, message + " Core banking service cannot be accessed");
         }else {
-            throw new BadRequestException(message);
+            throw new BadRequestException(errorClass, message);
         }
     }
 
-    public static void isAcceptableDateFormat(String stringDate){
+    public static void isAcceptableDateFormat(Object errorClass, String stringDate){
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setLenient(false);
         try {
             sdf.parse(stringDate);
         } catch (ParseException e) {
-            throw new BadRequestException("invalid date format, use: yyyy-MM-dd HH:mm:ss");
+            throw new BadRequestException(errorClass, "invalid date format, use: yyyy-MM-dd HH:mm:ss");
         }
     }
 }

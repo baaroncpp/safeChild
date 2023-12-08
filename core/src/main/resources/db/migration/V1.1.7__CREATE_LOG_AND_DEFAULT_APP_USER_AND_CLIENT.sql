@@ -1,3 +1,14 @@
+CREATE TABLE t_log(
+    id BIGSERIAL PRIMARY KEY ,
+    created_on TIMESTAMP NOT NULL DEFAULT now(),
+    modified_on TIMESTAMP,
+    resource_url TEXT,
+    http_status VARCHAR(5),
+    log_level VARCHAR(30),
+    note TEXT,
+    entity_name VARCHAR(200)
+);
+
 INSERT INTO t_app_client (name,secret,grant_types,token_validity,scope) VALUES
     ('mobileApp','$2y$12$4boE8QoLm/f6fFKbN8Ai4eagkQ2C6s7aZQXc/8262e8BpHzK.te9K','password,refresh_token',120,'read');
 

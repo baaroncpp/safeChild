@@ -36,7 +36,7 @@ public class AuditService {
 
     public void stampAuditedEntity(AuditEntity auditEntity) {
         LoginUser user = getLoggedInUser();
-        Validate.notNull(user, ExceptionType.BAD_REQUEST,"Only a logged in user can make this change");
+        Validate.notNull(this, user, ExceptionType.BAD_REQUEST,"Only a logged in user can make this change");
         Date date = DateTimeUtil.getCurrentUTCTime();
         TUser tUser = new TUser();
         tUser.setId(user.getId());

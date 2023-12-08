@@ -53,7 +53,6 @@ public class StudentService {
 
     public List<StudentResponseDto> addStudents(List<StudentRequestDto> studentsRequestDto){
 
-
         return validateList0fStudentRequests(studentsRequestDto).stream()
                 .map(studentDtoService::studentToDto)
                 .toList();
@@ -71,12 +70,12 @@ public class StudentService {
         var school = getSchool(schoolId);
 
         if(!studentEmail.isEmpty())
-            Validate.isTrue(!studentRepository.existsByEmail(studentEmail), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, studentEmail);
+            Validate.isTrue(this, !studentRepository.existsByEmail(studentEmail), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, studentEmail);
 
         if(!nationalIdNumber.isEmpty())
-            Validate.isTrue(!studentRepository.existsByNationalIdNumber(nationalIdNumber), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, nationalIdNumber);
+            Validate.isTrue(this, !studentRepository.existsByNationalIdNumber(nationalIdNumber), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, nationalIdNumber);
 
-        Validate.isTrue(!studentRepository.existsBySchoolIdNumberAndSchool(schoolIdNumber, school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, schoolIdNumber);
+        Validate.isTrue(this, !studentRepository.existsBySchoolIdNumberAndSchool(schoolIdNumber, school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, schoolIdNumber);
 
         var student = studentDtoService.dtoToTStudent(studentRequestDto);
         student.setStudentUsername(getNonExistingStudentUsername());
@@ -86,7 +85,7 @@ public class StudentService {
         final var editingUser = existingEditingUser.get();
 
         if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
-            Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, schoolId);
+            Validate.isTrue(this, schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, schoolId);
 
         return studentDtoService.studentToDto(studentRepository.save(student));
     }
@@ -104,10 +103,10 @@ public class StudentService {
         var school = getSchool(schoolId);
 
         if(!nationalIdNumber.isEmpty() && !nationalIdNumber.equals(existingStudent.getNationalIdNumber()))
-            Validate.isTrue(!studentRepository.existsByNationalIdNumber(nationalIdNumber), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, nationalIdNumber);
+            Validate.isTrue(this, !studentRepository.existsByNationalIdNumber(nationalIdNumber), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, nationalIdNumber);
 
         if(!schoolIdNumber.equals(existingStudent.getSchoolIdNumber()))
-            Validate.isTrue(!studentRepository.existsBySchoolIdNumberAndSchool(schoolIdNumber, school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, schoolIdNumber);
+            Validate.isTrue(this, !studentRepository.existsBySchoolIdNumberAndSchool(schoolIdNumber, school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, schoolIdNumber);
 
         var updatedStudent = studentDtoService.dtoToTStudent(studentRequestDto);
         auditService.stampAuditedEntity(updatedStudent);
@@ -117,7 +116,7 @@ public class StudentService {
         final var editingUser = existingEditingUser.get();
 
         if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
-            Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, schoolId);
+            Validate.isTrue(this, schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, schoolId);
 
         return studentDtoService.studentToDto(studentRepository.save(updatedStudent));
     }
@@ -131,7 +130,7 @@ public class StudentService {
         final var school = getSchool(schoolId);
 
         var existingStudent = studentRepository.findByDeletedAndSchoolIdNumberAndSchool(Boolean.FALSE, studentIdNumber, school);
-        Validate.isPresent(existingStudent, STUDENT_NOT_FOUND, studentIdNumber);
+        Validate.isPresent(this, existingStudent, STUDENT_NOT_FOUND, studentIdNumber);
         final var student = existingStudent.get();
 
         return studentDtoService.studentToDto(student);
@@ -155,7 +154,7 @@ public class StudentService {
 
         var existingStudent = getStudent(studentId);
 
-        Validate.isTrue(!guardianRepository.existsByPhoneNumberAndDeleted(phoneNumber, Boolean.FALSE),
+        Validate.isTrue(this, !guardianRepository.existsByPhoneNumberAndDeleted(phoneNumber, Boolean.FALSE),
                 ExceptionType.BAD_REQUEST,
                 GUARDIAN_PHONE_TAKEN,
                 phoneNumber);
@@ -214,7 +213,7 @@ public class StudentService {
 
     public GuardianResponseDto getGuardianById(Long id){
         var existingGuardian = guardianRepository.findById(id);
-        Validate.isPresent(existingGuardian, GUARDIAN_NOT_FOUND, id);
+        Validate.isPresent(this, existingGuardian, GUARDIAN_NOT_FOUND, id);
         var guardian = existingGuardian.get();
 
         return studentDtoService.guardianToDto(guardian);
@@ -222,29 +221,29 @@ public class StudentService {
 
     private TStudent getStudent(Long id){
         var existingStudent = studentRepository.findByDeletedAndId(Boolean.FALSE, id);
-        Validate.isPresent(existingStudent, STUDENT_NOT_FOUND, id);
+        Validate.isPresent(this, existingStudent, STUDENT_NOT_FOUND, id);
         return existingStudent.get();
     }
 
     private TGuardian getGuardian(Long id){
         var existingGuardian = guardianRepository.findByDeletedAndId(Boolean.FALSE, id);
-        Validate.isPresent(existingGuardian, GUARDIAN_NOT_FOUND, id);
+        Validate.isPresent(this, existingGuardian, GUARDIAN_NOT_FOUND, id);
         return existingGuardian.get();
     }
 
     private TSchool getSchool(Long id){
         var existingSchool = schoolRepository.findById(id);
-        Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, id);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, id);
         return existingSchool.get();
     }
 
     private List<TStudent> validateList0fStudentRequests(List<StudentRequestDto> studentsRequestDto){
 
-        Validate.isTrue(!studentsRequestDto.isEmpty(), ExceptionType.BAD_REQUEST, NULL_STUDENTS);
+        Validate.isTrue(this, !studentsRequestDto.isEmpty(), ExceptionType.BAD_REQUEST, NULL_STUDENTS);
 
         //validate schoolId
         var schoolIds = studentsRequestDto.stream().map(StudentRequestDto::schoolId).collect(Collectors.toSet());
-        Validate.isTrue(schoolIds.size() == 1, ExceptionType.BAD_REQUEST, NOT_SAME_SCHOOL_ID);
+        Validate.isTrue(this, schoolIds.size() == 1, ExceptionType.BAD_REQUEST, NOT_SAME_SCHOOL_ID);
 
         var school = getSchool(schoolIds.stream().findFirst().get());
 
@@ -252,22 +251,22 @@ public class StudentService {
         final var editingUser = existingEditingUser.get();
 
         if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
-            Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, school.getId());
+            Validate.isTrue(this, schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, school.getId());
 
 
         //validate each student in list
         for (StudentRequestDto student : studentsRequestDto) {
             student.validate();
-            Validate.isTrue(!studentRepository.existsBySchoolIdNumberAndSchool(student.schoolIdNumber(), school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, student.schoolIdNumber());
+            Validate.isTrue(this, !studentRepository.existsBySchoolIdNumberAndSchool(student.schoolIdNumber(), school), ExceptionType.BAD_REQUEST, STUDENT_ID_ALREADY_TAKEN, student.schoolIdNumber());
 
             if (!student.nationalIdNumber().isEmpty())
-                Validate.isTrue(!studentRepository.existsByNationalIdNumber(student.nationalIdNumber()), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, student.nationalIdNumber());
+                Validate.isTrue(this, !studentRepository.existsByNationalIdNumber(student.nationalIdNumber()), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, student.nationalIdNumber());
 
             if (!student.email().isEmpty())
-                Validate.isTrue(!studentRepository.existsByEmail(student.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, student.email());
+                Validate.isTrue(this, !studentRepository.existsByEmail(student.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, student.email());
 
             if (!student.email().isEmpty())
-                Validate.isTrue(!studentRepository.existsByNationalIdNumber(student.email()), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, student.email());
+                Validate.isTrue(this, !studentRepository.existsByNationalIdNumber(student.email()), ExceptionType.BAD_REQUEST, NATIONAL_ID_ALREADY_TAKEN, student.email());
 
         }
 
@@ -275,7 +274,7 @@ public class StudentService {
         var allEmails = studentsRequestDto.stream().map(StudentRequestDto::email).toList();
         var duplicateEmails = allEmails.stream().filter(email -> Collections.frequency(allEmails, email) > 1).collect(Collectors.joining(", "));
 
-        Validate.isTrue(duplicateEmails.isEmpty(), ExceptionType.BAD_REQUEST, EMAIL_DUPLICATES, duplicateEmails);
+        Validate.isTrue(this, duplicateEmails.isEmpty(), ExceptionType.BAD_REQUEST, EMAIL_DUPLICATES, duplicateEmails);
 
         var students = studentsRequestDto.stream()
                 .map(this::getAuditedStudent

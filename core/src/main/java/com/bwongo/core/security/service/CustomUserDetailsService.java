@@ -42,10 +42,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     private Optional<LoginUser> mapUserDetails(TUser user){
 
         var userGroup = user.getUserGroup();
-        Validate.notNull(userGroup, ExceptionType.BAD_CREDENTIALS,"User group is NULL");
+        Validate.notNull(this, userGroup, ExceptionType.BAD_CREDENTIALS,"User group is NULL");
 
         List<TGroupAuthority> groupAuthorities = groupAuthorityRepository.findByUserGroup(userGroup);
-        Validate.notNull(groupAuthorities, ExceptionType.BAD_CREDENTIALS, String.format("user %s has no permissions, service access denied", user.getUsername()));
+        Validate.notNull(this, groupAuthorities, ExceptionType.BAD_CREDENTIALS, String.format("user %s has no permissions, service access denied", user.getUsername()));
 
         Set<SimpleGrantedAuthority> permissions = groupAuthorities
                 .stream()

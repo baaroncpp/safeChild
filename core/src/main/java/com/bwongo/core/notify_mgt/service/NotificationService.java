@@ -82,7 +82,7 @@ public class NotificationService {
 
     private TStudent getStudentByUsername(String username){
         var existingStudent = studentRepository.findByStudentUsername(username);
-        Validate.isPresent(existingStudent, STUDENT_NOT_FOUND_USERNAME, username);
+        Validate.isPresent(this, existingStudent, STUDENT_NOT_FOUND_USERNAME, username);
         return existingStudent.get();
     }
 
@@ -93,36 +93,35 @@ public class NotificationService {
         var studentUsername = notificationDriverDto.studentUsername();
         var studentStatus = StudentStatus.valueOf(notificationDriverDto.studentStatus());
         var student = getStudentByUsername(studentUsername);
-        var currentDay = getCurrentOnlyDate();
+        var currentDay = getCurrentOnlyDate(this);
 
         var staff = new TUser();
         staff.setId(auditService.getLoggedInUser().getId());
 
         var existingSchoolUser = schoolUserRepository.findByUser(staff);
-        Validate.isPresent(existingSchoolUser, SCHOOL_USER_NOT_FOUND, staff.getId());
+        Validate.isPresent(this, existingSchoolUser, SCHOOL_USER_NOT_FOUND, staff.getId());
 
-         var schoolUser = new TSchoolUser();
+        var schoolUser = new TSchoolUser();
         if(existingSchoolUser.isPresent())
             schoolUser = existingSchoolUser.get();
 
-        //Update
+        //Update staff object
         staff = schoolUser.getUser();
 
         var school = schoolUser.getSchool();
 
         var existingTrip = tripRepository.findById(notificationDriverDto.tripId());
-        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, notificationDriverDto.tripId());
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, notificationDriverDto.tripId());
 
         var trip = new Trip();
         if(existingTrip.isPresent())
             trip = existingTrip.get();
 
-        Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+        Validate.isTrue(this, !trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
 
         var staffUsername = schoolUser.getUser().getUsername();
 
-        Validate.isTrue(Objects.equals(student.getSchool().getId(), schoolUser.getSchool().getId()), ExceptionType.BAD_REQUEST, STUDENT_STAFF_NOT_SAME_SCHOOL, staffUsername, studentUsername);
-
+        Validate.isTrue(this, Objects.equals(student.getSchool().getId(), schoolUser.getSchool().getId()), ExceptionType.BAD_REQUEST, STUDENT_STAFF_NOT_SAME_SCHOOL, staffUsername, studentUsername);
         checkIfStudentDayStatusExists(student, studentStatus, currentDay);
 
         var location = new TLocation();
@@ -131,40 +130,40 @@ public class NotificationService {
         auditService.stampLongEntity(location);
         locationRepository.save(location);
 
-        List<String> guardianPhoneNumbers = studentGuardianRepository.findAllByStudent(student).stream()
+        var guardianPhoneNumbers = studentGuardianRepository.findAllByStudent(student).stream()
                 .filter(studentGuardian -> studentGuardian.getGuardian().isNotified())
                 .map(studentGuardian -> studentGuardian.getGuardian().getPhoneNumber())
                 .toList();
 
         switch(studentStatus) {
             case HOME_PICK_UP:
-                Validate.isTrue(trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
-                Validate.isTrue(studentDayRepository.findBySchoolDateAndStudentAndSchool(currentDay, student, school).isEmpty(),
+                Validate.isTrue(this, trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
+                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchool(currentDay, student, school).isEmpty(),
                         ExceptionType.BAD_REQUEST,
                         STUDENT_HAS_ALREADY_BEEN_IN_STATUS, studentUsername, studentStatus);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 
             case SCHOOL_SIGN_IN:
-                Validate.isTrue(trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
+                Validate.isTrue(this, trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
                 var studentTravelSignIn = studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.HOME_PICK_UP);
-                Validate.isPresent(studentTravelSignIn, STUDENT_NOT_PICKED_UP, student.getStudentUsername());
+                Validate.isPresent(this, studentTravelSignIn, STUDENT_NOT_PICKED_UP, student.getStudentUsername());
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 
             case SCHOOL_SIGN_OUT:
-                Validate.isTrue(trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
+                Validate.isTrue(this, trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 
             case HOME_DROP_OFF:
-                Validate.isTrue(trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
-                Validate.isTrue(studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, studentStatus).isPresent(),
+                Validate.isTrue(this, trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
+                Validate.isTrue(this, studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, studentStatus).isPresent(),
                         ExceptionType.BAD_REQUEST, STUDENT_NOT_ON_TRIP, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
             default:
-                throw new BadRequestException(FAILED_NOTIFICATION);
+                throw new BadRequestException(this, FAILED_NOTIFICATION);
         }
     }
 
@@ -175,7 +174,7 @@ public class NotificationService {
         var studentUsername = notificationDto.studentUsername();
         var stringStudentStatus = notificationDto.studentStatus();
 
-        Validate.isTrue((StudentStatus.SCHOOL_SIGN_IN.name().equals(stringStudentStatus) || StudentStatus.SCHOOL_SIGN_OUT.name().equals(stringStudentStatus)),
+        Validate.isTrue(this, (StudentStatus.SCHOOL_SIGN_IN.name().equals(stringStudentStatus) || StudentStatus.SCHOOL_SIGN_OUT.name().equals(stringStudentStatus)),
                 ExceptionType.ACCESS_DENIED,
                 STUDENT_STATUS_NOT_ALLOWED);
 
@@ -185,14 +184,14 @@ public class NotificationService {
         staff.setId(auditService.getLoggedInUser().getId());
 
         var existingSchoolUser = schoolUserRepository.findByUser(staff);
-        Validate.isPresent(existingSchoolUser, SCHOOL_USER_NOT_FOUND, staff.getId());
+        Validate.isPresent(this, existingSchoolUser, SCHOOL_USER_NOT_FOUND, staff.getId());
         var schoolUser = existingSchoolUser.get();
 
         var staffUsername = schoolUser.getUser().getUsername();
 
-        Validate.isTrue(Objects.equals(schoolUser.getSchool().getId(), student.getSchool().getId()), ExceptionType.BAD_REQUEST, STUDENT_STAFF_NOT_SAME_SCHOOL, studentUsername, staffUsername);
+        Validate.isTrue(this, Objects.equals(schoolUser.getSchool().getId(), student.getSchool().getId()), ExceptionType.BAD_REQUEST, STUDENT_STAFF_NOT_SAME_SCHOOL, studentUsername, staffUsername);
 
-        checkIfStudentDayStatusExists(student, StudentStatus.valueOf(stringStudentStatus), getCurrentOnlyDate());
+        checkIfStudentDayStatusExists(student, StudentStatus.valueOf(stringStudentStatus), getCurrentOnlyDate(this));
 
         var location = new TLocation();
         location.setLatitude(notificationDto.latitudeCoordinate());
@@ -205,7 +204,7 @@ public class NotificationService {
         studentDay.setStaff(schoolUser.getUser());
         studentDay.setStudent(student);
         studentDay.setSchool(studentDay.getSchool());
-        studentDay.setSchoolDate(getCurrentOnlyDate());
+        studentDay.setSchoolDate(getCurrentOnlyDate(this));
         studentDay.setOnTrip(onTrip);
         studentDay.setLocation(location);
 
@@ -213,7 +212,7 @@ public class NotificationService {
         studentDayRepository.save(studentDay);
 
         //get notified guardians
-        List<String> guardianPhoneNumbers = studentGuardianRepository.findAllByStudent(student).stream()
+        var guardianPhoneNumbers = studentGuardianRepository.findAllByStudent(student).stream()
                 .filter(studentGuardian -> studentGuardian.getGuardian().isNotified())
                 .map(studentGuardian -> studentGuardian.getGuardian().getPhoneNumber())
                 .toList();
@@ -233,14 +232,14 @@ public class NotificationService {
         Long tripId = bulkSignInRequestDto.tripId();
 
         var existingTrip = tripRepository.findById(tripId);
-        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, tripId);
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, tripId);
 
         var trip = new Trip();
         if(existingTrip.isPresent())
             trip = existingTrip.get();
 
-        Validate.isTrue(trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, BULK_ONLY_PICK_UP);
-        Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+        Validate.isTrue(this, trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, BULK_ONLY_PICK_UP);
+        Validate.isTrue(this, !trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
 
         var studentTravelList = getStudentsStillOnTrip(trip);
 
@@ -274,7 +273,7 @@ public class NotificationService {
         studentDay.setStaff(staff);
         studentDay.setStudent(student);
         studentDay.setSchool(school);
-        studentDay.setSchoolDate(getCurrentOnlyDate());
+        studentDay.setSchoolDate(getCurrentOnlyDate(this));
         studentDay.setOnTrip(Boolean.FALSE);
         studentDay.setLocation(location);
 
@@ -327,12 +326,12 @@ public class NotificationService {
                 student,
                 studentStatus);
 
-        Validate.isTrue(existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_HAS_ALREADY_BEEN_IN_STATUS, student.getStudentUsername(), studentStatus);
+        Validate.isTrue(this, existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_HAS_ALREADY_BEEN_IN_STATUS, student.getStudentUsername(), studentStatus);
 
         //TODO must be revised if students that did not check in should not be allowed to check out
         if (studentStatus.equals(StudentStatus.SCHOOL_SIGN_OUT)) {
             var studentDays = studentDayRepository.findBySchoolDateAndStudent(schoolDate, student);
-            Validate.isTrue(!studentDays.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_NOT_CHECKED_IN, student.getStudentUsername());
+            Validate.isTrue(this, !studentDays.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_NOT_CHECKED_IN, student.getStudentUsername());
         }
     }
 

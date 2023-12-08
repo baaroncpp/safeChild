@@ -17,8 +17,8 @@ public record BulkSignInRequestDto(
         double longitudeCoordinate
 ) {
     public void validate(){
-        Validate.notNull(tripId, ExceptionType.BAD_REQUEST, NULL_TRIP_ID);
-        Validate.notNull(latitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
-        Validate.notNull(longitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
+        Validate.notNull(this, tripId, ExceptionType.BAD_REQUEST, NULL_TRIP_ID);
+        Validate.notNull(this, latitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
+        Validate.notNull(this, longitudeCoordinate, ExceptionType.BAD_REQUEST, NULL_COORDINATE);
     }
 }

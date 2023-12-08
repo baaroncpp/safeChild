@@ -9,13 +9,20 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Slf4j
 public class ResourceNotFoundException extends RuntimeException{
-    public ResourceNotFoundException(String message, Object ... messageConstants){
+    private Object errorClass;
+    public ResourceNotFoundException(Object errorClass, String message, Object ... messageConstants){
         super(String.format(message, messageConstants));
         log.error(String.format(message, messageConstants));
+        this.errorClass = errorClass;
     }
 
-    public ResourceNotFoundException(String message) {
+    public ResourceNotFoundException(Object errorClass, String message) {
         super(message);
         log.error(message);
+        this.errorClass = errorClass;
+    }
+
+    public Object getErrorClass() {
+        return errorClass;
     }
 }

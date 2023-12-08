@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.bwongo.core.base.model.enums.TripStatus.*;
+import static com.bwongo.core.base.utils.BasicMsgConstants.DATE_TIME_FORMAT;
 import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.*;
 
 import java.util.*;
@@ -52,8 +53,6 @@ public class TripService {
     private final SchoolUserRepository schoolUserRepository;
     private final AuditService auditService;
 
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
     public List<TripResponseDto> getTripsByDriverUsernameAndDate(String driverUsername,
                                                                  String fromStringDate,
                                                                  String toStringDate,
@@ -63,13 +62,13 @@ public class TripService {
         var toDate = getDateFromString(toStringDate);
 
         var existingDriver = userRepository.findByUsername(driverUsername);
-        Validate.isPresent(existingDriver, DRIVER_NOT_FOUND_BY_USERNAME, driverUsername);
+        Validate.isPresent(this, existingDriver, DRIVER_NOT_FOUND_BY_USERNAME, driverUsername);
         TUser driver = null;
         if(existingDriver.isPresent())
             driver = existingDriver.get();
 
         var driverTrips = tripRepository.findAllBySchoolStaffAndCreatedOnBetween(driver, fromDate, toDate, pageable);
-        Validate.notNull(driverTrips, ExceptionType.BAD_REQUEST, NO_TRIPS_FOUND);
+        Validate.notNull(this, driverTrips, ExceptionType.BAD_REQUEST, NO_TRIPS_FOUND);
 
         return driverTrips.stream()
                 .map(tripDtoService::tripToDto)
@@ -79,11 +78,11 @@ public class TripService {
     public List<StudentEventLocationDto> getStudentEventLocation(Long tripId){
 
         var existingTrip = tripRepository.findById(tripId);
-        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, tripId);
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, tripId);
         var trip = existingTrip.get();
 
         var studentTravels = studentTravelRepository.findAllByTrip(trip);
-        Validate.notNull(studentTravels, ExceptionType.BAD_REQUEST, NO_STUDENT_COORDINATES);
+        Validate.notNull(this, studentTravels, ExceptionType.BAD_REQUEST, NO_STUDENT_COORDINATES);
 
         return studentTravels.stream()
                 .map(tripDtoService::studentTravelToDto)
@@ -91,13 +90,13 @@ public class TripService {
     }
 
     private Date getDateFromString(String stringDate){
-        Validate.isAcceptableDateFormat(stringDate);
+        Validate.isAcceptableDateFormat(this, stringDate);
         return DateTimeUtil.stringToDate(stringDate, DATE_TIME_FORMAT);
     }
 
     public List<TripResponseDto> getTripsByStaffUsername(Pageable pageable){
         var existingStaff = userRepository.findById(auditService.getLoggedInUser().getId());
-        Validate.isPresent(existingStaff, USER_DOES_NOT_EXIST, auditService.getLoggedInUser().getId());
+        Validate.isPresent(this, existingStaff, USER_DOES_NOT_EXIST, auditService.getLoggedInUser().getId());
         var staff = existingStaff.get();
 
         return tripRepository.findAllBySchoolStaff(staff, pageable).stream()
@@ -109,7 +108,7 @@ public class TripService {
         Optional<Trip> result;
 
         var existingDriver = userRepository.findById(auditService.getLoggedInUser().getId());
-        Validate.isPresent(existingDriver, USER_DOES_NOT_EXIST, auditService.getLoggedInUser().getId());
+        Validate.isPresent(this, existingDriver, USER_DOES_NOT_EXIST, auditService.getLoggedInUser().getId());
         var driver = existingDriver.get();
 
         result = tripRepository.findBySchoolStaffAndTripStatus(driver, IN_PROGRESS);
@@ -117,7 +116,7 @@ public class TripService {
         if(result.isEmpty())
             result = tripRepository.findBySchoolStaffAndTripStatus(driver, TripStatus.OPEN);
 
-        Validate.isPresent(result, NO_OPEN_IN_PROGRESS_TRIPS, driver.getUsername());
+        Validate.isPresent(this, result, NO_OPEN_IN_PROGRESS_TRIPS, driver.getUsername());
 
         return tripDtoService.tripToDto(result.get());
     }
@@ -128,19 +127,19 @@ public class TripService {
         final var driverId = auditService.getLoggedInUser().getId();
 
         var existingStaff = userRepository.findById(driverId);
-        Validate.isPresent(existingStaff, DRIVER_NOT_FOUND, driverId);
+        Validate.isPresent(this, existingStaff, DRIVER_NOT_FOUND, driverId);
         var staff = existingStaff.get();
 
-        Validate.isTrue(staff.getUserType().equals(UserTypeEnum.DRIVER), ExceptionType.BAD_REQUEST, USER_NOT_DRIVER, driverId);
+        Validate.isTrue(this, staff.getUserType().equals(UserTypeEnum.DRIVER), ExceptionType.BAD_REQUEST, USER_NOT_DRIVER, driverId);
 
         var existingInProgressTrip = tripRepository.findBySchoolStaffAndTripStatus(staff, IN_PROGRESS);
-        Validate.isTrue(existingInProgressTrip.isEmpty(), ExceptionType.BAD_REQUEST, EXISTING_IN_PROGRESS_TRIP);
+        Validate.isTrue(this, existingInProgressTrip.isEmpty(), ExceptionType.BAD_REQUEST, EXISTING_IN_PROGRESS_TRIP);
 
         var existingOpenTrip = tripRepository.findBySchoolStaffAndTripStatus(staff, TripStatus.OPEN);
-        Validate.isTrue(existingOpenTrip.isEmpty(), ExceptionType.BAD_REQUEST, EXISTING_OPEN_TRIP);
+        Validate.isTrue(this, existingOpenTrip.isEmpty(), ExceptionType.BAD_REQUEST, EXISTING_OPEN_TRIP);
 
         var existingSchoolUser = schoolUserRepository.findByUser(staff);
-        Validate.isPresent(existingSchoolUser, USER_DOES_NOT_BELONG_TO_SCHOOL, driverId);
+        Validate.isPresent(this, existingSchoolUser, USER_DOES_NOT_BELONG_TO_SCHOOL, driverId);
         var schoolUser = existingSchoolUser.get();
         final var school = schoolUser.getSchool();
 
@@ -160,7 +159,7 @@ public class TripService {
     public TripResponseDto getTripById(Long id){
 
         var existingTrip = tripRepository.findById(id);
-        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, id);
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, id);
         var trip = existingTrip.get();
 
         return tripDtoService.tripToDto(trip);
@@ -169,11 +168,11 @@ public class TripService {
     public TripResponseDto changeTripStatus(Long id, TripStatus tripStatus){
 
         var existingTrip = tripRepository.findById(id);
-        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, id);
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, id);
 
         var trip = existingTrip.get();
 
-        Validate.isTrue(!trip.getTripStatus().equals(tripStatus), ExceptionType.BAD_REQUEST, TRIP_SAME_STATUS, tripStatus);
+        Validate.isTrue(this, !trip.getTripStatus().equals(tripStatus), ExceptionType.BAD_REQUEST, TRIP_SAME_STATUS, tripStatus);
         trip.setTripStatus(tripStatus);
         trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
 
@@ -194,7 +193,7 @@ public class TripService {
             studentTravelOn = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
             studentTravelOff = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
         }
-        Validate.isTrue((studentTravelOn.size() == studentTravelOff.size()), ExceptionType.BAD_REQUEST, "students on trip");
+        Validate.isTrue(this, (studentTravelOn.size() == studentTravelOff.size()), ExceptionType.BAD_REQUEST, "students on trip");
 
         trip.setTripStatus(TripStatus.ENDED);
         trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
@@ -228,7 +227,7 @@ public class TripService {
         travelStudentDto.validate();
 
         var existingTrip = tripRepository.findById(travelStudentDto.tripId());
-        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, travelStudentDto.tripId());
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, travelStudentDto.tripId());
 
         var trip = existingTrip.get();
 
@@ -245,10 +244,10 @@ public class TripService {
 
     private Trip getTrip(Long id){
         var existingTrip = tripRepository.findById(id);
-        Validate.isPresent(existingTrip, TRIP_NOT_FOUND, id);
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, id);
 
         var trip = existingTrip.get();
-        Validate.isTrue(!trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
+        Validate.isTrue(this, !trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
 
         return trip;
     }

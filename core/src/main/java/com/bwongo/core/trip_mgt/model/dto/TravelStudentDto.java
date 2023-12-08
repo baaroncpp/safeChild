@@ -17,8 +17,8 @@ public record TravelStudentDto(
         String studentStatus
 ) {
     public void validate(){
-        Validate.notNull(tripId, ExceptionType.BAD_REQUEST, NULL_TRIP_ID);
-        Validate.notEmpty(studentStatus, NULL_STUDENT_STATUS);
-        Validate.isTrue(isStudentStatus(studentStatus), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS, studentStatus);
+        Validate.notNull(this, tripId, ExceptionType.BAD_REQUEST, NULL_TRIP_ID);
+        Validate.notEmpty(this, studentStatus, NULL_STUDENT_STATUS);
+        Validate.isTrue(this, isStudentStatus(studentStatus), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS, studentStatus);
     }
 }

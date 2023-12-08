@@ -24,15 +24,15 @@ public record StudentRequestDto(
           String physicalAddress
 ) {
     public void validate(){
-        Validate.notEmpty(firstName, NULL_FIRST_NAME);
-        Validate.notEmpty(secondName, NULL_SECOND_NAME);
-        Validate.notEmpty(schoolIdNumber, NULL_SCHOOL_CARD_ID);
-        Validate.notEmpty(studentClass, NULL_STUDENT_CLASS);
-        Validate.notNull(schoolId, ExceptionType.BAD_REQUEST, NULL_SCHOOL_ID);
-        Validate.notNull(canBeNotified, ExceptionType.BAD_REQUEST, NULL_CAN_BE_NOTIFIED);
-        Validate.notEmpty(physicalAddress, NULL_PHYSICAL_ADDRESS);
+        Validate.notEmpty(this, firstName, NULL_FIRST_NAME);
+        Validate.notEmpty(this, secondName, NULL_SECOND_NAME);
+        Validate.notEmpty(this, schoolIdNumber, NULL_SCHOOL_CARD_ID);
+        Validate.notEmpty(this, studentClass, NULL_STUDENT_CLASS);
+        Validate.notNull(this, schoolId, ExceptionType.BAD_REQUEST, NULL_SCHOOL_ID);
+        Validate.notNull(this, canBeNotified, ExceptionType.BAD_REQUEST, NULL_CAN_BE_NOTIFIED);
+        Validate.notEmpty(this, physicalAddress, NULL_PHYSICAL_ADDRESS);
 
         if(!email.isEmpty())
-            StringRegExUtil.stringOfEmail(email, INVALID_EMAIL, email);
+            StringRegExUtil.stringOfEmail(this, email, INVALID_EMAIL, email);
     }
 }

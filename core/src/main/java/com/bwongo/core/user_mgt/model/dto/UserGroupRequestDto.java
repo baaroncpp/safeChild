@@ -15,8 +15,8 @@ public record UserGroupRequestDto(
         String note
 ) {
     public void validate(){
-        Validate.notEmpty(name, USER_GROUP_NAME_IS_NULL);
-        Validate.notEmpty(note, USER_GROUP_NOTE_IS_NULL);
-        StringRegExUtil.stringOfOnlyUpperCase(name, USER_GROUP_NAME_ONLY_UPPER_CASE);
+        Validate.notEmpty(this, name, USER_GROUP_NAME_IS_NULL);
+        Validate.notEmpty(this, note, USER_GROUP_NOTE_IS_NULL);
+        StringRegExUtil.stringOfOnlyUpperCase(this, name, USER_GROUP_NAME_ONLY_UPPER_CASE);
     }
 }

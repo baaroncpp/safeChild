@@ -8,6 +8,7 @@ import java.util.Map;
  * @created 02/07/2022
  * @project kabangali
  */
+@SuppressWarnings("unchecked")
 public class MapUtils {
 
     Map map;

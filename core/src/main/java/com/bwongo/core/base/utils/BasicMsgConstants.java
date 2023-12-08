@@ -16,5 +16,6 @@ public class BasicMsgConstants {
     public static final String DISTRICT_REGION_REQUIRED = "District region is required";
     public static final String COUNTRY_ID_REQUIRED = "Country ID is required";
     public static final String COUNTRY_WITH_ID_NOT_FOUND = "Country with ID %s not found";
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
 }

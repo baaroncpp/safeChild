@@ -17,8 +17,8 @@ public record UserApprovalRequestDto(
         String status
 ) {
     public void validate(){
-        Validate.notNull(userId, ExceptionType.BAD_REQUEST, USER_ID_REQUIRED);
-        Validate.notEmpty(status, APPROVAL_STATUS_REQUIRED);
-        Validate.isTrue(isApprovalStatus(status), ExceptionType.BAD_REQUEST, INVALID_APPROVAL_STATUS);
+        Validate.notNull(this, userId, ExceptionType.BAD_REQUEST, USER_ID_REQUIRED);
+        Validate.notEmpty(this, status, APPROVAL_STATUS_REQUIRED);
+        Validate.isTrue(this, isApprovalStatus(status), ExceptionType.BAD_REQUEST, INVALID_APPROVAL_STATUS);
     }
 }

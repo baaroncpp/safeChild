@@ -20,12 +20,12 @@ public record UserRequestDto(
          String userType
 ) {
     public void validate(){
-        Validate.notEmpty(username, USERNAME_REQUIRED);
+        Validate.notEmpty(this, username, USERNAME_REQUIRED);
         //Validate.notEmpty(password, PASSWORD_REQUIRED);
-        Validate.notNull(userGroupId, ExceptionType.BAD_REQUEST, USER_GROUP_ID_REQUIRED);
-        Validate.notNull(userType, ExceptionType.BAD_REQUEST, USER_TYPE_REQUIRED);
-        Validate.isTrue(isUserType(userType), ExceptionType.BAD_REQUEST, VALID_USER_TYPE);
-        StringRegExUtil.stringOfOnlyNumbersAndChars(username, USERNAME_SHOULD_CONTAIN_ONLY_CHARS_AND_NUMBERS);
+        Validate.notNull(this, userGroupId, ExceptionType.BAD_REQUEST, USER_GROUP_ID_REQUIRED);
+        Validate.notNull(this, userType, ExceptionType.BAD_REQUEST, USER_TYPE_REQUIRED);
+        Validate.isTrue(this, isUserType(userType), ExceptionType.BAD_REQUEST, VALID_USER_TYPE);
+        StringRegExUtil.stringOfOnlyNumbersAndChars(this, username, USERNAME_SHOULD_CONTAIN_ONLY_CHARS_AND_NUMBERS);
         //StringRegExUtil.stringOfStandardPassword(password, STANDARD_PASSWORD);
     }
 }

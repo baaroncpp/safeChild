@@ -227,10 +227,10 @@ public class MemberService {
             result = memberWebService.registerMember(memberParameters);
         } catch (Exception e) {
             var errorMsg = e.getMessage();
-            Validate.filterException(errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
+            Validate.filterException(this, errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
         }
 
-        Validate.notNull(result, ExceptionType.BAD_REQUEST, USER_REG_FAILED);
+        Validate.notNull(this, result, ExceptionType.BAD_REQUEST, USER_REG_FAILED);
 
         if(result != null)
             log.info(String.format("%s successfully registered", result.getUsername()));
@@ -255,7 +255,7 @@ public class MemberService {
         } catch (Exception e) {
             var errorMsg = e.getMessage();
             log.info(errorMsg);
-            Validate.filterException(errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
+            Validate.filterException(this, errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
         }
     }
 }

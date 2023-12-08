@@ -15,7 +15,7 @@ public record GroupAuthorityRequestDto(
         Long permissionId
 ) {
     public void validate(){
-        Validate.notNull(userGroupId, ExceptionType.BAD_REQUEST, USER_GROUP_ID_REQUIRED);
-        Validate.notNull(permissionId, ExceptionType.BAD_REQUEST, PERMISSION_ID_REQUIRED);
+        Validate.notNull(this, userGroupId, ExceptionType.BAD_REQUEST, USER_GROUP_ID_REQUIRED);
+        Validate.notNull(this, permissionId, ExceptionType.BAD_REQUEST, PERMISSION_ID_REQUIRED);
     }
 }

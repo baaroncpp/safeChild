@@ -34,14 +34,14 @@ public class CustomClientDetailsService implements ClientDetailsService {
     public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
         Optional<TAppClient> appClient = appClientRepository.findByName(clientId);
 
-        Validate.isTrue(appClient.isPresent(), ExceptionType.INSUFFICIENT_AUTH, APP_CLIENT_NOT_FOUND, clientId);
+        Validate.isTrue(this, appClient.isPresent(), ExceptionType.INSUFFICIENT_AUTH, APP_CLIENT_NOT_FOUND, clientId);
 
         TAppClient client = null;
         if(appClient.isPresent()){
             client = appClient.get();
         }
 
-        Validate.isTrue(client !=null && client.getEnabled(), ExceptionType.INSUFFICIENT_AUTH, APP_CLIENT_NOT_ENABLED,clientId);
+        Validate.isTrue(this, client !=null && client.getEnabled(), ExceptionType.INSUFFICIENT_AUTH, APP_CLIENT_NOT_ENABLED,clientId);
 
         return getClientDetails(client);
     }

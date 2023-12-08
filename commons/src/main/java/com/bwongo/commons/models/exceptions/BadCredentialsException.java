@@ -9,13 +9,21 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Slf4j
 public class BadCredentialsException  extends RuntimeException{
-    public BadCredentialsException(String message, Object ... messageConstants){
+
+    private Object errorClass;
+    public BadCredentialsException(Object errorClass, String message, Object ... messageConstants){
         super(String.format(message, messageConstants));
         log.error(String.format(message, messageConstants));
+        this.errorClass = errorClass;
     }
 
-    public BadCredentialsException(String message) {
+    public BadCredentialsException(Object errorClass, String message) {
         super(message);
         log.error(message);
+        this.errorClass = errorClass;
+    }
+
+    public Object getErrorClass() {
+        return errorClass;
     }
 }

@@ -14,7 +14,7 @@ public record RoleRequestDto(
         String note
 ) {
     public void validate(){
-        Validate.notEmpty(name, ROLE_NAME_REQUIRED);
-        Validate.notEmpty(note, ROLE_DESCRIPTION_REQUIRED);
+        Validate.notEmpty(this, name, ROLE_NAME_REQUIRED);
+        Validate.notEmpty(this, note, ROLE_DESCRIPTION_REQUIRED);
     }
 }

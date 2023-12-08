@@ -9,13 +9,22 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Slf4j
 public class BadRequestException extends RuntimeException{
-    public BadRequestException(String message, Object ... messageConstants){
+
+    private Object errorClass;
+    public BadRequestException(Object errorClass, String message, Object ... messageConstants){
         super(String.format(message, messageConstants));
         log.error(String.format(message, messageConstants));
+        this.errorClass = errorClass;
     }
 
-    public BadRequestException(String message) {
+    public BadRequestException(Object errorClass, String message) {
         super(message);
+        errorClass = errorClass;
         log.error(message);
+        this.errorClass = errorClass;
+    }
+
+    public Object getErrorClass() {
+        return errorClass;
     }
 }

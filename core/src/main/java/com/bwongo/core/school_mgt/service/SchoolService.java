@@ -44,8 +44,8 @@ public class SchoolService {
         //var username = schoolRequestDto.username();
 
         //Validate.isTrue(!schoolRepository.existsByUsername(username), ExceptionType.BAD_REQUEST, SCHOOL_USERNAME_TAKEN, username);
-        Validate.isTrue(!schoolRepository.existsByPhoneNumber(phone), ExceptionType.BAD_REQUEST, SCHOOL_PHONE_TAKEN, phone);
-        Validate.isTrue(!schoolRepository.existsByEmail(email), ExceptionType.BAD_REQUEST, SCHOOL_EMAIL_TAKEN, email);
+        Validate.isTrue(this, !schoolRepository.existsByPhoneNumber(phone), ExceptionType.BAD_REQUEST, SCHOOL_PHONE_TAKEN, phone);
+        Validate.isTrue(this, !schoolRepository.existsByEmail(email), ExceptionType.BAD_REQUEST, SCHOOL_EMAIL_TAKEN, email);
 
         var school = schoolDtoService.dtoToTSchool(schoolRequestDto);
         var location = school.getLocation();
@@ -75,19 +75,19 @@ public class SchoolService {
         schoolRequestDto.validate();
 
         var existingSchool = schoolRepository.findById(id);
-        Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, id);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, id);
         final var school = existingSchool.get();
 
         var email = schoolRequestDto.email();
         var phone = schoolRequestDto.phoneNumber();
 
-        Validate.isTrue(!school.isDeleted(), ExceptionType.BAD_REQUEST, SCHOOL_NOT_FOUND, id);
+        Validate.isTrue(this, !school.isDeleted(), ExceptionType.BAD_REQUEST, SCHOOL_NOT_FOUND, id);
 
         if(!email.equals(school.getEmail()))
-            Validate.isTrue(!schoolRepository.existsByEmail(email), ExceptionType.BAD_REQUEST, SCHOOL_EMAIL_TAKEN, email);
+            Validate.isTrue(this, !schoolRepository.existsByEmail(email), ExceptionType.BAD_REQUEST, SCHOOL_EMAIL_TAKEN, email);
 
         if(!phone.equals(school.getPhoneNumber()))
-            Validate.isTrue(!schoolRepository.existsByPhoneNumber(phone), ExceptionType.BAD_REQUEST, SCHOOL_PHONE_TAKEN, phone);
+            Validate.isTrue(this, !schoolRepository.existsByPhoneNumber(phone), ExceptionType.BAD_REQUEST, SCHOOL_PHONE_TAKEN, phone);
 
         var updatedSchool = schoolDtoService.dtoToTSchool(schoolRequestDto);
         var updatedLocation = updatedSchool.getLocation();
@@ -115,10 +115,10 @@ public class SchoolService {
     public SchoolResponseDto getSchoolById(Long id){
 
         var existingSchool = schoolRepository.findById(id);
-        Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, id);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, id);
         final var school = existingSchool.get();
 
-        Validate.isTrue(!school.isDeleted(), ExceptionType.BAD_REQUEST, SCHOOL_NOT_FOUND, id);
+        Validate.isTrue(this, !school.isDeleted(), ExceptionType.BAD_REQUEST, SCHOOL_NOT_FOUND, id);
 
         return schoolDtoService.schoolToDto(school);
     }

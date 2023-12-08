@@ -169,14 +169,14 @@ public class DateTimeUtil {
         return localDateStr;
     }
 
-    public static Date getCurrentOnlyDate(){
+    public static Date getCurrentOnlyDate(Object errorClass){
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         Date today = DateTimeUtil.getCurrentUTCTime();
         try {
             return formatter.parse(formatter.format(today));
         } catch (ParseException e) {
-            throw new BadRequestException(e.getMessage());
+            throw new BadRequestException(errorClass, e.getMessage());
         }
     }
 

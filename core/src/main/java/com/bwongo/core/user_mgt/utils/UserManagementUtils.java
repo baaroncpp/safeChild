@@ -24,15 +24,15 @@ public class UserManagementUtils {
     }
 
     public static void checkThatUserIsAssignable(TUser user){
-        Validate.isTrue(user.isApproved(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_NOT_APPROVED, user.getId());
-        Validate.isTrue(!user.getDeleted(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_DELETED);
-        Validate.isTrue(!user.isAccountExpired(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_EXPIRED);
-        Validate.isTrue(!user.isCredentialExpired(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_CREDENTIALS_EXPIRED);
-        Validate.isTrue(!user.isAccountLocked(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_LOCKED);
+        Validate.isTrue(UserManagementUtils.class, user.isApproved(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_NOT_APPROVED, user.getId());
+        Validate.isTrue(UserManagementUtils.class, !user.getDeleted(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_DELETED);
+        Validate.isTrue(UserManagementUtils.class, !user.isAccountExpired(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_EXPIRED);
+        Validate.isTrue(UserManagementUtils.class, !user.isCredentialExpired(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_CREDENTIALS_EXPIRED);
+        Validate.isTrue(UserManagementUtils.class, !user.isAccountLocked(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_LOCKED);
     }
 
     public static void checkThatPermissionRoleIsAssignable(TPermission permission){
-        Validate.isTrue(permission.getAssignable(), ExceptionType.BAD_REQUEST, PERMISSION_IS_IN_ACTIVE);
+        Validate.isTrue(UserManagementUtils.class, permission.getAssignable(), ExceptionType.BAD_REQUEST, PERMISSION_IS_IN_ACTIVE);
     }
 
     public static boolean compareAndUpdateCurrentTUserWithUpdatedTUser(TUser existingUser, TUser updatedUser){

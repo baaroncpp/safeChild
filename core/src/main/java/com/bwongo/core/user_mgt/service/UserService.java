@@ -86,14 +86,12 @@ public class UserService {
         var oldPassword = changePasswordRequestDto.oldPassword();
         var oldEncryptedPassword = user.getPassword();
 
-        Validate.isTrue(passwordEncoder.matches(oldPassword, oldEncryptedPassword), ExceptionType.BAD_REQUEST, OLD_PASSWORDS_DONT_MATCH);
-        Validate.isTrue(!newPassword.equals(oldPassword), ExceptionType.BAD_REQUEST, OLD_NEW_SAME_PASSWORD);
+        Validate.isTrue(this, passwordEncoder.matches(oldPassword, oldEncryptedPassword), ExceptionType.BAD_REQUEST, OLD_PASSWORDS_DONT_MATCH);
+        Validate.isTrue(this, !newPassword.equals(oldPassword), ExceptionType.BAD_REQUEST, OLD_NEW_SAME_PASSWORD);
 
         var previousPasswords = previousPasswordRepository.findAllByUser(user);
 
-        System.out.println(previousPasswords.size());
-
-        previousPasswords.forEach(previousPassword -> Validate.isTrue(!(passwordEncoder.matches(newPassword, previousPassword.getPreviousPassword())) ,
+        previousPasswords.forEach(previousPassword -> Validate.isTrue(this, !(passwordEncoder.matches(newPassword, previousPassword.getPreviousPassword())) ,
                         ExceptionType.BAD_REQUEST,
                         PASSWORD_USED_BEFORE));
 
@@ -122,14 +120,14 @@ public class UserService {
     public UserResponseDto addUser(UserRequestDto userRequestDto) {
 
         userRequestDto.validate();
-        Validate.notEmpty(userRequestDto.password(), PASSWORD_REQUIRED);
-        StringRegExUtil.stringOfStandardPassword(userRequestDto.password(), STANDARD_PASSWORD);
+        Validate.notEmpty(this, userRequestDto.password(), PASSWORD_REQUIRED);
+        StringRegExUtil.stringOfStandardPassword(this, userRequestDto.password(), STANDARD_PASSWORD);
 
         var existingUserUsername = userRepository.findByUsername(userRequestDto.username());
-        Validate.isTrue(existingUserUsername.isEmpty(), ExceptionType.BAD_REQUEST,USERNAME_TAKEN, userRequestDto.username());
+        Validate.isTrue(this, existingUserUsername.isEmpty(), ExceptionType.BAD_REQUEST,USERNAME_TAKEN, userRequestDto.username());
 
         var existingUserGroup = userGroupRepository.findById(userRequestDto.userGroupId());
-        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userRequestDto.userGroupId());
+        Validate.isPresent(this, existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userRequestDto.userGroupId());
         final var userGroup = existingUserGroup.get();
 
         var user = userDtoService.dtoToTUser(userRequestDto);
@@ -160,17 +158,17 @@ public class UserService {
     public SchoolUserResponseDto addSchoolUser(SchoolUserRequestDto schoolUserRequestDto){
 
         schoolUserRequestDto.validate();
-        Validate.notEmpty(schoolUserRequestDto.password(), PASSWORD_REQUIRED);
-        StringRegExUtil.stringOfStandardPassword(schoolUserRequestDto.password(), STANDARD_PASSWORD);
-        Validate.notEmpty(schoolUserRequestDto.pin(), NULL_PIN);
-        StringRegExUtil.stringOfOnlyNumbers(schoolUserRequestDto.pin(), String.format(INVALID_PIN, schoolUserRequestDto.pin()));
+        Validate.notEmpty(this, schoolUserRequestDto.password(), PASSWORD_REQUIRED);
+        StringRegExUtil.stringOfStandardPassword(this, schoolUserRequestDto.password(), STANDARD_PASSWORD);
+        Validate.notEmpty(this, schoolUserRequestDto.pin(), NULL_PIN);
+        StringRegExUtil.stringOfOnlyNumbers(this, schoolUserRequestDto.pin(), String.format(INVALID_PIN, schoolUserRequestDto.pin()));
 
         var existingUserGroup = userGroupRepository.findById(schoolUserRequestDto.userGroupId());
-        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
+        Validate.isPresent(this, existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
         final var userGroup = existingUserGroup.get();
 
         var existingSchool = schoolRepository.findById(schoolUserRequestDto.schoolId());
-        Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, schoolUserRequestDto.schoolId());
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, schoolUserRequestDto.schoolId());
         var school= existingSchool.get();
 
         var user = userDtoService.dtoToTUser(mapSchoolUserRequestDtoToUserRequestDto(schoolUserRequestDto));
@@ -210,11 +208,11 @@ public class UserService {
     public SchoolUserResponseDto getSchoolUser(Long id){
 
         var existingUser = userRepository.findById(id);
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
+        Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, id);
         var user= existingUser.get();
 
         var existingSchoolUser = schoolUserRepository.findByUser(user);
-        Validate.isPresent(existingSchoolUser, SCHOOL_USER_NOT_FOUND, id);
+        Validate.isPresent(this, existingSchoolUser, SCHOOL_USER_NOT_FOUND, id);
         var schoolUser = existingSchoolUser.get();
 
         var existingEventUser = userRepository.findById(auditService.getLoggedInUser().getId());
@@ -222,10 +220,10 @@ public class UserService {
 
         if(!eventUser.getUserType().equals(UserTypeEnum.ADMIN)){
             var existingEventSchoolUser = schoolUserRepository.findByUser(user);
-            Validate.isPresent(existingEventSchoolUser, SCHOOL_USER_NOT_FOUND, id);
+            Validate.isPresent(this, existingEventSchoolUser, SCHOOL_USER_NOT_FOUND, id);
             var eventSchoolUser = existingSchoolUser.get();
 
-            Validate.isTrue(Objects.equals(schoolUser.getSchool().getId(), eventSchoolUser.getSchool().getId()), ExceptionType.ACCESS_DENIED, USER_NOT_IN_SIMILAR_SCHOOL);
+            Validate.isTrue(this, Objects.equals(schoolUser.getSchool().getId(), eventSchoolUser.getSchool().getId()), ExceptionType.ACCESS_DENIED, USER_NOT_IN_SIMILAR_SCHOOL);
         }
 
         return schoolDtoService.tUserToUserSchoolDto(user, schoolUser.getSchool());
@@ -235,23 +233,23 @@ public class UserService {
     public SchoolUserResponseDto updateSchoolUser(Long id, SchoolUserRequestDto schoolUserRequestDto){
 
         schoolUserRequestDto.validate();
-        Validate.isTrue(schoolUserRequestDto.password() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
-        Validate.isTrue(schoolUserRequestDto.pin() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PIN);
+        Validate.isTrue(this, schoolUserRequestDto.password() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
+        Validate.isTrue(this, schoolUserRequestDto.pin() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PIN);
 
         var existingUser = userRepository.findById(id);
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
+        Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, id);
         var user = existingUser.get();
 
         var existingSchoolUser = schoolUserRepository.findByUser(user);
-        Validate.isPresent(existingSchoolUser, SCHOOL_USER_NOT_FOUND, user.getId());
+        Validate.isPresent(this, existingSchoolUser, SCHOOL_USER_NOT_FOUND, user.getId());
         var schoolUser = existingSchoolUser.get();
 
         var newSchool = schoolRepository.findById(schoolUserRequestDto.schoolId());
-        Validate.isPresent(newSchool, SCHOOL_NOT_FOUND, schoolUserRequestDto.schoolId());
+        Validate.isPresent(this, newSchool, SCHOOL_NOT_FOUND, schoolUserRequestDto.schoolId());
         var existingSchool = newSchool.get();
 
         var existingUserGroup = userGroupRepository.findById(schoolUserRequestDto.userGroupId());
-        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
+        Validate.isPresent(this, existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
         final var userGroup = existingUserGroup.get();
 
         var updatedUser = userDtoService.dtoToTUser(mapSchoolUserRequestDtoToUserRequestDto(schoolUserRequestDto));
@@ -294,7 +292,7 @@ public class UserService {
         var userTypeEnum = UserTypeEnum.valueOf(userType);
 
         var existingSchool = schoolRepository.findById(schoolId);
-        Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, schoolId);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, schoolId);
         var school= existingSchool.get();
 
         var schoolUsers = schoolUserRepository.findAllBySchool(school);
@@ -309,17 +307,16 @@ public class UserService {
     public UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto) {
 
         userRequestDto.validate();
-        Validate.isTrue(userRequestDto.password() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
+        Validate.isTrue(this, userRequestDto.password() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
 
         var existingUser = userRepository.findById(userId);
-        Validate.isPresent(existingUser, String.format(USER_DOES_NOT_EXIST, userId));
+        Validate.isPresent(this, existingUser, String.format(USER_DOES_NOT_EXIST, userId));
 
         var existingUserGroup = userGroupRepository.findById(userRequestDto.userGroupId());
-        Validate.isPresent(existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userRequestDto.userGroupId());
+        Validate.isPresent(this, existingUserGroup, USER_GROUP_DOES_NOT_EXIST, userRequestDto.userGroupId());
         final var userGroup = existingUserGroup.get();
 
         var user = userDtoService.dtoToTUser(userRequestDto);
-        //user.setPassword(passwordEncoder.encode(userRequestDto.password()));
         user.setUserGroup(userGroup);
 
         return userDtoService.tUserToDto(userRepository.save(user));
@@ -328,19 +325,19 @@ public class UserService {
     @Transactional
     public UserResponseDto updateByField(Long id, Map<String, Object> fields) {
 
-        Validate.isTrue(!fields.containsKey(PASSWORD), ExceptionType.BAD_REQUEST, PASSWORD_CANT_BE_UPDATED);
+        Validate.isTrue(this, !fields.containsKey(PASSWORD), ExceptionType.BAD_REQUEST, PASSWORD_CANT_BE_UPDATED);
 
         if(fields.containsKey(USERTYPE)){
-            Validate.isTrue(isUserType(fields.get(USERTYPE).toString()), ExceptionType.BAD_REQUEST, VALID_USER_TYPE);
+            Validate.isTrue(this, isUserType(fields.get(USERTYPE).toString()), ExceptionType.BAD_REQUEST, VALID_USER_TYPE);
             UserTypeEnum userTypeEnum = UserTypeEnum.valueOf(fields.get(USERTYPE).toString());
             fields.put(USERTYPE, userTypeEnum);
         }
 
         UserDto userDto = new UserDto();
-        Validate.doesObjectContainFields(userDto, new ArrayList<>(fields.keySet()));
+        Validate.doesObjectContainFields(this, userDto, new ArrayList<>(fields.keySet()));
 
         var existingUser = userRepository.findById(id);
-        Validate.isPresent(existingUser, String.format(USER_DOES_NOT_EXIST, id));
+        Validate.isPresent(this, existingUser, String.format(USER_DOES_NOT_EXIST, id));
         final var user = existingUser.get();
 
         fields.forEach(
@@ -363,7 +360,7 @@ public class UserService {
     public UserMetaResponseDto getUserByEmail(String email) {
 
         var existingUser = userMetaRepository.findByEmail(email);
-        Validate.isPresent(existingUser, USER_WITH_EMAIL_DOES_NOT_EXIST, email);
+        Validate.isPresent(this, existingUser, USER_WITH_EMAIL_DOES_NOT_EXIST, email);
 
         var userMeta = new TUserMeta();
         if(existingUser.isPresent())
@@ -374,7 +371,7 @@ public class UserService {
 
     public UserMetaResponseDto getUserByPhoneNumber(String phoneNumber) {
         var existingUser = userMetaRepository.findByPhoneNumber(phoneNumber);
-        Validate.isPresent(existingUser, USER_WITH_PHONE_NUMBER_DOES_NOT_EXIST, phoneNumber);
+        Validate.isPresent(this, existingUser, USER_WITH_PHONE_NUMBER_DOES_NOT_EXIST, phoneNumber);
 
         var userMeta = new TUserMeta();
         if(existingUser.isPresent())
@@ -386,14 +383,14 @@ public class UserService {
     public UserResponseDto reAssignUserToGroup(Long groupId, Long userId) {
 
         var existingUser = userRepository.findById(userId);
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, userId);
+        Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, userId);
         checkThatUserIsAssignable(existingUser.get());
 
         var existingUserGroup = userGroupRepository.findById(groupId);
-        Validate.isPresent(existingUser, USER_GROUP_DOES_NOT_EXIST, groupId);
+        Validate.isPresent(this, existingUser, USER_GROUP_DOES_NOT_EXIST, groupId);
         final var userGroup = existingUserGroup.get();
 
-        Validate.isTrue(groupId == userGroup.getId(), ExceptionType.BAD_REQUEST, String.format(USER_ALREADY_ASSIGNED_TO_USER_GROUP, groupId));
+        Validate.isTrue(this, groupId == userGroup.getId(), ExceptionType.BAD_REQUEST, String.format(USER_ALREADY_ASSIGNED_TO_USER_GROUP, groupId));
 
         existingUser.get().setUserGroup(existingUserGroup.get());
         auditService.stampLongEntity(existingUser.get());
@@ -408,18 +405,18 @@ public class UserService {
         userMetaRequestDto.validate();
 
         var existingUser = userRepository.findById(userId);
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, userId);
+        Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, userId);
         final var user = existingUser.get();
         if(user.getUserType().equals(UserTypeEnum.ADMIN))
             checkThatUserIsAssignable(user);
 
         var existingCountry = countryRepository.findById(userMetaRequestDto.countryId());
-        Validate.isPresent(existingCountry, COUNTRY_WITH_ID_NOT_FOUND, userMetaRequestDto.countryId());
+        Validate.isPresent(this, existingCountry, COUNTRY_WITH_ID_NOT_FOUND, userMetaRequestDto.countryId());
         final var country = existingCountry.get();
 
-        Validate.isTrue(!userMetaRepository.existsByEmail(userMetaRequestDto.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, userMetaRequestDto.email());
-        Validate.isTrue(!userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
-        Validate.isTrue(!userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
+        Validate.isTrue(this, !userMetaRepository.existsByEmail(userMetaRequestDto.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, userMetaRequestDto.email());
+        Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
+        Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
 
         var userMeta = userDtoService.dtoToUserMeta(userMetaRequestDto);
         userMeta.setCountry(country);
@@ -434,7 +431,7 @@ public class UserService {
 
         if(checkThatUserIsSchoolUser(user)){
             var schoolUser = schoolUserRepository.findByUser(user);
-            Validate.isPresent(schoolUser, NOT_ATTACHED_TO_SCHOOL, user.getId());
+            Validate.isPresent(this, schoolUser, NOT_ATTACHED_TO_SCHOOL, user.getId());
             var school = schoolUser.get().getSchool();
 
             if(user.getUserType().equals(UserTypeEnum.DRIVER))
@@ -453,21 +450,21 @@ public class UserService {
     public UserMetaResponseDto updateUserMetaData(Long id, UserMetaRequestDto userMetaRequestDto) {
 
         var existingMetaData = userMetaRepository.findById(id);
-        Validate.isPresent(existingMetaData, USER_META_NOT_FOUND, id);
+        Validate.isPresent(this, existingMetaData, USER_META_NOT_FOUND, id);
         var metaData = existingMetaData.get();
 
         var existingCountry = countryRepository.findById(userMetaRequestDto.countryId());
-        Validate.isPresent(existingCountry, COUNTRY_WITH_ID_NOT_FOUND, userMetaRequestDto.countryId());
+        Validate.isPresent(this, existingCountry, COUNTRY_WITH_ID_NOT_FOUND, userMetaRequestDto.countryId());
         final var country = existingCountry.get();
 
         if(!metaData.getEmail().equals(userMetaRequestDto.email()))
-            Validate.isTrue(!userMetaRepository.existsByEmail(userMetaRequestDto.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, userMetaRequestDto.email());
+            Validate.isTrue(this, !userMetaRepository.existsByEmail(userMetaRequestDto.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, userMetaRequestDto.email());
 
         if(!metaData.getPhoneNumber().equals(userMetaRequestDto.phoneNumber()))
-            Validate.isTrue(!userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
+            Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
 
         if(!metaData.getPhoneNumber2().equals(userMetaRequestDto.phoneNumber2()))
-            Validate.isTrue(!userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
+            Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
 
         var userMeta = userDtoService.dtoToUserMeta(userMetaRequestDto);
         userMeta.setId(id);
@@ -484,7 +481,7 @@ public class UserService {
     public UserMetaResponseDto getUserMetaData(Long id) {
 
         var existingUserMeta = userMetaRepository.findById(id);
-        Validate.isPresent(existingUserMeta, USER_DOES_NOT_EXIST, id);
+        Validate.isPresent(this, existingUserMeta, USER_DOES_NOT_EXIST, id);
 
         var userMeta = new TUserMeta();
         if(existingUserMeta.isPresent())
@@ -494,7 +491,7 @@ public class UserService {
     }
 
     public Long getNumberOfUsersByType(String userType) {
-        Validate.isTrue(isUserType(userType), ExceptionType.BAD_REQUEST, VALID_USER_TYPE);
+        Validate.isTrue(this, isUserType(userType), ExceptionType.BAD_REQUEST, VALID_USER_TYPE);
         UserTypeEnum userTypeEnum = UserTypeEnum.valueOf(userType);
         return userRepository.countByUserType(userTypeEnum);
     }
@@ -510,7 +507,7 @@ public class UserService {
 
         userApprovalRequestDto.validate();
         var existingApproval = userApprovalRepository.findById(userApprovalRequestDto.id());
-        Validate.isPresent(existingApproval, USER_APPROVAL_NOT_FOUND, userApprovalRequestDto.id());
+        Validate.isPresent(this, existingApproval, USER_APPROVAL_NOT_FOUND, userApprovalRequestDto.id());
         final var userApproval = existingApproval.get();
 
         ApprovalEnum approvalEnum = ApprovalEnum.valueOf(userApprovalRequestDto.status());
@@ -520,7 +517,7 @@ public class UserService {
         userApprovalRepository.save(userApproval);
 
         var existingUser = userRepository.findById(userApproval.getUser().getId());
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, userApproval.getUser().getId());
+        Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, userApproval.getUser().getId());
         final var user = existingUser.get();
 
         if(userApproval.getStatus().equals(ApprovalEnum.APPROVED)) {
@@ -541,7 +538,7 @@ public class UserService {
     public boolean deleteUserAccount(Long userId) {
 
         var existingUser = userRepository.findById(userId);
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, userId);
+        Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, userId);
         final var user = existingUser.get();
 
         user.setAccountExpired(Boolean.TRUE);
@@ -558,10 +555,10 @@ public class UserService {
     public boolean suspendUserAccount(Long userId) {
 
         var existingUser = userRepository.findById(userId);
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, userId);
+        Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, userId);
         final var user = existingUser.get();
 
-        Validate.isTrue(!user.isAccountLocked(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_IS_ALREADY_LOCKED);
+        Validate.isTrue(this, !user.isAccountLocked(), ExceptionType.BAD_REQUEST, USER_ACCOUNT_IS_ALREADY_LOCKED);
 
         user.setAccountLocked(Boolean.TRUE);
         auditService.stampLongEntity(user);
@@ -572,7 +569,7 @@ public class UserService {
 
     public List<UserApprovalResponseDto> getUserApprovals(String status, Pageable pageable) {
 
-        Validate.isTrue(isApprovalStatus(status), ExceptionType.BAD_REQUEST, INVALID_APPROVAL_STATUS);
+        Validate.isTrue(this, isApprovalStatus(status), ExceptionType.BAD_REQUEST, INVALID_APPROVAL_STATUS);
         var approvalEnum = ApprovalEnum.valueOf(status);
 
         return userApprovalRepository.findAllByStatus(approvalEnum, pageable).stream()
@@ -647,7 +644,7 @@ public class UserService {
 
     private TUser getUser(Long id){
         var existingUser = userRepository.findById(id);
-        Validate.isPresent(existingUser, USER_DOES_NOT_EXIST, id);
+        Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, id);
 
         var user = new TUser();
         if(existingUser.isPresent())

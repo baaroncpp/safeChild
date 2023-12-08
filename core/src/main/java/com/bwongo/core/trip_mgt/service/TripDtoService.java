@@ -77,6 +77,6 @@ public class TripDtoService {
                     NotificationRoleEnum.SCHOOL_SIGN_OUT
             );
         }
-        throw new BadRequestException("Failed to load trip type");
+        throw new BadRequestException(this, "Failed to load trip type");
     }
 }

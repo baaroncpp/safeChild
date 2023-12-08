@@ -17,7 +17,7 @@ public record TripRequestDto(
         String note
 ) {
     public void validate(){
-        Validate.notNull(tripType, ExceptionType.BAD_REQUEST, NULL_TRIP_TYPE);
-        Validate.isTrue(isTripType(tripType), ExceptionType.BAD_REQUEST, INVALID_TRIP_TYPE);
+        Validate.notNull(this, tripType, ExceptionType.BAD_REQUEST, NULL_TRIP_TYPE);
+        Validate.isTrue(this, isTripType(tripType), ExceptionType.BAD_REQUEST, INVALID_TRIP_TYPE);
     }
 }

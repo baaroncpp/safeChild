@@ -51,12 +51,12 @@ public class VehicleService {
         final var driverId = vehicleRequestDto.currentDriverId();
         final var plateNumber = vehicleRequestDto.plateNumber();
 
-        Validate.isTrue(!vehicleRepository.existsByPlateNumber(plateNumber), ExceptionType.BAD_REQUEST, VEHICLE_PLATE_ALREADY_EXISTS, plateNumber);
+        Validate.isTrue(this, !vehicleRepository.existsByPlateNumber(plateNumber), ExceptionType.BAD_REQUEST, VEHICLE_PLATE_ALREADY_EXISTS, plateNumber);
 
         var expectedDriverSchool = getSchool(schoolId);
 
         var existingDriver = userRepository.findById(driverId);
-        Validate.isPresent(existingDriver, DRIVER_NOT_FOUND, driverId);
+        Validate.isPresent(this, existingDriver, DRIVER_NOT_FOUND, driverId);
         final var driver = existingDriver.get();
 
         var updatedVehicle = getVehicleResponseDto(vehicleRequestDto, schoolId, driverId, driver, expectedDriverSchool);
@@ -75,14 +75,14 @@ public class VehicleService {
         var driver = existingVehicle.getCurrentDriver();
         var expectedDriverSchool = existingVehicle.getSchool();
 
-        Validate.isTrue(!existingVehicle.isOnRoute(), ExceptionType.BAD_REQUEST, VEHICLE_ON_TRIP, id);
+        Validate.isTrue(this, !existingVehicle.isOnRoute(), ExceptionType.BAD_REQUEST, VEHICLE_ON_TRIP, id);
 
         if(!existingVehicle.getPlateNumber().equals(plateNumber))
-            Validate.isTrue(!vehicleRepository.existsByPlateNumber(plateNumber), ExceptionType.BAD_REQUEST, VEHICLE_PLATE_ALREADY_EXISTS, plateNumber);
+            Validate.isTrue(this, !vehicleRepository.existsByPlateNumber(plateNumber), ExceptionType.BAD_REQUEST, VEHICLE_PLATE_ALREADY_EXISTS, plateNumber);
 
         if(!Objects.equals(driver.getId(), driverId)) {
             var existingDriver = userRepository.findById(driverId);
-            Validate.isPresent(existingDriver, DRIVER_NOT_FOUND, driverId);
+            Validate.isPresent(this, existingDriver, DRIVER_NOT_FOUND, driverId);
             driver = existingDriver.get();
         }
 
@@ -108,7 +108,7 @@ public class VehicleService {
         final var editingUser = existingEditingUser.get();
 
         if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
-            Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ACCESS_SCHOOL, schoolId);
+            Validate.isTrue(this, schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ACCESS_SCHOOL, schoolId);
 
 
         return vehicleRepository.findAllByDeletedAndSchool(pageable, Boolean.FALSE, school).stream()
@@ -130,7 +130,7 @@ public class VehicleService {
                                                      Long driverId,
                                                      TUser driver,
                                                      TSchool expectedDriverSchool) {
-        Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(expectedDriverSchool, driver), ExceptionType.BAD_REQUEST, DRIVER_DONT_BELONG_TO_SCHOOL, driverId, schoolId);
+        Validate.isTrue(this, schoolUserRepository.existsBySchoolAndUser(expectedDriverSchool, driver), ExceptionType.BAD_REQUEST, DRIVER_DONT_BELONG_TO_SCHOOL, driverId, schoolId);
         checkIfUserCanBeDriver(driver);
 
         var vehicle = vehicleDtoService.dtoToTVehicle(vehicleRequestDto);
@@ -140,7 +140,7 @@ public class VehicleService {
         final var editingUser = existingEditingUser.get();
 
         if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
-            Validate.isTrue(schoolUserRepository.existsBySchoolAndUser(expectedDriverSchool, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, schoolId);
+            Validate.isTrue(this, schoolUserRepository.existsBySchoolAndUser(expectedDriverSchool, editingUser), ExceptionType.ACCESS_DENIED, CANT_ASSIGN_SCHOOL, schoolId);
 
         vehicle.setSchool(expectedDriverSchool);
         vehicle.setCurrentDriver(driver);
@@ -151,13 +151,13 @@ public class VehicleService {
 
     private TVehicle getVehicle(Long id){
         var existingVehicle = vehicleRepository.findByDeletedAndId(Boolean.FALSE, id);
-        Validate.isPresent(existingVehicle, VEHICLE_NOT_FOUND, id);
+        Validate.isPresent(this, existingVehicle, VEHICLE_NOT_FOUND, id);
         return existingVehicle.get();
     }
 
     private TSchool getSchool(Long id){
         var existingSchool = schoolRepository.findById(id);
-        Validate.isPresent(existingSchool, SCHOOL_NOT_FOUND, id);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, id);
         return existingSchool.get();
     }
 }

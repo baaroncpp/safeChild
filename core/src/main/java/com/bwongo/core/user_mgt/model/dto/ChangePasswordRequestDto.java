@@ -15,8 +15,8 @@ public record ChangePasswordRequestDto(
         String oldPassword
 ) {
     public void validate(){
-        Validate.notEmpty(newPassword, NULL_NEW_PASSWORD);
-        Validate.notEmpty(oldPassword, NULL_OLD_PASSWORD);
-        StringRegExUtil.stringOfStandardPassword(newPassword, STANDARD_PASSWORD);
+        Validate.notEmpty(this, newPassword, NULL_NEW_PASSWORD);
+        Validate.notEmpty(this, oldPassword, NULL_OLD_PASSWORD);
+        StringRegExUtil.stringOfStandardPassword(this, newPassword, STANDARD_PASSWORD);
     }
 }

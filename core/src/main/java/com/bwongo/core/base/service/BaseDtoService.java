@@ -3,9 +3,11 @@ package com.bwongo.core.base.service;
 import com.bwongo.core.base.model.dto.CountryResponseDto;
 import com.bwongo.core.base.model.dto.DistrictResponseDto;
 import com.bwongo.core.base.model.dto.LocationResponseDto;
+import com.bwongo.core.base.model.dto.LogResponseDto;
 import com.bwongo.core.base.model.jpa.TCountry;
 import com.bwongo.core.base.model.jpa.TDistrict;
 import com.bwongo.core.base.model.jpa.TLocation;
+import com.bwongo.core.base.model.jpa.TLog;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -64,5 +66,24 @@ public class BaseDtoService {
                 location.getLatitude(),
                 location.getLongitude()
         );
+    }
+
+    public LogResponseDto logToDto(TLog log){
+
+        if(log == null){
+            return null;
+        }
+
+        return new LogResponseDto(
+                log.getId(),
+                log.getCreatedOn(),
+                log.getModifiedOn(),
+                log.getResourceUrl(),
+                log.getHttpStatus(),
+                log.getLogLevel(),
+                log.getNote(),
+                log.getEntityName()
+        );
+
     }
 }
