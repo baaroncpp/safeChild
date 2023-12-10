@@ -2,9 +2,11 @@ package com.bwongo.core.student_mgt.service;
 
 import com.bwongo.core.base.model.enums.IdentificationType;
 import com.bwongo.core.base.model.enums.Relation;
+import com.bwongo.core.base.service.BaseDtoService;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.service.SchoolDtoService;
 import com.bwongo.core.student_mgt.model.dto.*;
+import com.bwongo.core.student_mgt.model.jpa.StudentDay;
 import com.bwongo.core.student_mgt.model.jpa.TGuardian;
 import com.bwongo.core.student_mgt.model.jpa.TStudent;
 import com.bwongo.core.student_mgt.model.jpa.TStudentGuardian;
@@ -23,6 +25,7 @@ public class StudentDtoService {
 
     private final UserDtoService userDtoService;
     private final SchoolDtoService schoolDtoService;
+    private final BaseDtoService baseDtoService;
 
     public TStudent dtoToTStudent(StudentRequestDto studentRequestDto){
 
@@ -130,5 +133,27 @@ public class StudentDtoService {
                 guardianToDto(studentGuardian.getGuardian())
         );
 
+    }
+
+    public StudentDayResponseDto studentDayToDto(StudentDay studentDay){
+
+        if(studentDay == null){
+            return null;
+        }
+
+        return new StudentDayResponseDto(
+                studentDay.getId(),
+                studentDay.getCreatedOn(),
+                studentDay.getModifiedOn(),
+                userDtoService.tUserToDto(studentDay.getCreatedBy()),
+                userDtoService.tUserToDto(studentDay.getModifiedBy()),
+                studentDay.getStudentStatus(),
+                userDtoService.tUserToDto(studentDay.getStaff()),
+                studentToDto(studentDay.getStudent()),
+                schoolDtoService.schoolToDto(studentDay.getSchool()),
+                studentDay.getSchoolDate(),
+                studentDay.isOnTrip(),
+                baseDtoService.locationToDto(studentDay.getLocation())
+        );
     }
 }

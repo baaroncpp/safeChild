@@ -15,16 +15,20 @@ import com.bwongo.core.notify_mgt.repository.NotificationRepository;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
+import com.bwongo.core.student_mgt.model.dto.StudentDayResponseDto;
 import com.bwongo.core.student_mgt.model.jpa.StudentDay;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
 import com.bwongo.core.student_mgt.model.jpa.TStudent;
 import com.bwongo.core.student_mgt.repository.*;
+import com.bwongo.core.student_mgt.service.StudentDtoService;
 import com.bwongo.core.trip_mgt.model.jpa.Trip;
 import com.bwongo.core.trip_mgt.repository.TripRepository;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
+import com.bwongo.core.user_mgt.repository.TUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +37,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.bwongo.commons.models.utils.DateTimeUtil.*;
+import static com.bwongo.core.base.utils.BasicMsgConstants.DATE_TIME_FORMAT;
 import static com.bwongo.core.notify_mgt.utils.NotificationMsgConstants.*;
 import static com.bwongo.core.notify_mgt.utils.NotificationUtils.*;
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
-import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.TRIP_ENDED;
-import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.TRIP_NOT_FOUND;
+import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.*;
 import static com.bwongo.core.trip_mgt.utils.TripUtils.getRemainingStudentsOnTrip;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.SCHOOL_USER_NOT_FOUND;
 
@@ -50,6 +54,7 @@ import static com.bwongo.core.user_mgt.utils.UserMsgConstants.SCHOOL_USER_NOT_FO
 @Slf4j
 @RequiredArgsConstructor
 public class NotificationService {
+    private final TUserRepository tUserRepository;
 
     @Value("${notification.sms.sender}")
     private String smsSender;
@@ -79,6 +84,7 @@ public class NotificationService {
     private final StudentGuardianRepository studentGuardianRepository;
     private final MessageBrokerService messageBrokerService;
     private final TripRepository tripRepository;
+    private final StudentDtoService studentDtoService;
 
     private TStudent getStudentByUsername(String username){
         var existingStudent = studentRepository.findByStudentUsername(username);
@@ -263,6 +269,22 @@ public class NotificationService {
                 SUCCESS,
                 SUCCESS_NOTE
         );
+    }
+
+    public List<StudentDayResponseDto> getStudentDayByStaffAndDate(String stringDate, Pageable pageable){
+
+        var date = stringToDate(stringDate, DATE_TIME_FORMAT);
+        var staffId = auditService.getLoggedInUser().getId();
+
+        var existingStaff = tUserRepository.findById(staffId);
+        var staff = existingStaff.get();
+
+        var existingSchoolStaff = schoolUserRepository.findByUser(staff);
+        Validate.isPresent(this, existingSchoolStaff, SCHOOL_USER_NOT_FOUND, staffId);
+
+        return studentDayRepository.findAllByStaffAndSchoolDate(staff, date, pageable).stream()
+                .map(studentDtoService::studentDayToDto)
+                .toList();
     }
 
     private NotificationResponseDto sendNotification(TLocation location, TStudent student, TSchool school, Trip trip, TUser staff, StudentStatus studentStatus, List<String> guardianPhoneNumbers){

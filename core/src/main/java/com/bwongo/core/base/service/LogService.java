@@ -42,7 +42,6 @@ public class LogService {
     public List<LogResponseDto> getLogsByDate(Pageable pageable, String date){
 
         Validate.isAcceptableDateFormat(this, date);
-        stringToDate(date, DATE_TIME_FORMAT);
 
         return logRepository.findAllByCreatedOn(stringToDate(date, DATE_TIME_FORMAT), pageable).stream()
                 .map(baseDtoService::logToDto)
