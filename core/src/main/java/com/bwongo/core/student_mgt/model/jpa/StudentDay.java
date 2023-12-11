@@ -44,7 +44,7 @@ public class StudentDay extends AuditEntity {
         return staff;
     }
 
-    @JoinColumn(name = "student_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "student_id", referencedColumnName = "id")
     @OneToOne(fetch = FetchType.LAZY)
     public TStudent getStudent() {
         return student;
