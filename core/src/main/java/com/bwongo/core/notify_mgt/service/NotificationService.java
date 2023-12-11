@@ -192,6 +192,7 @@ public class NotificationService {
         var existingSchoolUser = schoolUserRepository.findByUser(staff);
         Validate.isPresent(this, existingSchoolUser, SCHOOL_USER_NOT_FOUND, staff.getId());
         var schoolUser = existingSchoolUser.get();
+        var school = schoolUser.getSchool();
 
         var staffUsername = schoolUser.getUser().getUsername();
 
@@ -209,7 +210,7 @@ public class NotificationService {
         var studentDay = new StudentDay();
         studentDay.setStaff(schoolUser.getUser());
         studentDay.setStudent(student);
-        studentDay.setSchool(studentDay.getSchool());
+        studentDay.setSchool(school);
         studentDay.setSchoolDate(getCurrentOnlyDate(this));
         studentDay.setOnTrip(onTrip);
         studentDay.setLocation(location);
