@@ -292,6 +292,8 @@ public class NotificationService {
         var studentTravel = new StudentTravel();
         var studentDay = new StudentDay();
 
+        System.out.println("SCHOOL_ID"+ school.getId());
+
         studentDay.setStaff(staff);
         studentDay.setStudent(student);
         studentDay.setSchool(school);
