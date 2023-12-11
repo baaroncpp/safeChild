@@ -183,7 +183,7 @@ public class NotificationService {
 
         Validate.isTrue(this, (StudentStatus.SCHOOL_SIGN_IN.name().equals(stringStudentStatus) || StudentStatus.SCHOOL_SIGN_OUT.name().equals(stringStudentStatus)),
                 ExceptionType.ACCESS_DENIED,
-                STUDENT_STATUS_NOT_ALLOWED);
+                STUDENT_STATUS_NOT_ALLOWED, stringStudentStatus);
 
         var student = getStudentByUsername(studentUsername);
 
