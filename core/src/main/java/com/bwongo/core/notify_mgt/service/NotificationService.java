@@ -179,6 +179,7 @@ public class NotificationService {
         notificationDto.validate();
         var studentUsername = notificationDto.studentUsername();
         var stringStudentStatus = notificationDto.studentStatus();
+        var studentStatus = StudentStatus.valueOf(stringStudentStatus);
 
         Validate.isTrue(this, (StudentStatus.SCHOOL_SIGN_IN.name().equals(stringStudentStatus) || StudentStatus.SCHOOL_SIGN_OUT.name().equals(stringStudentStatus)),
                 ExceptionType.ACCESS_DENIED,
@@ -213,6 +214,7 @@ public class NotificationService {
         studentDay.setSchool(school);
         studentDay.setSchoolDate(getCurrentOnlyDate(this));
         studentDay.setOnTrip(onTrip);
+        studentDay.setStudentStatus(studentStatus);
         studentDay.setLocation(location);
 
         auditService.stampAuditedEntity(studentDay);
