@@ -168,7 +168,7 @@ public class NotificationService {
 
             case HOME_DROP_OFF:
                 Validate.isTrue(this, trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
-                Validate.isTrue(this, studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, studentStatus).isPresent(),
+                Validate.isTrue(this, studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.SCHOOL_SIGN_OUT).isPresent(),
                         ExceptionType.BAD_REQUEST, STUDENT_NOT_ON_TRIP, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
