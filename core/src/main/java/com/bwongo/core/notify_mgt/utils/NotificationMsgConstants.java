@@ -10,6 +10,7 @@ public class NotificationMsgConstants {
 
     public static final String NULL_APP_REF = "null or empty appRef";
     public static final String STUDENT_HAS_ALREADY_BEEN_IN_STATUS = "%s has already been %s";
+    public static final String STUDENT_ALREADY_SIGNED_IN = "student %s already SIGNED IN to school";
     public static final String STUDENT_STATUS_NOT_ALLOWED = "StudentStatus %s not allowed";
     public static final String STUDENT_NOT_CHECKED_IN = "Student %s was not signed in, cannot be signed out";
     public static final String STUDENT_STAFF_NOT_SAME_SCHOOL = "User %s and student %s are not from the same school";

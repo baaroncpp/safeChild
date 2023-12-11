@@ -127,6 +127,10 @@ public class NotificationService {
 
         var staffUsername = schoolUser.getUser().getUsername();
 
+        Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, studentStatus).isEmpty(),
+                ExceptionType.BAD_REQUEST,
+                STUDENT_HAS_ALREADY_BEEN_IN_STATUS, studentUsername, studentStatus);
+
         Validate.isTrue(this, Objects.equals(student.getSchool().getId(), schoolUser.getSchool().getId()), ExceptionType.BAD_REQUEST, STUDENT_STAFF_NOT_SAME_SCHOOL, staffUsername, studentUsername);
         checkIfStudentDayStatusExists(student, studentStatus, currentDay);
 
@@ -144,9 +148,9 @@ public class NotificationService {
         switch(studentStatus) {
             case HOME_PICK_UP:
                 Validate.isTrue(this, trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
-                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchool(currentDay, student, school).isEmpty(),
+                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.SCHOOL_SIGN_IN).isEmpty(),
                         ExceptionType.BAD_REQUEST,
-                        STUDENT_HAS_ALREADY_BEEN_IN_STATUS, studentUsername, studentStatus);
+                        STUDENT_ALREADY_SIGNED_IN, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 

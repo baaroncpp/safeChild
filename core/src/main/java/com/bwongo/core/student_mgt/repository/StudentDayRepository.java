@@ -21,6 +21,7 @@ import java.util.Optional;
 @Repository
 public interface StudentDayRepository extends JpaRepository<StudentDay, Long> {
     Optional<StudentDay> findBySchoolDateAndStudentAndSchool(Date schoolDate, TStudent student, TSchool school);
+    Optional<StudentDay> findBySchoolDateAndStudentAndSchoolAndStudentStatus(Date schoolDate, TStudent student, TSchool school, StudentStatus studentStatus);
     List<StudentDay> findAllByStaffAndSchoolDate(TUser staff, Date schoolDate, Pageable pageable);
     List<StudentDay> findAllBySchoolAndStudentStatusAndSchoolDate(TSchool school, StudentStatus studentStatus, Date schoolDate, Pageable pageable);
     List<StudentDay> findBySchoolDateAndStudent(Date schoolDate, TStudent student);
