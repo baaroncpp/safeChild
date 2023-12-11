@@ -17,5 +17,6 @@ public class BasicMsgConstants {
     public static final String COUNTRY_ID_REQUIRED = "Country ID is required";
     public static final String COUNTRY_WITH_ID_NOT_FOUND = "Country with ID %s not found";
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String VALUE_TOO_LONG = "%s is too long, cannot exceed %s characters";
 
 }

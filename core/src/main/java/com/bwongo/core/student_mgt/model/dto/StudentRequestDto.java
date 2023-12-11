@@ -6,6 +6,7 @@ import com.bwongo.commons.models.utils.Validate;
 
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.*;
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
+import static com.bwongo.core.base.utils.BasicMsgConstants.*;
 
 /**
  * @Author bkaaron
@@ -34,5 +35,8 @@ public record StudentRequestDto(
 
         if(!email.isEmpty())
             StringRegExUtil.stringOfEmail(this, email, INVALID_EMAIL, email);
+
+        if(!nationalIdNumber.isEmpty())
+            Validate.isTrue(this,nationalIdNumber.length() > 20, ExceptionType.BAD_REQUEST, VALUE_TOO_LONG, "nationalIdNumber", nationalIdNumber.length());
     }
 }

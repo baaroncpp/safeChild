@@ -6,6 +6,7 @@ import com.bwongo.core.notify_mgt.model.dto.NotificationDriverDto;
 import com.bwongo.core.notify_mgt.model.dto.NotificationDto;
 import com.bwongo.core.notify_mgt.service.NotificationService;
 import com.bwongo.core.student_mgt.model.dto.StudentDayResponseDto;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +31,7 @@ public class NotificationApi {
 
     private final NotificationService notificationService;
 
+    @Operation(summary = "Send or create student notification by a driver")
     @PreAuthorize("hasAnyAuthority('MOBILE_APP_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @PostMapping(path = "send/driver/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Object sendNotificationDriver(@RequestBody NotificationDriverDto notificationDriverDto) {

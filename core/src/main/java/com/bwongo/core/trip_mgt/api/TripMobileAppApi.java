@@ -2,6 +2,7 @@ package com.bwongo.core.trip_mgt.api;
 
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
 import com.bwongo.core.trip_mgt.service.TripService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,7 @@ public class TripMobileAppApi {
         return tripService.getExistingOpenOrInProgressTrip();
     }
 
+    @Operation(summary = "Create new trip")
     @PreAuthorize("hasAnyAuthority('MOBILE_APP_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @PostMapping(path = "trip", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public TripResponseDto createNewTrip(@RequestBody TripRequestDto tripRequestDto){
