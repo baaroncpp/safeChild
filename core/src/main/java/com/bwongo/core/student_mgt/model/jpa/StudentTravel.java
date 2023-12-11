@@ -29,7 +29,7 @@ public class StudentTravel extends AuditEntity {
     private TSchool school;
     private TLocation location;
 
-    @JoinColumn(name = "school_id", insertable = false, updatable = false)
+    @JoinColumn(name = "school_id", referencedColumnName = "id", insertable = false, updatable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     public TSchool getSchool() {
         return school;
