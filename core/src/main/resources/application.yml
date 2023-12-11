@@ -37,6 +37,13 @@ app:
       key-alias: ${KEY_ALIAS:kabangali}
       signing-key: ${SIGNING-KEY:123456}
 
+springdoc:
+  oAuthFlow:
+    password:
+      tokenUrl: /oauth/token
+  swagger-ui:
+    path: /swagger-ui-kab.html
+
 core-banking:
   group-id:
     school: 15
