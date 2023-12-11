@@ -36,7 +36,7 @@ public class StudentTravel extends AuditEntity {
     }
 
     @JoinColumn(name = "trip_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     public Trip getTrip() {
         return trip;
     }
