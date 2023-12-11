@@ -295,6 +295,7 @@ public class NotificationService {
         studentDay.setStaff(staff);
         studentDay.setStudent(student);
         studentDay.setSchool(school);
+        studentDay.setStudentStatus(studentStatus);
         studentDay.setSchoolDate(getCurrentOnlyDate(this));
         studentDay.setOnTrip(Boolean.FALSE);
         studentDay.setLocation(location);
