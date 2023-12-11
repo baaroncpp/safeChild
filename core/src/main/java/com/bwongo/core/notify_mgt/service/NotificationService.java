@@ -195,6 +195,9 @@ public class NotificationService {
         var schoolUser = existingSchoolUser.get();
         var school = schoolUser.getSchool();
 
+        //update staff
+        staff = schoolUser.getUser();
+
         var staffUsername = schoolUser.getUser().getUsername();
 
         Validate.isTrue(this, Objects.equals(schoolUser.getSchool().getId(), student.getSchool().getId()), ExceptionType.BAD_REQUEST, STUDENT_STAFF_NOT_SAME_SCHOOL, studentUsername, staffUsername);
