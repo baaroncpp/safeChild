@@ -15,7 +15,7 @@ import java.util.Set;
  * @Date 8/6/23
  **/
 @Setter
-public class LoginUser  implements UserDetails {
+public class LoginUser implements UserDetails {
     @Getter
     private Long id;
     private String username;

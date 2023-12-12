@@ -12,6 +12,7 @@ public class TripMsgConstants {
     public static final String NO_TRIPS_FOUND = "trips not found";
     public static final String TRIP_NOT_FOUND = "trip with ID: %s not found";
     public static final String NO_STUDENT_COORDINATES = "no student coordinates for this trip";
+    public static final String NO_ACCESS_TO_TRIP = "Access denied for this trip";
     public static final String NULL_TRIP_TYPE = "tripType is null or empty";
     public static final String NULL_TRIP_ID = "tripId is null or empty";
     public static final String INVALID_STUDENT_STATUS = "%s is invalid studentStatus: VALID OPTIONS: SCHOOL_SIGN_OUT, HOME_DROP_OFF, SCHOOL_SIGN_IN, HOME_PICK_UP, IN_CLASS";

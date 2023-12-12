@@ -24,8 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class Notification extends BaseEntity {
-    private Long id;
-    private List<String> receivers;
+    private String receiver;
     private String sender;
     private String message;
     private SmsStatus status;
@@ -33,17 +32,9 @@ public class Notification extends BaseEntity {
     private String transactionId;
     private String externalTransactionId;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    public Long getId() {
-        return id;
-    }
-
     @Column(name = "receiver")
-    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
-    public List<String> getReceivers() {
-        return receivers;
+    public String getReceiver() {
+        return receiver;
     }
 
     @Column(name = "sender")

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @Author bkaaron
@@ -33,6 +34,11 @@ public class AppConfig {
     @Bean
     public PasswordEncoder getPasswordEncoder(){
         return new BCryptPasswordEncoder(12);
+    }
+
+    @Bean
+    public WebClient.Builder getWebClientBuilder(){
+        return WebClient.builder();
     }
 
 }

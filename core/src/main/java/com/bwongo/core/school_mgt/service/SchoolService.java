@@ -58,7 +58,7 @@ public class SchoolService {
         var accountNumber = getNonExistingSchoolAccountNumber();
 
         school.setLocation(savedLocation);
-        school.setUsername( accountNumber);
+        school.setUsername(accountNumber);
         school.setAccountNumber(accountNumber);
 
         var coreBankingId = memberService.addSchoolToCoreBanking(school);

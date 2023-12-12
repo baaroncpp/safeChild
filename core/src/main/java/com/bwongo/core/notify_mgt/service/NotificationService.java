@@ -337,18 +337,22 @@ public class NotificationService {
         var message = getSms(studentStatus, studentUsername,
                 trimSchoolName(schoolName), userType.getNote(), staffUsername);
 
-        var notification = new Notification();
-        notification.setMessage(message);
-        notification.setSender(smsSender);
-        notification.setReceivers(guardianPhoneNumbers);
-        notification.setStatus(SmsStatus.PENDING);
-        notification.setCreatedOn(getCurrentUTCTime());
+        Validate.isTrue(this, !guardianPhoneNumbers.isEmpty(), ExceptionType.BAD_REQUEST, NO_GUARDIANS_TO_NOTIFY);
 
-        var notify = notificationRepository.save(notification);
-        messageBrokerService.sendSms(notify);
+        for(String receiver : guardianPhoneNumbers){
+            var notification = new Notification();
+            notification.setMessage(message);
+            notification.setSender(smsSender);
+            notification.setReceiver(receiver);
+            notification.setStatus(SmsStatus.PENDING);
+            notification.setCreatedOn(getCurrentUTCTime());
+
+            var notify = notificationRepository.save(notification);
+            messageBrokerService.sendSms(notify);
+        }
 
         return new NotificationResponseDto(
-                notify.getId(),
+                null,
                 studentStatus,
                 schoolName
         );
