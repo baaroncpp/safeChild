@@ -1,10 +1,12 @@
-package com.bwongo.core.account_mgt.models.jpa;
+package com.bwongo.core.account_mgt.model.jpa;
 
-import com.bwongo.core.account_mgt.models.enums.TransactionStatus;
+import com.bwongo.core.account_mgt.model.enums.TransactionStatus;
 import com.bwongo.core.base.model.jpa.AuditEntity;
+import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.transaction.TransactionScoped;
 import java.math.BigDecimal;
 
 /**
@@ -21,6 +23,7 @@ public class TMomoDeposit extends AuditEntity {
     private String msisdn;
     private String externalReferenceId;
     private String depositorName;
+    private TSchool school;
 
     @Column(name = "amount_deposit")
     public BigDecimal getAmountDeposit() {
@@ -43,8 +46,14 @@ public class TMomoDeposit extends AuditEntity {
         return externalReferenceId;
     }
 
-    @Column(name = "depostor_name")
+    @Column(name = "depositor_name")
     public String getDepositorName() {
         return depositorName;
+    }
+
+    @JoinColumn(name = "school_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    public TSchool getSchool() {
+        return school;
     }
 }

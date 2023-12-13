@@ -1,4 +1,4 @@
-package com.bwongo.core.account_mgt.models.enums;
+package com.bwongo.core.account_mgt.model.enums;
 
 /**
  * @Author bkaaron

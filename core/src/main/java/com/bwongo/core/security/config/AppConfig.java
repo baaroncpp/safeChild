@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,12 +23,14 @@ import org.springframework.web.reactive.function.client.WebClient;
                         "com.bwongo.core.vehicle_mgt.repository",
                         "com.bwongo.core.trip_mgt.repository",
                         "com.bwongo.core.notify_mgt.repository",
+                        "com.bwongo.core.account_mgt.repository",
                         "com.bwongo.core.base.repository"})
 @EntityScan({"com.bwongo.core.user_mgt.model.jpa",
              "com.bwongo.core.school_mgt.model.jpa",
              "com.bwongo.core.base.model.jpa",
              "com.bwongo.core.vehicle_mgt.model.jpa",
              "com.bwongo.core.trip_mgt.model.jpa",
+             "com.bwongo.core.account_mgt.model.jpa",
              "com.bwongo.core.notify_mgt.model.jpa",
              "com.bwongo.core.student_mgt.model.jpa"})
 public class AppConfig {
@@ -39,6 +42,11 @@ public class AppConfig {
     @Bean
     public WebClient.Builder getWebClientBuilder(){
         return WebClient.builder();
+    }
+
+    @Bean
+    public WebClient getWebClient(){
+        return WebClient.create();
     }
 
 }

@@ -1,11 +1,12 @@
-package com.bwongo.core.account_mgt.models.jpa;
+package com.bwongo.core.account_mgt.model.jpa;
 
-import com.bwongo.core.account_mgt.models.enums.AccountStatus;
+import com.bwongo.core.account_mgt.model.enums.AccountStatus;
 import com.bwongo.core.base.model.jpa.AuditEntity;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 /**
  * @Author bkaaron
@@ -20,6 +21,8 @@ public class TAccount extends AuditEntity {
     private String accountNumber;
     private AccountStatus status;
     private TSchool school;
+    private BigDecimal currentBalance;
+    private boolean isSchoolAccount;
 
     @Column(name = "account_name")
     public String getAccountName() {
@@ -41,5 +44,15 @@ public class TAccount extends AuditEntity {
     @OneToOne(fetch = FetchType.LAZY)
     public TSchool getSchool() {
         return school;
+    }
+
+    @Column(name = "current_balance")
+    public BigDecimal getCurrentBalance() {
+        return currentBalance;
+    }
+
+    @Column(name = "is_school_account")
+    public boolean isSchoolAccount() {
+        return isSchoolAccount;
     }
 }

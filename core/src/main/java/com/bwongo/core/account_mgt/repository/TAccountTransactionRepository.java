@@ -1,6 +1,6 @@
 package com.bwongo.core.account_mgt.repository;
 
-import com.bwongo.core.account_mgt.models.jpa.TAccountTransaction;
+import com.bwongo.core.account_mgt.model.jpa.TAccountTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

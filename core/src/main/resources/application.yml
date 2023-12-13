@@ -77,5 +77,7 @@ notification:
 zenga-pay:
   access-token: ZPYPUBK-d9849e82d46810623d413fdd3e69a49e95df28d9b2672baf46b819a8768ebb3f
   url:
-    collections: https://api.zengapay.com/v1/collections
-    status: https://api.zengapay.com/v1/collections/
+    #collections: https://api.zengapay.com/v1/collections
+    collections: https://api.sandbox.zengapay.com/v1/collections
+    #status: https://api.zengapay.com/v1/collections/
+    status: https://api.sandbox.zengapay.com/v1/collections/

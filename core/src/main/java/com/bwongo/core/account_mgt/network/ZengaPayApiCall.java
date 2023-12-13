@@ -1,14 +1,16 @@
 package com.bwongo.core.account_mgt.network;
 
-import com.bwongo.core.account_mgt.models.dto.CollectionRequestDto;
-import com.bwongo.core.account_mgt.models.dto.CollectionResponseDto;
-import com.bwongo.core.account_mgt.models.dto.StatusResponseDto;
+import com.bwongo.core.account_mgt.model.dto.CollectionRequestDto;
+import com.bwongo.core.account_mgt.model.dto.CollectionResponseDto;
+import com.bwongo.core.account_mgt.model.dto.StatusResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 /**
  * @Author bkaaron

@@ -1,6 +1,6 @@
-package com.bwongo.core.account_mgt.models.jpa;
+package com.bwongo.core.account_mgt.model.jpa;
 
-import com.bwongo.core.account_mgt.models.enums.CashFlowType;
+import com.bwongo.core.account_mgt.model.enums.CashFlowType;
 import com.bwongo.core.base.model.jpa.AuditEntity;
 import lombok.Setter;
 

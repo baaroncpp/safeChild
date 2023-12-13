@@ -1,6 +1,6 @@
 package com.bwongo.core.account_mgt.repository;
 
-import com.bwongo.core.account_mgt.models.jpa.TCashFlow;
+import com.bwongo.core.account_mgt.model.jpa.TCashFlow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
