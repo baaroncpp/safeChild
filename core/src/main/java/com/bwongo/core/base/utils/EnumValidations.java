@@ -1,5 +1,6 @@
 package com.bwongo.core.base.utils;
 
+import com.bwongo.core.account_mgt.model.enums.NetworkType;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.user_mgt.model.jpa.TPermission;
 import com.bwongo.core.user_mgt.model.jpa.TRole;
@@ -126,5 +127,13 @@ public class EnumValidations {
                 StudentStatus.IN_CLASS.name()
         );
         return studentStatusList.contains(value);
+    }
+
+    public static boolean isNetworkType(String value){
+        List<String> networkTypeList = Arrays.asList(
+                NetworkType.MTN.name(),
+                NetworkType.AIRTEL.name()
+        );
+        return networkTypeList.contains(value);
     }
 }

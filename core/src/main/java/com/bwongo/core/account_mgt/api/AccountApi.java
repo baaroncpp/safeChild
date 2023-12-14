@@ -23,14 +23,14 @@ public class AccountApi {
 
     private final AccountService accountService;
 
-    //@PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.WRITE')")
+    @PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.WRITE')")
     @PostMapping(path ="initiate/momo/deposit", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public PaymentResponseDto initiatePayment(@RequestBody InitiatePaymentRequestDto initiatePaymentRequestDto){
         return accountService.initiateMomoDeposit(initiatePaymentRequestDto);
     }
 
-    //@PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.READ', 'ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.READ', 'ADMIN_ROLE.READ')")
     @GetMapping(path = "/deposit/status/{transactionReferenceId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getDepositStatus(@PathVariable("transactionReferenceId") String transactionReferenceId){
         return accountService.getDepositPaymentStatus(transactionReferenceId);

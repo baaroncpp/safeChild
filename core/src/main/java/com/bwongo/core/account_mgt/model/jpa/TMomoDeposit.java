@@ -1,5 +1,6 @@
 package com.bwongo.core.account_mgt.model.jpa;
 
+import com.bwongo.core.account_mgt.model.enums.NetworkType;
 import com.bwongo.core.account_mgt.model.enums.TransactionStatus;
 import com.bwongo.core.base.model.jpa.AuditEntity;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
@@ -24,6 +25,7 @@ public class TMomoDeposit extends AuditEntity {
     private String externalReferenceId;
     private String depositorName;
     private TSchool school;
+    private NetworkType networkType;
 
     @Column(name = "amount_deposit")
     public BigDecimal getAmountDeposit() {
@@ -55,5 +57,11 @@ public class TMomoDeposit extends AuditEntity {
     @OneToOne(fetch = FetchType.LAZY)
     public TSchool getSchool() {
         return school;
+    }
+
+    @Column(name = "network_type")
+    @Enumerated(EnumType.STRING)
+    public NetworkType getNetworkType() {
+        return networkType;
     }
 }

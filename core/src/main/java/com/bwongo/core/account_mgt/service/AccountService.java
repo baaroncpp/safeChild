@@ -278,7 +278,7 @@ public class AccountService {
         momoDepositRepository.save(momoDeposit);
 
         var momoBankingDto = MomoBankingDto.builder()
-                .network(statusResponseDto.getData().getCurrencyName())
+                .network(momoDeposit.getNetworkType().name())
                 .phoneNumber(momoDeposit.getMsisdn())
                 .schoolAccount(schoolAccount.getAccountNumber())
                 .amount(amount)
