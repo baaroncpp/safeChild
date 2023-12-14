@@ -220,7 +220,7 @@ public class AccountService {
 
         var schoolAccount = new TAccount();
         if(existingSchoolAccount.isEmpty())
-            schoolAccount = createSchoolAccountIfNotExist(school);
+            schoolAccount = createSchoolAccountIfNotExist(school, auditUser);
 
         var schoolAccountBalanceCreditBefore = schoolAccount.getCurrentBalance();
         var schoolAccountBalanceCreditAfter = schoolAccountBalanceCreditBefore.add(amount);
@@ -266,7 +266,7 @@ public class AccountService {
         momoDepositRepository.save(momoDeposit);
     }
 
-    private TAccount createSchoolAccountIfNotExist(TSchool school){
+    private TAccount createSchoolAccountIfNotExist(TSchool school, TUser auditUser){
         var account = new TAccount();
         account.setSchool(school);
         account.setAccountNumber(school.getAccountNumber());
@@ -274,7 +274,9 @@ public class AccountService {
         account.setSchoolAccount(Boolean.TRUE);
         account.setCurrentBalance(BigDecimal.ZERO);
 
-        auditService.stampAuditedEntity(account);
+        auditService.stampLongEntity(account);
+        account.setCreatedBy(auditUser);
+        account.setModifiedBy(auditUser);
         return accountRepository.save(account);
     }
 
