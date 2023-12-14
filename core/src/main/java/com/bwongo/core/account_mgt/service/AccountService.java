@@ -231,6 +231,9 @@ public class AccountService {
         if(existingSchoolAccount.isEmpty())
             schoolAccount = createSchoolAccountIfNotExist(school, auditUser);
 
+
+        schoolAccount = existingSchoolAccount.get();
+
         var schoolAccountBalanceCreditBefore = schoolAccount.getCurrentBalance();
         var schoolAccountBalanceCreditAfter = schoolAccountBalanceCreditBefore.add(amount);
 
@@ -282,7 +285,7 @@ public class AccountService {
                 .build();
 
         var result = paymentService.makeCoreBakingMomoDeposit(momoBankingDto);
-        
+
         System.out.println(result.toString());
         System.out.println(result.getStatus().name());
 
