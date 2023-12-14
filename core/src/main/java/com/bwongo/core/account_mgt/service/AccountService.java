@@ -267,6 +267,9 @@ public class AccountService {
     }
 
     private TAccount createSchoolAccountIfNotExist(TSchool school, TUser auditUser){
+
+        System.out.println(school.toString());
+
         var account = new TAccount();
         account.setSchool(school);
         account.setAccountNumber(school.getAccountNumber());
