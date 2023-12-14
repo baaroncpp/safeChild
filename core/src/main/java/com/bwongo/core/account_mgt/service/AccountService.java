@@ -19,8 +19,11 @@ import com.bwongo.core.account_mgt.repository.TAccountTransactionRepository;
 import com.bwongo.core.account_mgt.repository.TCashFlowRepository;
 import com.bwongo.core.account_mgt.repository.TMomoDepositRepository;
 import com.bwongo.core.base.service.AuditService;
+import com.bwongo.core.core_banking.service.MemberService;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
+import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
+import com.bwongo.core.school_mgt.service.SchoolService;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +54,9 @@ public class AccountService {
     private final TMomoDepositRepository momoDepositRepository;
     private final TAccountTransactionRepository accountTransactionRepository;
     private final TCashFlowRepository cashFlowRepository;
+    private final MemberService memberService;
+    private final SchoolService schoolService;
+    private final SchoolRepository schoolRepository;
 
     private static final String DEPOSIT_NARRATION = "School sms account deposit";
     private static final String VENDOR_FAILED_CONNECTION = "Failed to initiate payment: CONNECTION TO TELECOM FAILED";
@@ -268,11 +274,22 @@ public class AccountService {
 
     private TAccount createSchoolAccountIfNotExist(TSchool school, TUser auditUser){
 
-        System.out.println(school.toString());
+        var accountNumber = school.getAccountNumber();
+        if(school.getAccountNumber().isEmpty() && school.getCoreBankingId() == null){
+            accountNumber = schoolService.getNonExistingSchoolAccountNumber();
+            var coreBankingId = memberService.addSchoolToCoreBanking(school);
+
+            school.setAccountNumber(accountNumber);
+            school.setCoreBankingId(coreBankingId);
+
+            auditService.stampLongEntity(school);
+            school.setModifiedBy(auditUser);
+            schoolRepository.save(school);
+        }
 
         var account = new TAccount();
         account.setSchool(school);
-        account.setAccountNumber(school.getAccountNumber());
+        account.setAccountNumber(accountNumber);
         account.setStatus(AccountStatus.ACTIVE);
         account.setSchoolAccount(Boolean.TRUE);
         account.setCurrentBalance(BigDecimal.ZERO);

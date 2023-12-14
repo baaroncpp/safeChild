@@ -129,7 +129,7 @@ public class SchoolService {
                 .collect(Collectors.toList());
     }
 
-    private String getNonExistingSchoolAccountNumber(){
+    public String getNonExistingSchoolAccountNumber(){
         var accountNumber = "";
         do {
             accountNumber = StringUtil.getRandom6DigitString();
