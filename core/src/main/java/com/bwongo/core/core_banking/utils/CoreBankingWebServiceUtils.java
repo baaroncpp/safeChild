@@ -7,6 +7,7 @@ import com.bwongo.core.base.model.enums.NotificationRoleEnum;
 import com.bwongo.core.base.model.enums.StudentStatus;
 import com.bwongo.core.base.model.enums.TripType;
 import com.bwongo.core.base.model.enums.UserTypeEnum;
+import com.bwongo.core.core_banking.model.dto.MomoBankingDto;
 import lombok.extern.slf4j.Slf4j;
 import nl.strohalm.cyclos.webservices.CyclosWebServicesClientFactory;
 import nl.strohalm.cyclos.webservices.accounts.AccountHistorySearchParameters;
@@ -37,6 +38,9 @@ public class CoreBankingWebServiceUtils {
     private CoreBankingWebServiceUtils() { }
 
     private static final String CORE_BANKING_URL = "http://127.0.0.1:8080/platform";
+    private static final String TEL_VENDOR = "vendor";
+    private static final String MOMO_ACCOUNT = "momo_acc";
+    private static final String SMS_MOMO_DEPOSIT = "SMS TOP UP";
 
     public static CyclosWebServicesClientFactory getWebServiceFactory(){
         var factory = new CyclosWebServicesClientFactory();
@@ -121,6 +125,31 @@ public class CoreBankingWebServiceUtils {
             Validate.filterException(CoreBankingWebServiceUtils.class, errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
         }
         Validate.notNull(CoreBankingWebServiceUtils.class, result, ExceptionType.RESOURCE_NOT_FOUND, STUDENT_NOT_FOUND, username);
+
+        return result;
+    }
+
+    public static PaymentResult makeMomoDeposit(MomoBankingDto momoBankingDto, Long transferTypeId){
+        var paymentWebService = CoreBankingWebServiceUtils.getWebServiceFactory().getPaymentWebService();
+
+        List<FieldValueVO> customParams = Arrays.asList(
+                new FieldValueVO(MOMO_ACCOUNT, momoBankingDto.getPhoneNumber()),
+                new FieldValueVO(TEL_VENDOR, momoBankingDto.getNetwork())
+        );
+
+        var params = new PaymentParameters();
+        params.setFromSystem(Boolean.TRUE);
+        params.setToMemberPrincipalType(MEMBER_PRINCIPLE_TYPE);
+        params.setTransferTypeId(transferTypeId);
+        params.setToMember(momoBankingDto.getSchoolAccount());
+        params.setCustomValues(customParams);
+        params.setAmount(momoBankingDto.getAmount());
+        params.setDescription(SMS_MOMO_DEPOSIT);
+
+        log.info(params.toString());
+
+        var result =  paymentWebService.doPayment(params);
+        processPaymentStatus(result);
 
         return result;
     }

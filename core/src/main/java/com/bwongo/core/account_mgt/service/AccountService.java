@@ -19,7 +19,9 @@ import com.bwongo.core.account_mgt.repository.TAccountTransactionRepository;
 import com.bwongo.core.account_mgt.repository.TCashFlowRepository;
 import com.bwongo.core.account_mgt.repository.TMomoDepositRepository;
 import com.bwongo.core.base.service.AuditService;
+import com.bwongo.core.core_banking.model.dto.MomoBankingDto;
 import com.bwongo.core.core_banking.service.MemberService;
+import com.bwongo.core.core_banking.service.PaymentService;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
@@ -57,6 +59,7 @@ public class AccountService {
     private final MemberService memberService;
     private final SchoolService schoolService;
     private final SchoolRepository schoolRepository;
+    private final PaymentService paymentService;
 
     private static final String DEPOSIT_NARRATION = "School sms account deposit";
     private static final String VENDOR_FAILED_CONNECTION = "Failed to initiate payment: CONNECTION TO TELECOM FAILED";
@@ -270,6 +273,20 @@ public class AccountService {
         auditService.stampLongEntity(momoDeposit);
         momoDeposit.setModifiedBy(auditUser);
         momoDepositRepository.save(momoDeposit);
+
+        var momoBankingDto = MomoBankingDto.builder()
+                .network(statusResponseDto.getData().getCurrencyName())
+                .phoneNumber(momoDeposit.getMsisdn())
+                .schoolAccount(schoolAccount.getAccountNumber())
+                .amount(amount)
+                .build();
+
+        var result = paymentService.makeCoreBakingMomoDeposit(momoBankingDto);
+        
+        System.out.println(result.toString());
+        System.out.println(result.getStatus().name());
+
+        Validate.isTrue(this, result.getStatus().isSuccessful(), ExceptionType.BAD_REQUEST, result.getStatus().name());
     }
 
     private TAccount createSchoolAccountIfNotExist(TSchool school, TUser auditUser){
