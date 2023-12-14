@@ -277,9 +277,9 @@ public class AccountService {
         var accountNumber = school.getAccountNumber();
         if((school.getAccountNumber() == null) && school.getCoreBankingId() == null){
             accountNumber = schoolService.getNonExistingSchoolAccountNumber();
+            school.setAccountNumber(accountNumber);
             var coreBankingId = memberService.addSchoolToCoreBanking(school);
 
-            school.setAccountNumber(accountNumber);
             school.setCoreBankingId(coreBankingId);
 
             auditService.stampLongEntity(school);
