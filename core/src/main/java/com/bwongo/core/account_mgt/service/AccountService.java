@@ -136,6 +136,7 @@ public class AccountService {
         var amount = momoDeposit.getAmountDeposit();
         var transactionReference = momoDeposit.getExternalReferenceId();
         var school = momoDeposit.getSchool();
+        var auditUser = momoDeposit.getCreatedBy();
 
         var statusResponseDto = new StatusResponseDto();
         try {
@@ -176,11 +177,16 @@ public class AccountService {
         mainAccountTransactionCredit.setBalanceBefore(mainSmsAccountAmountCreditBefore);
         mainAccountTransactionCredit.setBalanceAfter(mainSmsAccountAmountCreditAfter);
 
-        auditService.stampAuditedEntity(mainAccountTransactionCredit);
+        auditService.stampLongEntity(mainAccountTransactionCredit);
+        mainAccountTransactionCredit.setModifiedBy(auditUser);
+        mainAccountTransactionCredit.setCreatedBy(auditUser);
         accountTransactionRepository.save(mainAccountTransactionCredit);
 
         //update main account with deposit amount
         mainSmsAccount.setCurrentBalance(mainSmsAccountAmountCreditAfter);
+        auditService.stampLongEntity(mainSmsAccount);
+        mainSmsAccount.setCreatedBy(auditUser);
+        mainSmsAccount.setModifiedBy(auditUser);
         var updatedMainSmsAccount = accountRepository.save(mainSmsAccount);
 
         //Move amount from main sms account to school account
@@ -197,12 +203,16 @@ public class AccountService {
         mainAccountTransactionDebit.setBalanceBefore(mainSmsAccountAmountDebitBefore);
         mainAccountTransactionDebit.setBalanceAfter(mainSmsAccountAmountDebitAfter);
 
-        auditService.stampAuditedEntity(mainAccountTransactionDebit);
+        auditService.stampLongEntity(mainAccountTransactionDebit);
+        mainAccountTransactionDebit.setModifiedBy(auditUser);
+        mainAccountTransactionDebit.setCreatedBy(auditUser);
         var savedMainAccountTransactionDebit = accountTransactionRepository.save(mainAccountTransactionDebit);
 
         //update main account with debit amount moved to school account
         updatedMainSmsAccount.setCurrentBalance(mainSmsAccountAmountDebitAfter);
-        auditService.stampAuditedEntity(updatedMainSmsAccount);
+        auditService.stampLongEntity(updatedMainSmsAccount);
+        updatedMainSmsAccount.setModifiedBy(auditUser);
+        updatedMainSmsAccount.setCreatedBy(auditUser);
         accountRepository.save(updatedMainSmsAccount);
 
         //Credit school account
@@ -225,11 +235,15 @@ public class AccountService {
         schoolAccountTransaction.setBalanceBefore(schoolAccountBalanceCreditBefore);
         schoolAccountTransaction.setBalanceAfter(schoolAccountBalanceCreditAfter);
 
-        auditService.stampAuditedEntity(schoolAccountTransaction);
+        auditService.stampLongEntity(schoolAccountTransaction);
+        schoolAccountTransaction.setModifiedBy(auditUser);
+        schoolAccountTransaction.setCreatedBy(auditUser);
         var savedSchoolAccountTransaction = accountTransactionRepository.save(schoolAccountTransaction);
 
         schoolAccount.setCurrentBalance(schoolAccountBalanceCreditAfter);
-        auditService.stampAuditedEntity(schoolAccount);
+        auditService.stampLongEntity(schoolAccount);
+        schoolAccount.setModifiedBy(auditUser);
+        schoolAccount.setCreatedBy(auditUser);
         accountRepository.save(schoolAccount);
 
         //RECORD CASH-FLOW
@@ -241,11 +255,14 @@ public class AccountService {
         cashFlow.setFromAccountTransaction(savedMainAccountTransactionDebit);
         cashFlow.setCashFlowType(CashFlowType.MAIN_TO_BUSINESS);
 
-        auditService.stampAuditedEntity(cashFlow);
+        auditService.stampLongEntity(cashFlow);
+        cashFlow.setModifiedBy(auditUser);
+        cashFlow.setCreatedBy(auditUser);
         cashFlowRepository.save(cashFlow);
 
         //update momoDeposit
-        auditService.stampAuditedEntity(momoDeposit);
+        auditService.stampLongEntity(momoDeposit);
+        momoDeposit.setModifiedBy(auditUser);
         momoDepositRepository.save(momoDeposit);
     }
 
