@@ -275,7 +275,7 @@ public class AccountService {
     private TAccount createSchoolAccountIfNotExist(TSchool school, TUser auditUser){
 
         var accountNumber = school.getAccountNumber();
-        if(school.getAccountNumber().isEmpty() && school.getCoreBankingId() == null){
+        if((school.getAccountNumber() == null) && school.getCoreBankingId() == null){
             accountNumber = schoolService.getNonExistingSchoolAccountNumber();
             var coreBankingId = memberService.addSchoolToCoreBanking(school);
 
