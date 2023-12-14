@@ -36,7 +36,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.bwongo.core.account_mgt.utils.AccountMsgConstants.DEPOSIT_NOT_FOUND;
+import static com.bwongo.core.account_mgt.utils.AccountMsgConstants.*;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 
 /**
@@ -67,6 +67,23 @@ public class AccountService {
     private static final String SUCCEEDED = "SUCCEEDED";
     private static final String INDETERMINATE = "INDETERMINATE";
     private static final String FAILED = "FAILED";
+
+    public BigDecimal getAccountBalance(){
+
+        var staffId = auditService.getLoggedInUser().getId();
+        var staff = new TUser();
+        staff.setId(auditService.getLoggedInUser().getId());
+
+        var existingSchoolUser = schoolUserRepository.findByUser(staff);
+        Validate.isPresent(this, existingSchoolUser, SCHOOL_USER_NOT_FOUND, staffId);
+        var schoolUser = existingSchoolUser.get();
+
+        var existingSchoolAccount = accountRepository.findBySchool(schoolUser.getSchool());
+        Validate.isPresent(this, existingSchoolAccount, SCHOOL_HAS_NO_ACCOUNT);
+        var schoolAccount = existingSchoolAccount.get();
+
+        return schoolAccount.getCurrentBalance();
+    }
 
     public PaymentResponseDto initiateMomoDeposit(InitiatePaymentRequestDto initiatePaymentRequestDto){
 

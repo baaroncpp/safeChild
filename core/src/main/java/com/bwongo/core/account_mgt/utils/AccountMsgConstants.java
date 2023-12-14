@@ -14,5 +14,6 @@ public class AccountMsgConstants {
     public static final String DEPOSIT_NOT_FOUND = "MOMO deposit with transactionReference: %s not found";
     public static final String NULL_NETWORK = "network is null or empty";
     public static final String INVALID_NETWORK = "invalid network";
+    public static final String SCHOOL_HAS_NO_ACCOUNT = "School has no account, Please make your initial deposit";
 
 }

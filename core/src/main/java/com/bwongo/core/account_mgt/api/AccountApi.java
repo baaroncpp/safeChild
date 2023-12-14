@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 /**
  * @Author bkaaron
  * @Project nc
@@ -32,7 +34,13 @@ public class AccountApi {
 
     @PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.READ', 'ADMIN_ROLE.READ')")
     @GetMapping(path = "/deposit/status/{transactionReferenceId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getDepositStatus(@PathVariable("transactionReferenceId") String transactionReferenceId){
+    public PaymentResponseDto getDepositStatus(@PathVariable("transactionReferenceId") String transactionReferenceId){
         return accountService.getDepositPaymentStatus(transactionReferenceId);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.READ', 'ADMIN_ROLE.READ')")
+    @GetMapping(path = "account/balance", produces = MediaType.APPLICATION_JSON_VALUE)
+    public BigDecimal getSchoolAccountBalance(){
+        return accountService.getAccountBalance();
     }
 }
