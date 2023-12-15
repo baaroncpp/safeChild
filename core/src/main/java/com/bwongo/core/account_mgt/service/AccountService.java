@@ -5,10 +5,7 @@ import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.account_mgt.model.dto.*;
-import com.bwongo.core.account_mgt.model.enums.AccountStatus;
-import com.bwongo.core.account_mgt.model.enums.CashFlowType;
-import com.bwongo.core.account_mgt.model.enums.TransactionStatus;
-import com.bwongo.core.account_mgt.model.enums.TransactionType;
+import com.bwongo.core.account_mgt.model.enums.*;
 import com.bwongo.core.account_mgt.model.jpa.TAccount;
 import com.bwongo.core.account_mgt.model.jpa.TAccountTransaction;
 import com.bwongo.core.account_mgt.model.jpa.TCashFlow;
@@ -126,6 +123,7 @@ public class AccountService {
         momoDeposit.setExternalReferenceId(collectionResponseDto.getTransactionReference());
         momoDeposit.setDepositorName(depositorName);
         momoDeposit.setSchool(schoolUser.getSchool());
+        momoDeposit.setNetworkType(NetworkType.valueOf(initiatePaymentRequestDto.network()));
 
         auditService.stampAuditedEntity(momoDeposit);
         momoDepositRepository.save(momoDeposit);
