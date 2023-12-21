@@ -241,10 +241,17 @@ public class AccountService {
     }
 
     @Transactional
+    @Async("asyncTaskExecutor")
     public void updatePendingPaymentDeposits(){
         log.info(Thread.currentThread().getName());
         List<TMomoDeposit> momoDepositList = momoDepositRepository.findByTransactionStatus(TransactionStatus.PENDING);
-        momoDepositList.forEach(this::checkDepositStatus);
+        for(TMomoDeposit deposit : momoDepositList){
+            try{
+                checkDepositStatus(deposit);
+            }catch (Exception ex){
+                log.error(ex.getMessage());
+            }
+        }
     }
 
     public PaymentResponseDto getDepositPaymentStatus(String externalReferenceId){
