@@ -17,8 +17,10 @@ import com.bwongo.core.account_mgt.repository.TCashFlowRepository;
 import com.bwongo.core.account_mgt.repository.TMomoDepositRepository;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.core_banking.model.dto.MomoBankingDto;
+import com.bwongo.core.core_banking.model.dto.PaymentDto;
 import com.bwongo.core.core_banking.service.MemberService;
 import com.bwongo.core.core_banking.service.PaymentService;
+import com.bwongo.core.notify_mgt.repository.NotificationRepository;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
@@ -26,6 +28,9 @@ import com.bwongo.core.school_mgt.service.SchoolService;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -34,6 +39,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.bwongo.core.account_mgt.utils.AccountMsgConstants.*;
+import static com.bwongo.core.base.utils.EnumValidations.isAccountType;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 
 /**
@@ -57,10 +63,17 @@ public class AccountService {
     private final SchoolService schoolService;
     private final SchoolRepository schoolRepository;
     private final PaymentService paymentService;
+    private final NotificationRepository notificationRepository;
+    private final AccountDtoService accountDtoService;
+
+    @Value("${sms-account.notification.balance}")
+    private Long accountBalanceNotificationAmount;
 
     private static final String DEPOSIT_NARRATION = "School sms account deposit";
+    private static final String SMS_CHARGE_NOTE = "SMS charge";
     private static final String VENDOR_FAILED_CONNECTION = "Failed to initiate payment: CONNECTION TO TELECOM FAILED";
-    private static final String SMS_MAIN_ACCOUNT_NUMBER = "SMS256";
+    private static final String SMS_TOP_UP_ACCOUNT_NUMBER = "SMS256";
+    private static final String SMS_COLLECTION_ACCOUNT_NUMBER = "SMS256C";
     private static final String SUCCEEDED = "SUCCEEDED";
     private static final String INDETERMINATE = "INDETERMINATE";
     private static final String FAILED = "FAILED";
@@ -80,6 +93,99 @@ public class AccountService {
         var schoolAccount = existingSchoolAccount.get();
 
         return schoolAccount.getCurrentBalance();
+    }
+
+    @Transactional
+    public SmsPaymentResponseDto consumeSmsPayment(SmsPaymentRequestDto smsPaymentRequestDto){
+
+        smsPaymentRequestDto.validate();
+        var existingNotification = notificationRepository.findById(smsPaymentRequestDto.notificationId());
+        Validate.isPresent(this, existingNotification, NOTIFICATION_NOT_FOUND, smsPaymentRequestDto.notificationId());
+        var notification = existingNotification.get();
+
+        final var accountNumber = notification.getAccountNumber();
+        final var transactionReference = generatesMSExternalReference();
+
+        var existingSchoolAccount = accountRepository.findByAccountNumber(accountNumber);
+        Validate.isPresent(this, existingSchoolAccount, ACCOUNT_NUMBER_NOT_FOUND, accountNumber);
+        var schoolAccount = existingSchoolAccount.get();
+
+        var smsCost = schoolAccount.getSchool().getSmsCost();
+
+        var existingSmsCollectionAccount = accountRepository.findByAccountNumber(SMS_COLLECTION_ACCOUNT_NUMBER);
+        var smsCollectionAccount = new TAccount();
+        if(existingSmsCollectionAccount.isPresent())
+            smsCollectionAccount = existingSmsCollectionAccount.get();
+
+        //Credit school account
+        var schoolAccountBalanceBeforeCredit = schoolAccount.getCurrentBalance();
+        Validate.isTrue(this, schoolAccountBalanceBeforeCredit.compareTo(smsCost) > 0, ExceptionType.BAD_REQUEST, LOW_ACCOUNT_BALANCE, accountNumber);
+        var schoolAccountBalanceAfterCredit = schoolAccountBalanceBeforeCredit.subtract(smsCost);
+
+        var schoolAccountTransactionCredit = new TAccountTransaction();
+        schoolAccountTransactionCredit.setAccount(schoolAccount);
+        schoolAccountTransactionCredit.setTransactionStatus(TransactionStatus.SUCCESSFUL);
+        schoolAccountTransactionCredit.setNonReversal(Boolean.TRUE);
+        schoolAccountTransactionCredit.setTransactionType(TransactionType.ACCOUNT_CREDIT);
+        schoolAccountTransactionCredit.setNote(SMS_CHARGE_NOTE);
+        schoolAccountTransactionCredit.setExternalTransactionId(transactionReference);
+        schoolAccountTransactionCredit.setBalanceBefore(schoolAccountBalanceBeforeCredit);
+        schoolAccountTransactionCredit.setBalanceAfter(schoolAccountBalanceAfterCredit);
+
+        auditService.stampAuditedEntity(schoolAccountTransactionCredit);
+        var savedSchoolAccountTransaction = accountTransactionRepository.save(schoolAccountTransactionCredit);
+
+        schoolAccount.setCurrentBalance(schoolAccountBalanceAfterCredit);
+        auditService.stampAuditedEntity(schoolAccount);
+        accountRepository.save(schoolAccount);
+
+        //Debit sms collection account
+        var smsCollectionAccountBalanceBeforeDebit = smsCollectionAccount.getCurrentBalance();
+        var smsCollectionAccountBalanceAfterDebit = smsCollectionAccountBalanceBeforeDebit.add(smsCost);
+
+        var smsCollectionAccountTransactionDebit = new TAccountTransaction();
+        smsCollectionAccountTransactionDebit.setAccount(smsCollectionAccount);
+        smsCollectionAccountTransactionDebit.setTransactionStatus(TransactionStatus.SUCCESSFUL);
+        smsCollectionAccountTransactionDebit.setNonReversal(Boolean.TRUE);
+        smsCollectionAccountTransactionDebit.setTransactionType(TransactionType.ACCOUNT_DEBIT);
+        smsCollectionAccountTransactionDebit.setNote(SMS_CHARGE_NOTE);
+        smsCollectionAccountTransactionDebit.setExternalTransactionId(transactionReference);
+        smsCollectionAccountTransactionDebit.setBalanceBefore(smsCollectionAccountBalanceBeforeDebit);
+        smsCollectionAccountTransactionDebit.setBalanceAfter(smsCollectionAccountBalanceAfterDebit);
+
+        auditService.stampAuditedEntity(smsCollectionAccountTransactionDebit);
+        var savedSmsCollectionAccountTransaction = accountTransactionRepository.save(smsCollectionAccountTransactionDebit);
+
+        smsCollectionAccount.setCurrentBalance(smsCollectionAccountBalanceAfterDebit);
+        auditService.stampAuditedEntity(smsCollectionAccount);
+        accountRepository.save(smsCollectionAccount);
+
+        //Cash flow
+        var cashFlow = new TCashFlow();
+        cashFlow.setAmount(smsCost);
+        cashFlow.setToAccount(smsCollectionAccount);
+        cashFlow.setFromAccount(schoolAccount);
+        cashFlow.setToAccountTransaction(savedSmsCollectionAccountTransaction);
+        cashFlow.setFromAccountTransaction(savedSchoolAccountTransaction);
+        cashFlow.setCashFlowType(CashFlowType.BUSINESS_TO_MAIN);
+
+        auditService.stampAuditedEntity(cashFlow);
+        cashFlowRepository.save(cashFlow);
+
+        var smsPayment = new PaymentDto();
+
+        smsPayment.setSchoolAccount(schoolAccount.getAccountNumber());
+        smsPayment.setStudentSchoolName(schoolAccount.getSchool().getSchoolName());
+        smsPayment.setAppRef("SAFE-CHILD-CORE");
+
+        var paymentResult = paymentService.makeCoreBankingSmsPayment(smsPayment);
+        var status = paymentResult.getStatus().name();
+        Validate.isTrue(this, paymentResult.getStatus().isSuccessful(), ExceptionType.BAD_REQUEST, PAYMENT_FAILED_AT_CORE_BANKING, status);
+
+        return new SmsPaymentResponseDto(
+            transactionReference,
+            status
+        );
     }
 
     public PaymentResponseDto initiateMomoDeposit(InitiatePaymentRequestDto initiatePaymentRequestDto){
@@ -135,12 +241,11 @@ public class AccountService {
     }
 
     @Transactional
+    @Async("asyncTaskExecutor")
     public void updatePendingPaymentDeposits(){
+        log.info(Thread.currentThread().getName());
         List<TMomoDeposit> momoDepositList = momoDepositRepository.findByTransactionStatus(TransactionStatus.PENDING);
-
-        for(TMomoDeposit deposit : momoDepositList){
-            checkDepositStatus(deposit);
-        }
+        momoDepositList.forEach(this::checkDepositStatus);
     }
 
     public PaymentResponseDto getDepositPaymentStatus(String externalReferenceId){
@@ -183,7 +288,7 @@ public class AccountService {
         //Persist deposit
 
         //Credit main sms account with deposited amount
-        var existingMainSmsAccount = accountRepository.findByAccountNumber(SMS_MAIN_ACCOUNT_NUMBER);
+        var existingMainSmsAccount = accountRepository.findByAccountNumber(SMS_TOP_UP_ACCOUNT_NUMBER);
         var mainSmsAccount = new TAccount();
         if(existingMainSmsAccount.isPresent())
             mainSmsAccount = existingMainSmsAccount.get();
@@ -301,10 +406,27 @@ public class AccountService {
 
         var result = paymentService.makeCoreBakingMomoDeposit(momoBankingDto);
 
-        System.out.println(result.toString());
-        System.out.println(result.getStatus().name());
-
         Validate.isTrue(this, result.getStatus().isSuccessful(), ExceptionType.BAD_REQUEST, result.getStatus().name());
+    }
+
+    public void sendLowAccountBalanceNotification(){
+        var lowBalanceAccounts = accountRepository.findAllByCurrentBalanceIsLessThanAndSchoolAccount(BigDecimal.valueOf(accountBalanceNotificationAmount), Boolean.TRUE);
+
+    }
+
+    public List<AccountResponseDto> getAccounts(String stringAccountType, Pageable pageable){
+
+        Validate.isTrue(this, isAccountType(stringAccountType), ExceptionType.BAD_REQUEST, INVALID_ACCOUNT_TYPE, stringAccountType);
+
+        var isSchoolAccount = Boolean.FALSE;
+        var accountType = AccountType.valueOf(stringAccountType);
+
+        if(accountType.equals(AccountType.SCHOOL))
+            isSchoolAccount = Boolean.TRUE;
+
+        return accountRepository.findAllBySchoolAccount(isSchoolAccount, pageable).stream()
+                .map(accountDtoService::accountToDto)
+                .toList();
     }
 
     private TAccount createSchoolAccountIfNotExist(TSchool school, TUser auditUser){
@@ -337,5 +459,9 @@ public class AccountService {
 
     private String generateExternalReference(){
         return "NC"+ StringUtil.randomString().toUpperCase().substring(0, 14);
+    }
+
+    private String generatesMSExternalReference(){
+        return "SMS"+ StringUtil.randomString().toUpperCase().substring(0, 12);
     }
 }

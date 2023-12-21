@@ -60,4 +60,8 @@ public class WebClientService {
                 .bodyToMono(String.class)
                 .block();
     }
+
+    public Object makeSmsPayment(){
+        return null;
+    }
 }

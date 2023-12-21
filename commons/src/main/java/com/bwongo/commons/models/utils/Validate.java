@@ -4,7 +4,7 @@ import com.bwongo.commons.models.exceptions.BadCredentialsException;
 import com.bwongo.commons.models.exceptions.BadRequestException;
 import com.bwongo.commons.models.exceptions.InsufficientAuthenticationException;
 import com.bwongo.commons.models.exceptions.ResourceNotFoundException;
-import com.bwongo.commons.models.exceptions.model.AccessDeniedException;
+import com.bwongo.commons.models.exceptions.AccessDeniedException;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import org.springframework.util.StringUtils;
 

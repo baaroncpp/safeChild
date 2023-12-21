@@ -10,9 +10,9 @@ spring:
     username: ${QUEUE_USERNAME:guest}
     password: ${QUEUE_PASSWORD:guest}
   datasource:
-    url: jdbc:postgresql://${KB_DB_HOST:localhost}:${KB_DB_PORT:5432}/${KB_DB:safe_child_db}
-    username: ${KB_DB_USERNAME:aaron}
-    password: ${KB_DB_PASSWORD:aaron}
+    url: jdbc:postgresql://${SC_DB_HOST:localhost}:${SC_DB_PORT:5432}/${SC_DB:safe_child_db}
+    username: ${SC_DB_USERNAME:aaron}
+    password: ${SC_DB_PASSWORD:aaron}
   jpa:
     show-sql: true
     hibernate:
@@ -23,11 +23,23 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
   flyway:
-    url: jdbc:postgresql://${KB_DB_HOST:localhost}:${KB_DB_PORT:5432}/${KB_DB:safe_child_db}
-    user: ${KB_DB_USERNAME:aaron}
-    password: ${KB_DB_PASSWORD:aaron}
+    url: jdbc:postgresql://${SC_DB_HOST:localhost}:${SC_DB_PORT:5432}/${SC_DB:safe_child_db}
+    user: ${SC_DB_USERNAME:aaron}
+    password: ${SC_DB_PASSWORD:aaron}
     schemas: core
     locations: classpath:db/migration
+
+  mail:
+    host: smtp.nardconcepts.com
+    port: 587
+    username: safechild@nardconcepts.com
+    password: l2H6DiKlJc)J
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 app:
   security:
@@ -52,7 +64,12 @@ core-banking:
     school-staff: 19
 
 accounts:
-  sms: SCH2023
+  sms: ${SMS_COLLECTION_ACCOUNT:SCH2023}
+
+
+sms-account:
+  notification:
+    balance: 10000
 
 transfer-type:
   sms-notification: 29
@@ -74,12 +91,14 @@ notification:
     on-school: Hi Parent! Your Child With ID %s has been received at %s by a %s with ID %s at %s
     off-school: Hi Parent! Your Child With ID %s has been signed out by a %s with ID %s from %s at %s
 
+  email:
+    account-balance:
+      subject: SAFE CHILD, Low Balance Alert
+      body: Thank you for your attention to this matter. Best regards, Nard Concepts Holdings EA
+
 
 zenga-pay:
-  #access-token: ZPYPUBK-d9849e82d46810623d413fdd3e69a49e95df28d9b2672baf46b819a8768ebb3f
-  access-token: ZPYPUBK-77260e020bfd827ddd81d11089012cc557269811f2b060658c71b574af3ca2ce
+  access-token: ${ZENGA_ACCESS_TOKEN:ZPYPUBK-77260e020bfd827ddd81d11089012cc557269811f2b060658c71b574af3ca2ce}
   url:
     collections: https://api.zengapay.com/v1/collections
-    #collections: https://api.sandbox.zengapay.com/v1/collections
     status: https://api.zengapay.com/v1/collections/
-    #status: https://api.sandbox.zengapay.com/v1/collections/

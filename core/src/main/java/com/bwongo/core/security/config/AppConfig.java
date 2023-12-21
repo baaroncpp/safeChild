@@ -5,15 +5,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.concurrent.Executor;
 
 /**
  * @Author bkaaron
  * @Project nc
  * @Date 8/6/23
  **/
+@EnableAsync
 @Configuration
 @ComponentScan("com.bwongo.core.security.config")
 @EnableJpaRepositories({"com.bwongo.core.user_mgt.repository",
@@ -46,6 +51,18 @@ public class AppConfig {
     @Bean
     public WebClient getWebClient(){
         return WebClient.create();
+    }
+
+    @Bean(name = "asyncTaskExecutor")
+    public Executor asyncTaskExecutor(){
+        var taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(4);
+        taskExecutor.setQueueCapacity(150);
+        taskExecutor.setMaxPoolSize(4);
+        taskExecutor.setThreadNamePrefix("AsyncTaskThread");
+        taskExecutor.initialize();
+
+        return taskExecutor;
     }
 
 }

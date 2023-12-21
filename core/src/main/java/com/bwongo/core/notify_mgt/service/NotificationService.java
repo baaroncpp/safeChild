@@ -4,6 +4,7 @@ import com.bwongo.commons.models.exceptions.BadRequestException;
 import com.bwongo.commons.models.utils.DateTimeUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
+import com.bwongo.core.account_mgt.repository.TAccountRepository;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.model.jpa.TLocation;
 import com.bwongo.core.base.repository.TLocationRepository;
@@ -85,6 +86,7 @@ public class NotificationService {
     private final MessageBrokerService messageBrokerService;
     private final TripRepository tripRepository;
     private final StudentDtoService studentDtoService;
+    private final TAccountRepository accountRepository;
 
     private TStudent getStudentByUsername(String username){
         var existingStudent = studentRepository.findByStudentUsername(username);
@@ -233,12 +235,19 @@ public class NotificationService {
                 .map(studentGuardian -> studentGuardian.getGuardian().getPhoneNumber())
                 .toList();
 
+        var accountNumber = "";
+        var existingAccount = accountRepository.findBySchool(school);
+        if(existingAccount.isPresent()){
+            accountNumber = existingAccount.get().getAccountNumber();
+        }
+
         return sendSms(guardianPhoneNumbers,
                 StudentStatus.valueOf(stringStudentStatus),
                 student.getStudentUsername(),
                 staff.getUsername(),
                 staff.getUserType(),
-                schoolUser.getSchool().getSchoolName());
+                schoolUser.getSchool().getSchoolName(),
+                accountNumber);
     }
 
     @Transactional
@@ -302,6 +311,13 @@ public class NotificationService {
         var studentTravel = new StudentTravel();
         var studentDay = new StudentDay();
 
+        var accountNumber = "";
+
+        var existingAccount = accountRepository.findBySchool(school);
+        if(existingAccount.isPresent()){
+            accountNumber = existingAccount.get().getAccountNumber();
+        }
+
         studentDay.setStaff(staff);
         studentDay.setStudent(student);
         studentDay.setSchool(school);
@@ -327,12 +343,13 @@ public class NotificationService {
                 student.getStudentUsername(),
                 staff.getUsername(),
                 staff.getUserType(),
-                school.getSchoolName());
+                school.getSchoolName(),
+                accountNumber);
     }
 
     private NotificationResponseDto sendSms(List<String> guardianPhoneNumbers, StudentStatus studentStatus,
                                             String studentUsername, String staffUsername,
-                                            UserTypeEnum userType, String schoolName){
+                                            UserTypeEnum userType, String schoolName, String accountNumber){
 
         var message = getSms(studentStatus, studentUsername,
                 trimSchoolName(schoolName), userType.getNote(), staffUsername);
@@ -346,6 +363,7 @@ public class NotificationService {
             notification.setReceiver(receiver);
             notification.setStatus(SmsStatus.PENDING);
             notification.setCreatedOn(getCurrentUTCTime());
+            notification.setAccountNumber(accountNumber);
 
             var notify = notificationRepository.save(notification);
             messageBrokerService.sendSms(notify);

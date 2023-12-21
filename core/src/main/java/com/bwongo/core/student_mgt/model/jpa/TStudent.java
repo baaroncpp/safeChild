@@ -28,6 +28,7 @@ public class TStudent extends AuditEntity {
     private boolean canBeNotified;
     private Long coreBankingId;
     private String physicalAddress;
+    private String qrCode;
 
     @Column(name = "student_username")
     public String getStudentUsername() {
@@ -93,5 +94,10 @@ public class TStudent extends AuditEntity {
     @Column(name = "physical_address")
     public String getPhysicalAddress() {
         return physicalAddress;
+    }
+
+    @Column(name = "qr_code")
+    public String getQrCode() {
+        return qrCode;
     }
 }

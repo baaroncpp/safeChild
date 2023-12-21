@@ -1,7 +1,7 @@
 package com.bwongo.core.base.exceptions;
 
 import com.bwongo.commons.models.exceptions.*;
-import com.bwongo.commons.models.exceptions.model.AccessDeniedException;
+import com.bwongo.commons.models.exceptions.AccessDeniedException;
 import com.bwongo.commons.models.exceptions.model.ExceptionPayLoad;
 import com.bwongo.core.base.model.enums.LogLevelEnum;
 import com.bwongo.core.base.model.jpa.TLog;

@@ -1,5 +1,7 @@
 package com.bwongo.core.base.model.jpa;
 
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -9,6 +11,7 @@ import java.util.Date;
  * @Project kabangali
  * @Date 27/05/2022
  */
+@Setter
 @MappedSuperclass
 public class BaseEntity implements Serializable {
     private Long id;
@@ -22,18 +25,10 @@ public class BaseEntity implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Column(name = "created_on",insertable =false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     public Date getCreatedOn() {
         return createdOn;
-    }
-
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
     }
 
     @Column(name = "modified_on")
@@ -42,7 +37,4 @@ public class BaseEntity implements Serializable {
         return modifiedOn;
     }
 
-    public void setModifiedOn(Date modifiedOn) {
-        this.modifiedOn = modifiedOn;
-    }
 }

@@ -31,6 +31,7 @@ public class Notification extends BaseEntity {
     private String statusNote;
     private String transactionId;
     private String externalTransactionId;
+    private String accountNumber;
 
     @Column(name = "receiver")
     public String getReceiver() {
@@ -66,5 +67,10 @@ public class Notification extends BaseEntity {
     @Column(name = "external_transaction_id")
     public String getExternalTransactionId() {
         return externalTransactionId;
+    }
+
+    @Column(name = "account_number")
+    public String getAccountNumber() {
+        return accountNumber;
     }
 }

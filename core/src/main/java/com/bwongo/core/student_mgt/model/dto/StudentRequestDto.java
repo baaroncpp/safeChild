@@ -22,7 +22,8 @@ public record StudentRequestDto(
           String studentClass,
           Long schoolId,
           boolean canBeNotified,
-          String physicalAddress
+          String physicalAddress,
+          String qrCodeString
 ) {
     public void validate(){
         Validate.notEmpty(this, firstName, NULL_FIRST_NAME);

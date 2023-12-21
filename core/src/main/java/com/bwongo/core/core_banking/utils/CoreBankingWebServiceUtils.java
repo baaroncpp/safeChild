@@ -19,6 +19,8 @@ import nl.strohalm.cyclos.webservices.payments.PaymentResult;
 import static com.bwongo.core.core_banking.utils.CoreBankingMsgConstant.*;
 import com.bwongo.core.core_banking.model.dto.PaymentDto;
 import com.bwongo.core.notify_mgt.model.dto.*;
+import org.springframework.beans.factory.annotation.Value;
+
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.STUDENT_NOT_FOUND;
 
 import java.math.BigDecimal;
@@ -154,14 +156,14 @@ public class CoreBankingWebServiceUtils {
         return result;
     }
 
-    public static PaymentResult makeCyclosPayment(PaymentDto paymentDto){
+    public static PaymentResult makeSmsPayment(PaymentDto paymentDto){
         var paymentWebService = CoreBankingWebServiceUtils.getWebServiceFactory().getPaymentWebService();
 
         List<FieldValueVO> customParams = Arrays.asList(
                 new FieldValueVO(STUDENT_SCHOOL, paymentDto.getStudentSchoolName()),
-                new FieldValueVO(PERFORMED_BY, paymentDto.getStaffUsername()),
+                new FieldValueVO(PERFORMED_BY, "NOT DEFINED"),
                 new FieldValueVO(APP_REF, paymentDto.getAppRef()),
-                new FieldValueVO(STUDENT_STATUS, paymentDto.getStudentStatus().name())
+                new FieldValueVO(STUDENT_STATUS, "NOT DEFINED")
         );
 
         var params = new PaymentParameters();

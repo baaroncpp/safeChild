@@ -27,6 +27,7 @@ public record StudentResponseDto(
         String idImagePathUrl,
         boolean canBeNotified,
         String physicalAddress,
-        String studentUsername
+        String studentUsername,
+        String qrCodeString
 ) {
 }

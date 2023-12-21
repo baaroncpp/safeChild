@@ -349,6 +349,7 @@ public class UserService {
                 }
         );
         auditService.stampLongEntity(user);
+        userRepository.save(user);
 
         return userDtoService.tUserToDto(userRepository.save(user));
     }

@@ -2,6 +2,7 @@ package com.bwongo.core.base.model.jpa;
 
 
 import com.bwongo.core.user_mgt.model.jpa.TUser;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import javax.persistence.*;
  */
 @MappedSuperclass
 @ToString
+@Setter
 public class AuditEntity extends BaseEntity{
     private TUser createdBy;
     private TUser modifiedBy;
@@ -24,26 +26,14 @@ public class AuditEntity extends BaseEntity{
         return createdBy;
     }
 
-    public void setCreatedBy(TUser createdBy) {
-        this.createdBy = createdBy;
-    }
-
     @JoinColumn(name = "modified_by", referencedColumnName = "id", insertable = true)
     @OneToOne(fetch = FetchType.LAZY)
     public TUser getModifiedBy() {
         return modifiedBy;
     }
 
-    public void setModifiedBy(TUser modifiedBy) {
-        this.modifiedBy = modifiedBy;
-    }
-
     @Column(name = "is_deleted")
     public boolean isDeleted() {
         return isDeleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
     }
 }

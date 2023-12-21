@@ -23,4 +23,9 @@ public class ScheduledEvents {
         log.info("Momo deposit transaction update Scheduler");
         accountService.updatePendingPaymentDeposits();
     }
+
+    //TODO runs once a day and put on background thread
+    public void notifyUsersWithLowAccountBalance(){
+
+    }
 }

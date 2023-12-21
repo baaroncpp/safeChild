@@ -1,5 +1,6 @@
 package com.bwongo.core.base.utils;
 
+import com.bwongo.core.account_mgt.model.enums.AccountType;
 import com.bwongo.core.account_mgt.model.enums.NetworkType;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.user_mgt.model.jpa.TPermission;
@@ -135,5 +136,13 @@ public class EnumValidations {
                 NetworkType.AIRTEL.name()
         );
         return networkTypeList.contains(value);
+    }
+
+    public static boolean isAccountType(String value){
+        List<String> accountTypeList = Arrays.asList(
+                AccountType.SCHOOL.name(),
+                AccountType.SYSTEM.name()
+        );
+        return accountTypeList.contains(value);
     }
 }
