@@ -241,7 +241,6 @@ public class AccountService {
     }
 
     @Transactional
-    @Async("asyncTaskExecutor")
     public void updatePendingPaymentDeposits(){
         log.info(Thread.currentThread().getName());
         List<TMomoDeposit> momoDepositList = momoDepositRepository.findByTransactionStatus(TransactionStatus.PENDING);
