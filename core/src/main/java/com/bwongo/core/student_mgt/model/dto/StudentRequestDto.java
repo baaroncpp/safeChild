@@ -38,6 +38,6 @@ public record StudentRequestDto(
             StringRegExUtil.stringOfEmail(this, email, INVALID_EMAIL, email);
 
         if(!nationalIdNumber.isEmpty())
-            Validate.isTrue(this,nationalIdNumber.length() > 20, ExceptionType.BAD_REQUEST, VALUE_TOO_LONG, "nationalIdNumber", nationalIdNumber.length());
+            Validate.isTrue(this,nationalIdNumber.length() < 20, ExceptionType.BAD_REQUEST, VALUE_TOO_LONG, "nationalIdNumber", nationalIdNumber.length());
     }
 }
