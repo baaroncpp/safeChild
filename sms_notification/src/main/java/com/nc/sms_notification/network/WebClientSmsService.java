@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -17,7 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  **/
 @Service
 @Slf4j
-public class WebClientService {
+public class WebClientSmsService {
 
     @Value("${pandora-sms.url}")
     private String pandoraSmsUrl;

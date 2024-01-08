@@ -215,10 +215,11 @@ public class AccountService {
         try {
             collectionResponseDto = zengaPayApiCall.initiatePayment(collectionRequestDto);
         }catch (Exception ex){
+            //TODO record failed transaction
             log.error(VENDOR_FAILED_CONNECTION + " : " + ex.getMessage());
             throw new BadRequestException(this, VENDOR_FAILED_CONNECTION);
         }
-
+        //TODO record failed transaction
         Validate.isTrue(this, collectionResponseDto.getCode() == 202, ExceptionType.BAD_REQUEST, collectionResponseDto.getMessage());
 
         //Persist deposit
