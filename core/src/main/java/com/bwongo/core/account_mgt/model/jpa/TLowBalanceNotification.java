@@ -30,12 +30,12 @@ public class TLowBalanceNotification extends BaseEntity {
     }
 
     @Column(name = "last_notified")
+    @Temporal(TemporalType.TIMESTAMP)
     public Date getLastNotified() {
         return lastNotified;
     }
 
     @Column(name = "amount_notified_at")
-    @Temporal(TemporalType.TIMESTAMP)
     public BigDecimal getAmountNotifiedAt() {
         return amountNotifiedAt;
     }
