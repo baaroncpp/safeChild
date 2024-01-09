@@ -18,6 +18,7 @@ import java.util.Optional;
  **/
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
+    List<Trip> findAllByTripStatus(TripStatus tripStatus);
     Optional<Trip> findBySchoolStaffAndTripStatus(TUser user, TripStatus tripStatus);
     List<Trip> findAllBySchoolStaff(TUser user, Pageable pageable);
     List<Trip> findAllBySchoolStaffAndCreatedOnBetween(TUser user, Date fromDate, Date toDate, Pageable pageable);

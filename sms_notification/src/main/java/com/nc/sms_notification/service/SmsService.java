@@ -1,6 +1,5 @@
 package com.nc.sms_notification.service;
 
-import com.nc.sms_notification.exceptions.BadRequestException;
 import com.nc.sms_notification.model.dto.SmsPaymentRequestDto;
 import com.nc.sms_notification.model.dto.SmsPaymentResponseDto;
 import com.nc.sms_notification.model.enums.SmsStatus;
@@ -44,7 +43,9 @@ public class SmsService {
 
             if(smsPaymentResponseDto != null &&
                     !notification.getStatus().equals(SmsStatus.SUCCESS) &&
-                    smsPaymentResponseDto.coreBankingStatus().contains("SUCCESS")){
+                    smsPaymentResponseDto.coreBankingStatus().contains("PROCESSED")){
+
+                log.info("Core Banking status: " + smsPaymentResponseDto.coreBankingStatus());
 
                 var smsResponse = webClientSmsService.makeSmsCall(notification.getReceiver(), notification.getMessage());
                 log.info(smsResponse);

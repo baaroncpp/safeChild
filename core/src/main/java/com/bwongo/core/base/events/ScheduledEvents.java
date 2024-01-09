@@ -1,6 +1,7 @@
-package com.bwongo.core.account_mgt.event;
+package com.bwongo.core.base.events;
 
 import com.bwongo.core.account_mgt.service.AccountService;
+import com.bwongo.core.trip_mgt.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class ScheduledEvents {
 
     private final AccountService accountService;
+    private final TripService tripService;
 
     @Scheduled(fixedDelay = 60000)
     public void updatePendingMomoDeposits(){
@@ -24,8 +26,8 @@ public class ScheduledEvents {
         accountService.updatePendingPaymentDeposits();
     }
 
-    //TODO runs once a day and put on background thread
-    public void notifyUsersWithLowAccountBalance(){
-
+    @Scheduled(cron = "0 0 0 * * *")
+    public void endAllOpenAndInProgressTripsAtMidnight(){
+        tripService.endAllOpenTrips();
     }
 }

@@ -29,6 +29,7 @@ import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.bwongo.core.trip_mgt.utils.TripUtils.getRemainingStudentsOnTrip;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
@@ -52,6 +53,20 @@ public class TripService {
     private final StudentTravelRepository studentTravelRepository;
     private final SchoolUserRepository schoolUserRepository;
     private final AuditService auditService;
+
+    public void endAllOpenTrips(){
+        var openTrips = tripRepository.findAllByTripStatus(OPEN);
+        var inProgressTrips = tripRepository.findAllByTripStatus(IN_PROGRESS);
+
+        var tripList = Stream.concat(openTrips.stream(), inProgressTrips.stream()).toList();
+        tripList.forEach(
+                trip -> {
+                    trip.setTripStatus(ENDED);
+                    auditService.stampAuditedEntity(trip);
+                    tripRepository.save(trip);
+                }
+        );
+    }
 
     public List<TripResponseDto> getTripsByDriverUsernameAndDate(String driverUsername,
                                                                  String fromStringDate,
