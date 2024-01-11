@@ -74,5 +74,11 @@ public class TripMobileAppApi {
     public TripResponseDto endTrip(@PathVariable("id") Long id){
         return tripService.endTrip(id);
     }
+
+    @PreAuthorize("hasAnyAuthority('MOBILE_APP_ROLE.READ','ADMIN_ROLE.READ')")
+    @GetMapping(path = "trip/report/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<StudentTripReportResponseDto> getTripReport(@PathVariable("id") Long tripId){
+        return tripService.getTripReport(tripId);
+    }
 }
 

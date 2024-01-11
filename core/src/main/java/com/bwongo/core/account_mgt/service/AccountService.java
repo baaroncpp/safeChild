@@ -11,10 +11,7 @@ import com.bwongo.core.account_mgt.model.jpa.TAccountTransaction;
 import com.bwongo.core.account_mgt.model.jpa.TCashFlow;
 import com.bwongo.core.account_mgt.model.jpa.TMomoDeposit;
 import com.bwongo.core.account_mgt.network.ZengaPayApiCall;
-import com.bwongo.core.account_mgt.repository.TAccountRepository;
-import com.bwongo.core.account_mgt.repository.TAccountTransactionRepository;
-import com.bwongo.core.account_mgt.repository.TCashFlowRepository;
-import com.bwongo.core.account_mgt.repository.TMomoDepositRepository;
+import com.bwongo.core.account_mgt.repository.*;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.core_banking.model.dto.MomoBankingDto;
 import com.bwongo.core.core_banking.model.dto.PaymentDto;
@@ -36,6 +33,8 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.bwongo.core.account_mgt.utils.AccountMsgConstants.*;
@@ -65,6 +64,7 @@ public class AccountService {
     private final PaymentService paymentService;
     private final NotificationRepository notificationRepository;
     private final AccountDtoService accountDtoService;
+    private final TLowBalanceNotificationRepository lowBalanceNotificationRepository;
 
     @Value("${sms-account.notification.balance}")
     private Long accountBalanceNotificationAmount;
@@ -416,9 +416,22 @@ public class AccountService {
         Validate.isTrue(this, result.getStatus().isSuccessful(), ExceptionType.BAD_REQUEST, result.getStatus().name());
     }
 
-    public void sendLowAccountBalanceNotification(){
-        var lowBalanceAccounts = accountRepository.findAllByCurrentBalanceIsLessThanAndSchoolAccount(BigDecimal.valueOf(accountBalanceNotificationAmount), Boolean.TRUE);
+    public void sendLowAccountBalanceNotification(TAccount account){
+        var existingBalanceNotification = lowBalanceNotificationRepository.findTopBySchoolAccount(account);
 
+        if(existingBalanceNotification.isPresent()) {
+
+            var lastNotification = existingBalanceNotification.get().getLastNotified();
+            var calendar = Calendar.getInstance();
+            calendar.setTime(lastNotification);
+            calendar.add(Calendar.DATE, 7);
+
+            if (calendar.getTime().compareTo(new Date()) < 0){
+                //TODO send email
+            }
+        }else{
+            //TODO send email
+        }
     }
 
     public List<AccountResponseDto> getAccounts(String stringAccountType, Pageable pageable){

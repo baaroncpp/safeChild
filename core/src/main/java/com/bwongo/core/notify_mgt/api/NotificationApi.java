@@ -4,6 +4,7 @@ import com.bwongo.core.notify_mgt.model.dto.BulkSignInRequestDto;
 import com.bwongo.core.notify_mgt.model.dto.BulkSignInResponse;
 import com.bwongo.core.notify_mgt.model.dto.NotificationDriverDto;
 import com.bwongo.core.notify_mgt.model.dto.NotificationDto;
+import com.bwongo.core.notify_mgt.service.MailService;
 import com.bwongo.core.notify_mgt.service.NotificationService;
 import com.bwongo.core.student_mgt.model.dto.StudentDayResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -30,6 +33,12 @@ import java.util.List;
 public class NotificationApi {
 
     private final NotificationService notificationService;
+    private final MailService mailService;
+
+    @GetMapping(path = "not/test")
+    public void testEmail() throws MessagingException, UnsupportedEncodingException {
+        mailService.sendEmail();
+    }
 
     @Operation(summary = "Send or create student notification by a driver")
     @PreAuthorize("hasAnyAuthority('MOBILE_APP_ROLE.WRITE','ADMIN_ROLE.WRITE')")

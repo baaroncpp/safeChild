@@ -17,17 +17,9 @@ import java.util.Date;
 @Table(name = "t_low_balance_notification")
 @Setter
 public class TLowBalanceNotification extends BaseEntity {
-    private TSchool school;
     private Date lastNotified;
     private BigDecimal amountNotifiedAt;
     private TAccount schoolAccount;
-
-
-    @JoinColumn(name = "school_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    public TSchool getSchool() {
-        return school;
-    }
 
     @Column(name = "last_notified")
     @Temporal(TemporalType.TIMESTAMP)

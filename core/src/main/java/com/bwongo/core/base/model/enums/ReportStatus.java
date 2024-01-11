@@ -3,8 +3,8 @@ package com.bwongo.core.base.model.enums;
 /**
  * @Author bkaaron
  * @Project nc
- * @Date 7/17/23
+ * @Date 1/10/24
  **/
-public enum TripStatus {
-    OPEN, IN_PROGRESS, ENDED, INCOMPLETE
+public enum ReportStatus {
+    FAILED, PENDING, SUCCESSFUL
 }

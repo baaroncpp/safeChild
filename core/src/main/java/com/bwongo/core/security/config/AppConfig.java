@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -65,4 +66,14 @@ public class AppConfig {
         return taskExecutor;
     }
 
+   /* @Bean
+    public JavaMailSenderImpl mailSender() {
+        return new JavaMailSenderImpl();
+*//*
+        javaMailSender.setProtocol("SMTP");
+        javaMailSender.setHost("127.0.0.1");
+        javaMailSender.setPort(25);
+
+        return javaMailSender;*//*
+    }*/
 }

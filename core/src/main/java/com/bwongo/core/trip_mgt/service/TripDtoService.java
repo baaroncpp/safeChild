@@ -6,11 +6,13 @@ import com.bwongo.core.base.model.enums.TripType;
 import com.bwongo.core.base.service.BaseDtoService;
 import com.bwongo.core.school_mgt.service.SchoolDtoService;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
-import com.bwongo.core.student_mgt.model.jpa.TStudent;
 import com.bwongo.core.student_mgt.service.StudentDtoService;
 import com.bwongo.core.trip_mgt.model.dto.StudentEventLocationDto;
+import com.bwongo.core.trip_mgt.model.dto.StudentTripReportDto;
+import com.bwongo.core.trip_mgt.model.dto.StudentTripReportResponseDto;
 import com.bwongo.core.trip_mgt.model.dto.TripResponseDto;
 import com.bwongo.core.trip_mgt.model.jpa.Trip;
+import com.bwongo.core.user_mgt.service.UserDtoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ public class TripDtoService {
     private final SchoolDtoService schoolDtoService;
     private final StudentDtoService studentDtoService;
     private final BaseDtoService baseDtoService;
+    private final UserDtoService userDtoService;
 
     public TripResponseDto tripToDto(Trip trip){
 
@@ -59,6 +62,20 @@ public class TripDtoService {
                 studentTravel.getStudentStatus(),
                 studentDtoService.studentToDto(studentTravel.getStudent()),
                 baseDtoService.locationToDto(studentTravel.getLocation())
+        );
+    }
+
+    public StudentTripReportResponseDto studentTripReportDtToResponseDto(StudentTripReportDto studentTripReport){
+
+        if(studentTripReport == null){
+            return null;
+        }
+
+        return new StudentTripReportResponseDto(
+                studentDtoService.studentToDto(studentTripReport.getStudent()),
+                studentTravelToDto(studentTripReport.getFirstStudentTravel()),
+                studentTravelToDto(studentTripReport.getSecondStudentTravel()),
+                studentTripReport.getStatus()
         );
     }
 

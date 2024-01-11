@@ -9,10 +9,7 @@ import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
 import com.bwongo.core.student_mgt.repository.StudentRepository;
 import com.bwongo.core.student_mgt.repository.StudentTravelRepository;
-import com.bwongo.core.trip_mgt.model.dto.StudentEventLocationDto;
-import com.bwongo.core.trip_mgt.model.dto.TravelStudentDto;
-import com.bwongo.core.trip_mgt.model.dto.TripRequestDto;
-import com.bwongo.core.trip_mgt.model.dto.TripResponseDto;
+import com.bwongo.core.trip_mgt.model.dto.*;
 import com.bwongo.core.trip_mgt.model.jpa.Trip;
 import com.bwongo.core.trip_mgt.repository.TripRepository;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
@@ -31,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.bwongo.core.trip_mgt.utils.TripUtils.generateStudentTripReport;
 import static com.bwongo.core.trip_mgt.utils.TripUtils.getRemainingStudentsOnTrip;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.*;
@@ -61,7 +59,7 @@ public class TripService {
         var tripList = Stream.concat(openTrips.stream(), inProgressTrips.stream()).toList();
         tripList.forEach(
                 trip -> {
-                    trip.setTripStatus(ENDED);
+                    trip.setTripStatus(INCOMPLETE);
                     auditService.stampAuditedEntity(trip);
                     tripRepository.save(trip);
                 }
@@ -239,13 +237,6 @@ public class TripService {
         return studentTravelList;
     }
 
-    private List<StudentTravel> getStudentsOnPickUpTrip(Trip trip){
-
-        var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
-        var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
-        return getRemainingStudentsOnTrip(studentTravelPickUpList, studentTravelSignInList);
-    }
-
     public List<StudentTravel> getStudentsTripByStatus(TravelStudentDto travelStudentDto, Pageable pageable){
 
         travelStudentDto.validate();
@@ -264,6 +255,34 @@ public class TripService {
         var studentTravelSignOutList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
         var studentTravelDropOffList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
         return getRemainingStudentsOnTrip(studentTravelSignOutList, studentTravelDropOffList);
+    }
+
+    public List<StudentTripReportResponseDto> getTripReport(Long tripId){
+
+        var trip = getTrip(tripId);
+
+        if(trip.getTripType().equals(TripType.PICK_UP)){
+            var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+            var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
+
+            return generateStudentTripReport(trip, studentTravelPickUpList, studentTravelSignInList).stream()
+                    .map(tripDtoService::studentTripReportDtToResponseDto)
+                    .toList();
+        }else{
+            var studentTravelSignOutList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+            var studentTravelDropOffList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
+
+            return generateStudentTripReport(trip, studentTravelSignOutList, studentTravelDropOffList).stream()
+                    .map(tripDtoService::studentTripReportDtToResponseDto)
+                    .toList();
+        }
+    }
+
+    private List<StudentTravel> getStudentsOnPickUpTrip(Trip trip){
+
+        var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+        var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
+        return getRemainingStudentsOnTrip(studentTravelPickUpList, studentTravelSignInList);
     }
 
     private Trip getTrip(Long id){

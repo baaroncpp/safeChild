@@ -28,15 +28,15 @@ spring:
     password: ${SC_DB_PASSWORD:aaron}
     schemas: core
     locations: classpath:db/migration
-
   mail:
-    host: smtp.nardconcepts.com
+    host: mail.nardconcepts.io
     port: 587
-    username: safechild@nardconcepts.com
+    username: info@nardconcepts.io
     password: l2H6DiKlJc)J
     properties:
       mail:
         smtp:
+          ssl:
           auth: true
           starttls:
             enable: true
@@ -94,7 +94,7 @@ notification:
   email:
     account-balance:
       subject: SAFE CHILD, Low Balance Alert
-      body: Thank you for your attention to this matter. Best regards, Nard Concepts Holdings EA
+      body: Dear %s, <br/>We hope this message finds you well. <br/>We wanted to notify you that the balance in your account is running low. It's currently at %s, and we recommend taking necessary actions to replenish it to avoid any interruptions to your services or transactions. <br/> We value your continued trust in our services and are here to assist you in any way possible. Please don't hesitate to reach out to our support team at %s for any queries or assistance regarding your account or balance. <br/>Thank you for your attention to this matter. <br/><br/>Best regards, <br/>Nard Concepts Holdings EA
 
 
 zenga-pay:
