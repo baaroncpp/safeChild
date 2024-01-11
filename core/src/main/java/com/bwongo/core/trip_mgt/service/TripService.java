@@ -259,7 +259,9 @@ public class TripService {
 
     public List<StudentTripReportResponseDto> getTripReport(Long tripId){
 
-        var trip = getTrip(tripId);
+        var existingTrip = tripRepository.findById(tripId);
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, tripId);
+        var trip = existingTrip.get();
 
         if(trip.getTripType().equals(TripType.PICK_UP)){
             var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
