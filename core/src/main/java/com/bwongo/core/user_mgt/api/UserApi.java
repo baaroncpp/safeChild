@@ -91,7 +91,7 @@ public class UserApi {
         return userService.getSchoolUser(userType, schoolId);
     }
 
-    @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "school-user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public SchoolUserResponseDto getSchoolUser(@PathVariable("id") Long id){
         return userService.getSchoolUser(id);

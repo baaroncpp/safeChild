@@ -281,7 +281,6 @@ public class TripService {
     }
 
     private List<StudentTravel> getStudentsOnPickUpTrip(Trip trip){
-
         var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
         var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
         return getRemainingStudentsOnTrip(studentTravelPickUpList, studentTravelSignInList);

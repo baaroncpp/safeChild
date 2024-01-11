@@ -2,8 +2,6 @@ package com.bwongo.core.trip_mgt.model.dto;
 
 import com.bwongo.core.base.model.enums.ReportStatus;
 import com.bwongo.core.student_mgt.model.dto.StudentResponseDto;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @Author bkaaron
@@ -16,5 +14,4 @@ public record StudentTripReportResponseDto(
         StudentEventLocationDto secondStudentTravel,
         ReportStatus status
 ) {
-
 }
