@@ -35,8 +35,3 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-/*docker{
-	name "${project.name}"
-	files '*.jar'
-}*/

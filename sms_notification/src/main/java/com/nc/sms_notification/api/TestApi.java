@@ -1,5 +1,6 @@
 package com.nc.sms_notification.api;
 
+import com.nc.sms_notification.model.dto.SmsPaymentRequestDto;
 import com.nc.sms_notification.network.WebClientNCCoreService;
 import com.nc.sms_notification.service.SmsService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class TestApi {
     private final SmsService smsService;
     private final WebClientNCCoreService webClientNCCoreService;
 
-    @GetMapping(path = "/test/{number}/message/{message}")
+    @GetMapping(path = "/test/{number}/message/{message}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object testSms(@PathVariable("number") String number,
                           @PathVariable("message") String message){
         return smsService.testSms(number, message);
@@ -31,6 +32,12 @@ public class TestApi {
     @GetMapping(path = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object testToken(){
         return webClientNCCoreService.getAccessToken();
+    }
+
+    @GetMapping(path = "/payment", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object testPay(){
+        SmsPaymentRequestDto smsPaymentRequestDto = new SmsPaymentRequestDto(43l);
+        return webClientNCCoreService.makePayment(smsPaymentRequestDto);
     }
 
 }
