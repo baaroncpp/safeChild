@@ -6,11 +6,18 @@ package com.bwongo.commons.models.exceptions;
  * @Date 4/27/23
  **/
 public class IllegalArgumentException extends RuntimeException {
-    public IllegalArgumentException(String message, Object... messageConstants) {
+    private Object errorClass;
+    public IllegalArgumentException(Object errorClass, String message, Object... messageConstants) {
         super(String.format(message, messageConstants));
+        this.errorClass = errorClass;
     }
 
-    public IllegalArgumentException(String message) {
+    public IllegalArgumentException(Object errorClass, String message) {
         super(message);
+        this.errorClass = errorClass;
+    }
+
+    public Object getErrorClass() {
+        return errorClass;
     }
 }

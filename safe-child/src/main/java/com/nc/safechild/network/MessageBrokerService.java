@@ -1,7 +1,6 @@
 package com.nc.safechild.network;
 
-import com.nc.safechild.student.model.dto.SmsNotificationDto;
-import com.nc.safechild.student.model.jpa.Notification;
+import com.nc.safechild.notification.model.jpa.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

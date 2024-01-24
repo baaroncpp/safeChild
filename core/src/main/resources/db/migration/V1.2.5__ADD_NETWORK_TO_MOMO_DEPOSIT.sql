@@ -1,0 +1,1 @@
+ALTER TABLE t_momo_deposit ADD COLUMN network_type VARCHAR(30);

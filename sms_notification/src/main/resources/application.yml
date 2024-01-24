@@ -38,3 +38,15 @@ pandora-sms:
   sender: SafeChild
   message-type: info
   message-category: bulk
+
+url:
+  access:
+    token: http://135.181.158.109:2022/oauth/token
+  sms:
+    payment: http://135.181.158.109:2022/api/v1/account/service/sms/payment
+
+core:
+  username: ${CORE_USERNAME:adminadmin}
+  password: ${CORE_PASSWORD:admin}
+  client-id: ${CLIENT_ID:client}
+  secret: ${CLIENT_SECRET:client}

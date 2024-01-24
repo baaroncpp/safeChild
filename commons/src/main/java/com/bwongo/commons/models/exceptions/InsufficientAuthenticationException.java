@@ -9,13 +9,20 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Slf4j
 public class InsufficientAuthenticationException extends RuntimeException{
-    public InsufficientAuthenticationException(String message, Object ... messageConstants){
+    private Object errorClass;
+    public InsufficientAuthenticationException(Object errorClass, String message, Object ... messageConstants){
         super(String.format(message, messageConstants));
         log.error(String.format(message, messageConstants));
+        this.errorClass = errorClass;
     }
 
-    public InsufficientAuthenticationException(String message) {
+    public InsufficientAuthenticationException(Object errorClass, String message) {
         super(message);
         log.error(message);
+        this.errorClass = errorClass;
+    }
+
+    public Object getErrorClass() {
+        return errorClass;
     }
 }

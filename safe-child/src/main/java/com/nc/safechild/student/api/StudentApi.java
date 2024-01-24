@@ -1,12 +1,17 @@
 package com.nc.safechild.student.api;
 
 import com.nc.safechild.network.MessageBrokerService;
-import com.nc.safechild.student.model.dto.AuthenticationDto;
-import com.nc.safechild.student.model.dto.NotificationDriverDto;
-import com.nc.safechild.student.model.dto.NotificationDto;
-import com.nc.safechild.student.model.jpa.Notification;
+import com.nc.safechild.student.models.dto.AuthenticationDto;
+import com.nc.safechild.student.models.dto.NotificationDriverDto;
+import com.nc.safechild.student.models.dto.NotificationDto;
+import com.nc.safechild.notification.model.jpa.Notification;
+import com.nc.safechild.student.models.dto.StudentDayDto;
 import com.nc.safechild.student.service.StudentService;
+import com.nc.safechild.trip.model.dto.TravelStudent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,17 +37,7 @@ public class StudentApi {
     public Object checkCredentials(@RequestBody AuthenticationDto authenticationDto) throws Exception {
         return studentService.checkCredentials(authenticationDto);
     }
-
-    @GetMapping(path = "balance/account/{number}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getAccountBalance(@PathVariable("number") String number){
-        return studentService.getAccountBalance(number);
-    }
-
-    @GetMapping(path = "groups", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getGroups(){
-        return studentService.getGroups();
-    }
-
+    
     @PostMapping(path = "send/driver/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Object sendNotificationDriver(@RequestBody NotificationDriverDto notificationDriverDto) {
         return studentService.sendNotificationDriver(notificationDriverDto);
@@ -50,12 +45,7 @@ public class StudentApi {
 
     @PostMapping(path = "send/staff/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Object sendNotificationStaff(@RequestBody NotificationDto notificationDto) {
-        return studentService.sendNotificationStaff(notificationDto);
-    }
-
-    @PostMapping(path = "send/notification", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object sendNotification(@RequestBody NotificationDto notificationDto) {
-        return studentService.sendNotification(notificationDto);
+        return studentService.sendNotificationStaff(notificationDto, Boolean.FALSE);
     }
 
     @GetMapping(path = "bulk/school-sign-in/trip/{id}")
@@ -67,6 +57,19 @@ public class StudentApi {
     public Object getEvents(@PathVariable("username") String username){
         return studentService.getDailyEventCount(username);
     }
+
+    @PostMapping(path = "student/date/student-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getStudentsDateAndSchoolStatus(@RequestParam("page") int page,
+                                                 @RequestParam("size") int size,
+                                                 @RequestBody StudentDayDto studentDayDto){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        return studentService.getStudentsByDateAndStudentStatus(studentDayDto, pageable);
+    }
+
+    /*@GetMapping(path = "student-status/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getStudentCurrentStatus(@PathVariable("username") String username){
+        return studentService.getCurrentStudentDay(username);
+    }*/
 
     @GetMapping(path = "images/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getImages(@PathVariable("username") String username){

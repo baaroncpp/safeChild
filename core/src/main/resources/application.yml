@@ -1,0 +1,103 @@
+server:
+  port: 2022
+  error:
+    include-message: always
+
+spring:
+  rabbitmq:
+    host: ${QUEUE_HOST:localhost}
+    port: ${QUEUE_PORT:5672}
+    username: ${QUEUE_USERNAME:guest}
+    password: ${QUEUE_PASSWORD:guest}
+  datasource:
+    url: jdbc:postgresql://${SC_DB_HOST:localhost}:${SC_DB_PORT:5432}/${SC_DB:safe_child_db}
+    username: ${SC_DB_USERNAME:aaron}
+    password: ${SC_DB_PASSWORD:aaron}
+  jpa:
+    show-sql: true
+    hibernate:
+      dll-auto: none
+      show: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  flyway:
+    url: jdbc:postgresql://${SC_DB_HOST:localhost}:${SC_DB_PORT:5432}/${SC_DB:safe_child_db}
+    user: ${SC_DB_USERNAME:aaron}
+    password: ${SC_DB_PASSWORD:aaron}
+    schemas: core
+    locations: classpath:db/migration
+  mail:
+    host: mail.nardconcepts.io
+    port: 587
+    username: info@nardconcepts.io
+    password: l2H6DiKlJc)J
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  security:
+    jwt:
+      keystore-location: ${KEYSTORE_LOCATION:keys/kabangali.jks}
+      keystore-password: ${KEYSTORE_PASSWORD:kabangali2022}
+      key-alias: ${KEY_ALIAS:kabangali}
+      signing-key: ${SIGNING-KEY:123456}
+
+springdoc:
+  oAuthFlow:
+    password:
+      tokenUrl: /oauth/token
+  swagger-ui:
+    path: /swagger-ui-kab.html
+
+core-banking:
+  group-id:
+    school: 15
+    student: 20
+    driver: 17
+    school-staff: 19
+
+accounts:
+  sms: ${SMS_COLLECTION_ACCOUNT:SCH2023}
+
+
+sms-account:
+  notification:
+    balance: 10000
+
+transfer-type:
+  sms-notification: 29
+  momo-deposit: 28
+
+notification:
+  routing:
+    key:
+      sms: sms.routing
+  queue:
+    name:
+      sms: sms.queue
+  exchange:
+    name: notification.exchange
+  sms:
+    sender: SAFE CHILD
+    drop-off: Hi Parent! Your Child With ID %s has been Dropped off from %s by a %s with ID %s at %s
+    pick-up: Hi Parent! Your Child With ID %s has been picked up from home by a %s with ID %s at %s
+    on-school: Hi Parent! Your Child With ID %s has been received at %s by a %s with ID %s at %s
+    off-school: Hi Parent! Your Child With ID %s has been signed out by a %s with ID %s from %s at %s
+
+  email:
+    account-balance:
+      subject: SAFE CHILD, Low Balance Alert
+      body: Dear %s, <br/>We hope this message finds you well. <br/>We wanted to notify you that the balance in your account is running low. It's currently at %s, and we recommend taking necessary actions to replenish it to avoid any interruptions to your services or transactions. <br/> We value your continued trust in our services and are here to assist you in any way possible. Please don't hesitate to reach out to our support team at %s for any queries or assistance regarding your account or balance. <br/>Thank you for your attention to this matter. <br/><br/>Best regards, <br/>Nard Concepts Holdings EA
+
+
+zenga-pay:
+  access-token: ${ZENGA_ACCESS_TOKEN:ZPYPUBK-77260e020bfd827ddd81d11089012cc557269811f2b060658c71b574af3ca2ce}
+  url:
+    collections: https://api.zengapay.com/v1/collections
+    status: https://api.zengapay.com/v1/collections/

@@ -1,0 +1,1 @@
+ALTER TABLE t_momo_deposit ADD COLUMN is_school INTEGER REFERENCES t_school(id);

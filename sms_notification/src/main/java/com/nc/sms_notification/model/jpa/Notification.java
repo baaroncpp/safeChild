@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author bkaaron
@@ -18,6 +19,7 @@ import java.util.Date;
 public class Notification implements Serializable {
     private Long id;
     private Date createdOn;
+    private Date modifiedOn;
     private String receiver;
     private String sender;
     private String message;
@@ -27,16 +29,22 @@ public class Notification implements Serializable {
     private String externalTransactionId;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
 
-    @Column(name = "created_on")
+    @Column(name = "created_on",insertable =false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     public Date getCreatedOn() {
         return createdOn;
+    }
+
+    @Column(name = "modified_on")
+    @Temporal(TemporalType.TIMESTAMP)
+    public Date getModifiedOn() {
+        return modifiedOn;
     }
 
     @Column(name = "receiver")
@@ -74,4 +82,5 @@ public class Notification implements Serializable {
     public String getExternalTransactionId() {
         return externalTransactionId;
     }
+
 }

@@ -1,17 +1,16 @@
 package com.nc.sms_notification.service;
 
-import com.nc.sms_notification.exceptions.model.ExceptionType;
+import com.nc.sms_notification.model.dto.SmsPaymentRequestDto;
+import com.nc.sms_notification.model.dto.SmsPaymentResponseDto;
 import com.nc.sms_notification.model.enums.SmsStatus;
 import com.nc.sms_notification.model.jpa.Notification;
-import com.nc.sms_notification.network.WebClientService;
+import com.nc.sms_notification.network.WebClientNCCoreService;
+import com.nc.sms_notification.network.WebClientSmsService;
 import com.nc.sms_notification.repository.NotificationRepository;
-import com.nc.sms_notification.utils.Validate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-
-import static com.nc.sms_notification.utils.ConstantMessages.*;
 
 /**
  * @Author bkaaron
@@ -24,8 +23,8 @@ import static com.nc.sms_notification.utils.ConstantMessages.*;
 public class SmsService {
 
     private final NotificationRepository notificationRepository;
-    private final WebClientService webClientService;
-
+    private final WebClientSmsService webClientSmsService;
+    private final WebClientNCCoreService webClientNCCoreService;
     public void sendSms(Notification notify){
         log.info("updated");
         var existingNotification = notificationRepository.findById(notify.getId());
@@ -33,8 +32,22 @@ public class SmsService {
         if(existingNotification.isPresent()){
             var notification = existingNotification.get();
 
-            if(!notification.getStatus().equals(SmsStatus.SUCCESS)){
-                var smsResponse = webClientService.makeSmsCall(notification.getReceiver(), notification.getMessage());
+            var smsPaymentRequestDto = new SmsPaymentRequestDto(notification.getId());
+
+            SmsPaymentResponseDto smsPaymentResponseDto = null;
+            try {
+                smsPaymentResponseDto = webClientNCCoreService.makePayment(smsPaymentRequestDto);
+            }catch (Exception ex){
+                log.error(ex.getMessage());
+            }
+
+            if(smsPaymentResponseDto != null &&
+                    !notification.getStatus().equals(SmsStatus.SUCCESS) &&
+                    smsPaymentResponseDto.coreBankingStatus().contains("PROCESSED")){
+
+                log.info("Core Banking status: " + smsPaymentResponseDto.coreBankingStatus());
+
+                var smsResponse = webClientSmsService.makeSmsCall(notification.getReceiver(), notification.getMessage());
                 log.info(smsResponse);
 
                 JSONObject jsonObject = new JSONObject(smsResponse);
@@ -64,6 +77,6 @@ public class SmsService {
     }
 
     public Object testSms(String number, String message){
-        return webClientService.makeSmsCall(number, message);
+        return webClientSmsService.makeSmsCall(number, message);
     }
 }
