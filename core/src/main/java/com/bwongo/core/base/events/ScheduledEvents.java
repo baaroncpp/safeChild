@@ -26,7 +26,7 @@ public class ScheduledEvents {
         accountService.updatePendingPaymentDeposits();
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    //@Scheduled(cron = "0 0 0 * * *")
     public void endAllOpenAndInProgressTripsAtMidnight(){
         tripService.endAllOpenTrips();
     }
