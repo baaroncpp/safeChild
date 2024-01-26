@@ -1,5 +1,6 @@
 package com.bwongo.core.trip_mgt.api;
 
+import com.bwongo.core.student_mgt.model.dto.StudentResponseDto;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
 import com.bwongo.core.trip_mgt.service.TripService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,7 +66,7 @@ public class TripMobileAppApi {
 
     @PreAuthorize("hasAnyAuthority('MOBILE_APP_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "students/trip/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<StudentTravel> getStudentsOnTrip(@PathVariable("id") Long id){
+    public List<StudentResponseDto> getStudentsOnTrip(@PathVariable("id") Long id){
         return tripService.getStudentsCurrentlyOnTrip(id);
     }
 

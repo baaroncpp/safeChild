@@ -6,9 +6,11 @@ import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
+import com.bwongo.core.student_mgt.model.dto.StudentResponseDto;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
 import com.bwongo.core.student_mgt.repository.StudentRepository;
 import com.bwongo.core.student_mgt.repository.StudentTravelRepository;
+import com.bwongo.core.student_mgt.service.StudentDtoService;
 import com.bwongo.core.trip_mgt.model.dto.*;
 import com.bwongo.core.trip_mgt.model.jpa.Trip;
 import com.bwongo.core.trip_mgt.repository.TripRepository;
@@ -51,6 +53,7 @@ public class TripService {
     private final StudentTravelRepository studentTravelRepository;
     private final SchoolUserRepository schoolUserRepository;
     private final AuditService auditService;
+    private final StudentDtoService studentDtoService;
 
     public void endAllOpenTrips(){
         var openTrips = tripRepository.findAllByTripStatus(OPEN);
@@ -223,7 +226,7 @@ public class TripService {
         return tripDtoService.tripToDto(tripRepository.save(trip));
     }
 
-    public List<StudentTravel> getStudentsCurrentlyOnTrip(Long tripId){
+    public List<StudentResponseDto> getStudentsCurrentlyOnTrip(Long tripId){
 
         var trip = getTrip(tripId);
         List<StudentTravel> studentTravelList;
@@ -234,7 +237,9 @@ public class TripService {
             studentTravelList = getStudentsOnDropOffTrip(trip);
         }
 
-        return studentTravelList;
+        return studentTravelList.stream()
+                .map(st -> studentDtoService.studentToDto(st.getStudent()))
+                .toList();
     }
 
     public List<StudentTravel> getStudentsTripByStatus(TravelStudentDto travelStudentDto, Pageable pageable){
