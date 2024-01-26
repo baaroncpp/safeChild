@@ -44,10 +44,10 @@ public class TripUtils {
 
         studentTripReportList.forEach(
                 studentTripReportDto -> {
-                    /*if(studentTripReportDto.getSecondStudentTravel() == null && trip.getTripStatus().equals(INCOMPLETE)){
+                    if(studentTripReportDto.getSecondStudentTravel() == null && trip.getTripStatus().equals(INCOMPLETE)){
                         studentTripReportDto.setStatus(FAILED);
                     }
-*/
+
                     if(studentTripReportDto.getSecondStudentTravel() == null && trip.getTripStatus().equals(IN_PROGRESS)){
                         studentTripReportDto.setStatus(PENDING);
                     }

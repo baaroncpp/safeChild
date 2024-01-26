@@ -59,7 +59,7 @@ public class TripService {
         var tripList = Stream.concat(openTrips.stream(), inProgressTrips.stream()).toList();
         tripList.forEach(
                 trip -> {
-                    trip.setTripStatus(ENDED);
+                    trip.setTripStatus(INCOMPLETE);
                     auditService.stampAuditedEntity(trip);
                     tripRepository.save(trip);
                 }
