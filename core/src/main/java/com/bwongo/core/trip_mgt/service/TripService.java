@@ -280,12 +280,13 @@ public class TripService {
         Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, tripId);
         var trip = existingTrip.get();
 
-        Map<StudentStatus, Integer> studentStatuses = new HashMap<>();
+        var studentStatuses = new HashMap<StudentStatus, Integer>();
 
         if(trip.getTripType().equals(TripType.PICK_UP)){
             var homePickUps = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
             var schoolSignIns = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
 
+            System.out.println(homePickUps.size() +" stat "+schoolSignIns.size());
             studentStatuses.put(StudentStatus.HOME_PICK_UP, homePickUps.size());
             studentStatuses.put(StudentStatus.SCHOOL_SIGN_IN, schoolSignIns.size());
         }
@@ -294,6 +295,7 @@ public class TripService {
             var schoolSignOuts = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
             var homeDrop0ffs = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
 
+            System.out.println(schoolSignOuts.size() +" stat "+homeDrop0ffs.size());
             studentStatuses.put(StudentStatus.SCHOOL_SIGN_OUT, schoolSignOuts.size());
             studentStatuses.put(StudentStatus.HOME_DROP_OFF, homeDrop0ffs.size());
         }
