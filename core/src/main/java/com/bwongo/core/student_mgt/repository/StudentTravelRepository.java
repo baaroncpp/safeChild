@@ -21,5 +21,5 @@ public interface StudentTravelRepository extends JpaRepository<StudentTravel, Lo
     Optional<StudentTravel> findByStudentAndTripAndStudentStatus(TStudent student, Trip trip, StudentStatus studentStatus);
     List<StudentTravel> findAllByTripAndStudentStatus(Trip trip, StudentStatus studentStatus, Pageable pageable);
     List<StudentTravel> findAllByTripAndStudentStatus(Trip trip, StudentStatus studentStatus);
-    List<StudentTravel> findAllByTrip(Trip  trip);
+    List<StudentTravel> findAllByTrip(Trip trip);
 }

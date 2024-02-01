@@ -1,0 +1,21 @@
+package com.bwongo.core.student_mgt.model.dto;
+
+import com.bwongo.core.base.model.dto.LocationResponseDto;
+import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
+import com.bwongo.core.trip_mgt.model.dto.TripResponseDto;
+import com.bwongo.core.user_mgt.model.dto.UserResponseDto;
+
+import java.util.Date;
+
+public record StudentTravelResponseDto(
+        Long id,
+        Date createdOn,
+        Date modifiedOn,
+        UserResponseDto createdBy,
+        UserResponseDto modifiedBy,
+        TripResponseDto trip,
+        StudentResponseDto student,
+        SchoolResponseDto school,
+        LocationResponseDto location
+) {
+}

@@ -7,8 +7,6 @@ import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.service.SchoolDtoService;
 import com.bwongo.core.student_mgt.model.dto.*;
 import com.bwongo.core.student_mgt.model.jpa.*;
-import com.bwongo.core.trip_mgt.model.dto.TripResponseDto;
-import com.bwongo.core.trip_mgt.service.TripDtoService;
 import com.bwongo.core.user_mgt.service.UserDtoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -6,11 +6,9 @@ import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
-import com.bwongo.core.student_mgt.model.dto.StudentResponseDto;
+import com.bwongo.core.student_mgt.model.dto.StudentTravelResponseDto;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
-import com.bwongo.core.student_mgt.repository.StudentRepository;
 import com.bwongo.core.student_mgt.repository.StudentTravelRepository;
-import com.bwongo.core.student_mgt.service.StudentDtoService;
 import com.bwongo.core.trip_mgt.model.dto.*;
 import com.bwongo.core.trip_mgt.model.jpa.Trip;
 import com.bwongo.core.trip_mgt.repository.TripRepository;
@@ -46,14 +44,12 @@ import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.*;
 @RequiredArgsConstructor
 public class TripService {
 
-    private final StudentRepository studentRepository;
     private final TUserRepository userRepository;
     private final TripRepository tripRepository;
     private final TripDtoService tripDtoService;
     private final StudentTravelRepository studentTravelRepository;
     private final SchoolUserRepository schoolUserRepository;
     private final AuditService auditService;
-    private final StudentDtoService studentDtoService;
 
     public void endAllOpenTrips(){
         var openTrips = tripRepository.findAllByTripStatus(OPEN);
@@ -110,7 +106,7 @@ public class TripService {
         Validate.notNull(this, studentTravels, ExceptionType.BAD_REQUEST, NO_STUDENT_COORDINATES);
 
         return studentTravels.stream()
-                .map(tripDtoService::studentTravelToDto)
+                .map(tripDtoService::studentTravelToStudentEventLocationDto)
                 .collect(Collectors.toList());
     }
 
@@ -226,7 +222,7 @@ public class TripService {
         return tripDtoService.tripToDto(tripRepository.save(trip));
     }
 
-    public List<StudentResponseDto> getStudentsCurrentlyOnTrip(Long tripId){
+    public List<StudentTravelResponseDto> getStudentsCurrentlyOnTrip(Long tripId){
 
         var trip = getTrip(tripId);
         List<StudentTravel> studentTravelList;
@@ -238,7 +234,7 @@ public class TripService {
         }
 
         return studentTravelList.stream()
-                .map(st -> studentDtoService.studentToDto(st.getStudent()))
+                .map(tripDtoService::studentTravelToDto)
                 .toList();
     }
 
@@ -253,13 +249,6 @@ public class TripService {
 
         var studentStatus = StudentStatus.valueOf(travelStudentDto.studentStatus());
         return studentTravelRepository.findAllByTripAndStudentStatus(trip, studentStatus, pageable);
-    }
-
-    private List<StudentTravel> getStudentsOnDropOffTrip(Trip trip){
-
-        var studentTravelSignOutList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
-        var studentTravelDropOffList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
-        return getRemainingStudentsOnTrip(studentTravelSignOutList, studentTravelDropOffList);
     }
 
     public List<StudentTripReportResponseDto> getTripReport(Long tripId){
@@ -285,6 +274,33 @@ public class TripService {
         }
     }
 
+    public TripStatisticsDto getTripStatistics(Long tripId){
+        var trip = getTrip(tripId);
+
+        Map<StudentStatus, Integer> studentStatuses = new HashMap<>();
+
+        if(trip.getTripType().equals(TripType.PICK_UP)){
+            var homePickUps = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
+            var schoolSignIns = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
+
+            studentStatuses.put(StudentStatus.HOME_PICK_UP, homePickUps.size());
+            studentStatuses.put(StudentStatus.SCHOOL_SIGN_IN, schoolSignIns.size());
+        }
+
+        if(trip.getTripType().equals(TripType.DROP_OFF)){
+            var schoolSignOuts = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+            var homeDrop0ffs = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
+
+            studentStatuses.put(StudentStatus.SCHOOL_SIGN_OUT, schoolSignOuts.size());
+            studentStatuses.put(StudentStatus.HOME_DROP_OFF, homeDrop0ffs.size());
+        }
+
+        return new TripStatisticsDto(
+                tripDtoService.tripToDto(trip),
+                studentStatuses
+        );
+    }
+
     private List<StudentTravel> getStudentsOnPickUpTrip(Trip trip){
         var studentTravelPickUpList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_PICK_UP);
         var studentTravelSignInList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_IN);
@@ -299,5 +315,12 @@ public class TripService {
         Validate.isTrue(this, !trip.getTripStatus().equals(TripStatus.ENDED), ExceptionType.BAD_REQUEST, TRIP_ENDED);
 
         return trip;
+    }
+
+    private List<StudentTravel> getStudentsOnDropOffTrip(Trip trip){
+
+        var studentTravelSignOutList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.SCHOOL_SIGN_OUT);
+        var studentTravelDropOffList = studentTravelRepository.findAllByTripAndStudentStatus(trip, StudentStatus.HOME_DROP_OFF);
+        return getRemainingStudentsOnTrip(studentTravelSignOutList, studentTravelDropOffList);
     }
 }

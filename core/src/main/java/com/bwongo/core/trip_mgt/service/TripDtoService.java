@@ -5,6 +5,7 @@ import com.bwongo.core.base.model.enums.NotificationRoleEnum;
 import com.bwongo.core.base.model.enums.TripType;
 import com.bwongo.core.base.service.BaseDtoService;
 import com.bwongo.core.school_mgt.service.SchoolDtoService;
+import com.bwongo.core.student_mgt.model.dto.StudentTravelResponseDto;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
 import com.bwongo.core.student_mgt.service.StudentDtoService;
 import com.bwongo.core.trip_mgt.model.dto.StudentEventLocationDto;
@@ -49,7 +50,7 @@ public class TripDtoService {
         );
     }
 
-    public StudentEventLocationDto studentTravelToDto(StudentTravel studentTravel){
+    public StudentEventLocationDto studentTravelToStudentEventLocationDto(StudentTravel studentTravel){
 
         if(studentTravel == null){
             return null;
@@ -73,8 +74,8 @@ public class TripDtoService {
 
         return new StudentTripReportResponseDto(
                 studentDtoService.studentToDto(studentTripReport.getStudent()),
-                studentTravelToDto(studentTripReport.getFirstStudentTravel()),
-                studentTravelToDto(studentTripReport.getSecondStudentTravel()),
+                studentTravelToStudentEventLocationDto(studentTripReport.getFirstStudentTravel()),
+                studentTravelToStudentEventLocationDto(studentTripReport.getSecondStudentTravel()),
                 studentTripReport.getStatus()
         );
     }
@@ -95,5 +96,24 @@ public class TripDtoService {
             );
         }
         throw new BadRequestException(this, "Failed to load trip type");
+    }
+
+    public StudentTravelResponseDto studentTravelToDto(StudentTravel studentTravel){
+
+        if(studentTravel == null){
+            return null;
+        }
+
+        return new StudentTravelResponseDto(
+                studentTravel.getId(),
+                studentTravel.getCreatedOn(),
+                studentTravel.getModifiedOn(),
+                userDtoService.tUserToDto(studentTravel.getCreatedBy()),
+                userDtoService.tUserToDto(studentTravel.getModifiedBy()),
+                tripToDto(studentTravel.getTrip()),
+                studentDtoService.studentToDto(studentTravel.getStudent()),
+                schoolDtoService.schoolToDto(studentTravel.getSchool()),
+                baseDtoService.locationToDto(studentTravel.getLocation())
+        );
     }
 }
