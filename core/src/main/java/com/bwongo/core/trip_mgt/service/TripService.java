@@ -275,7 +275,10 @@ public class TripService {
     }
 
     public TripStatisticsDto getTripStatistics(Long tripId){
-        var trip = getTrip(tripId);
+
+        var existingTrip = tripRepository.findById(tripId);
+        Validate.isPresent(this, existingTrip, TRIP_NOT_FOUND, tripId);
+        var trip = existingTrip.get();
 
         Map<StudentStatus, Integer> studentStatuses = new HashMap<>();
 
