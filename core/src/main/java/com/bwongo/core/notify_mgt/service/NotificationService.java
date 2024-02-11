@@ -24,6 +24,7 @@ import com.bwongo.core.student_mgt.repository.*;
 import com.bwongo.core.student_mgt.service.StudentDtoService;
 import com.bwongo.core.trip_mgt.model.jpa.Trip;
 import com.bwongo.core.trip_mgt.repository.TripRepository;
+import com.bwongo.core.trip_mgt.service.TripDtoService;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
 import com.bwongo.core.user_mgt.repository.TUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -87,6 +88,7 @@ public class NotificationService {
     private final TripRepository tripRepository;
     private final StudentDtoService studentDtoService;
     private final TAccountRepository accountRepository;
+    private final TripDtoService tripDtoService;
 
     private TStudent getStudentByUsername(String username){
         var existingStudent = studentRepository.findByStudentUsername(username);
@@ -290,10 +292,10 @@ public class NotificationService {
         }
         trip.setTripStatus(TripStatus.ENDED);
         trip.setModifiedOn(DateTimeUtil.getCurrentUTCTime());
-        tripRepository.save(trip);
+        var savedTrip = tripRepository.save(trip);
 
         return new BulkSignInResponse(
-                trip,
+                tripDtoService.tripToDto(savedTrip),
                 SUCCESS,
                 SUCCESS_NOTE
         );

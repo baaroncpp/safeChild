@@ -1,6 +1,6 @@
 package com.bwongo.core.notify_mgt.model.dto;
 
-import com.bwongo.core.trip_mgt.model.jpa.Trip;
+import com.bwongo.core.trip_mgt.model.dto.TripResponseDto;
 
 /**
  * @Author bkaaron
@@ -8,7 +8,7 @@ import com.bwongo.core.trip_mgt.model.jpa.Trip;
  * @Date 8/2/23
  **/
 public record BulkSignInResponse(
-        Trip trip,
+        TripResponseDto trip,
         String status,
         String note
 ) {
