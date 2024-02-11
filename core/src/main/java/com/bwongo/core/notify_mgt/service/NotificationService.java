@@ -150,7 +150,7 @@ public class NotificationService {
         switch(studentStatus) {
             case HOME_PICK_UP:
                 Validate.isTrue(this, trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
-                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.SCHOOL_SIGN_IN).isEmpty(),
+                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.HOME_PICK_UP).isEmpty(),
                         ExceptionType.BAD_REQUEST,
                         STUDENT_ALREADY_SIGNED_IN, studentUsername);
 
@@ -160,11 +160,17 @@ public class NotificationService {
                 Validate.isTrue(this, trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
                 var studentTravelSignIn = studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.HOME_PICK_UP);
                 Validate.isPresent(this, studentTravelSignIn, STUDENT_NOT_PICKED_UP, student.getStudentUsername());
+                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.SCHOOL_SIGN_IN).isEmpty(),
+                        ExceptionType.BAD_REQUEST,
+                        STUDENT_ALREADY_SIGNED_IN, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 
             case SCHOOL_SIGN_OUT:
                 Validate.isTrue(this, trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
+                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.SCHOOL_SIGN_OUT).isEmpty(),
+                        ExceptionType.BAD_REQUEST,
+                        STUDENT_ALREADY_SIGNED_OUT, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 
@@ -172,6 +178,9 @@ public class NotificationService {
                 Validate.isTrue(this, trip.getTripType().equals(TripType.DROP_OFF), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
                 Validate.isTrue(this, studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.SCHOOL_SIGN_OUT).isPresent(),
                         ExceptionType.BAD_REQUEST, STUDENT_NOT_ON_TRIP, studentUsername);
+                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.HOME_DROP_OFF).isEmpty(),
+                        ExceptionType.BAD_REQUEST,
+                        STUDENT_ALREADY_DROPPED_OFF, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
             default:
