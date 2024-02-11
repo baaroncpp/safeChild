@@ -15,6 +15,7 @@ public class NotificationMsgConstants {
     public static final String STUDENT_NOT_CHECKED_IN = "Student %s was not signed in, cannot be signed out";
     public static final String STUDENT_STAFF_NOT_SAME_SCHOOL = "User %s and student %s are not from the same school";
     public static final String STUDENT_ALREADY_DROPPED_OFF = "Student %s already dropped off";
+    public static final String STUDENT_ALREADY_SIGNED_OUT = "Student %s already signed out";
     public static final String INVALID_STUDENT_STATUS_FOR_TRIP = "studentStatus %s does not correspond to tripType";
     public static final String STUDENT_NOT_PICKED_UP = "student : %s not picked up on this trip";
     public static final String STUDENT_WAS_NOT_SIGNED_OUT = "Student %s was not signed out";
