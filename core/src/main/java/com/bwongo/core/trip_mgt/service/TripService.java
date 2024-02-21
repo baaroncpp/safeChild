@@ -300,4 +300,25 @@ public class TripService {
 
         return trip;
     }
+
+    public List<StudentOnTripDto> getStudentsOnTripsByDriver(String username,
+                                                             String fromDate,
+                                                             String toDate,
+                                                             Pageable pageable) {
+
+        var trips = getTripsByDriverUsernameAndDate(username, fromDate, toDate, pageable);
+
+        var result = new ArrayList<StudentOnTripDto>();
+
+        trips.forEach(trip -> {
+            var events = getStudentEventLocation(trip.id());
+
+            if(events.isEmpty()) {
+                result.add(new StudentOnTripDto(trip, null));
+            }else{
+                result.add(new StudentOnTripDto(trip, events));
+            }
+        });
+        return result;
+    }
 }

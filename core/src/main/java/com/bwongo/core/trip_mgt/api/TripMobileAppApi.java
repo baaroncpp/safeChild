@@ -81,5 +81,16 @@ public class TripMobileAppApi {
     public List<StudentTripReportResponseDto> getTripReport(@PathVariable("id") Long tripId){
         return tripService.getTripReport(tripId);
     }
+
+    @PreAuthorize("hasAnyAuthority('TRIP_ROLE.READ','ADMIN_ROLE.READ')")
+    @GetMapping(path = "driver", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<StudentOnTripDto> getStudentsOnTrip(@RequestParam(name = "page", required = true) int page,
+                                                    @RequestParam(name = "size", required = true) int size,
+                                                    @RequestParam(name = "username", required = true) String username,
+                                                    @RequestParam(name = "fromDate", required = true) String fromDate,
+                                                    @RequestParam(name = "toDate", required = true) String toDate){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        return tripService.getStudentsOnTripsByDriver(username, fromDate, toDate, pageable);
+    }
 }
 
