@@ -83,7 +83,6 @@ public class UserApi {
         return userService.updateSchoolUser(id, userDto);
     }
 
-
     @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @GetMapping(path = "school/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SchoolUserResponseDto> getSchoolUser(@RequestParam(name = "userType", required = true) String userType,
@@ -114,7 +113,7 @@ public class UserApi {
     @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
     @PatchMapping(path = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDto update(@PathVariable("id") Long id,
-                          @RequestBody Map<String, Object> fields) {
+                                  @RequestBody Map<String, Object> fields) {
         return userService.updateByField(id, fields);
     }
 

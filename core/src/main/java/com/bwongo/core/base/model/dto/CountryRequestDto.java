@@ -3,8 +3,6 @@ package com.bwongo.core.base.model.dto;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.Validate;
 
-import java.util.Date;
-
 import static com.bwongo.core.base.utils.BasicMsgConstants.*;
 
 /**

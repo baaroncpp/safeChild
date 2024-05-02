@@ -102,7 +102,7 @@ public class UserDtoService {
         var userMeta = new TUserMeta();
         userMeta.setFirstName(userMetaRequestDto.firstName());
         userMeta.setLastName(userMetaRequestDto.lastName());
-        userMeta.setMiddleName(userMeta.getMiddleName());
+        userMeta.setMiddleName(userMetaRequestDto.middleName());
         userMeta.setPhoneNumber(userMetaRequestDto.phoneNumber());
         userMeta.setPhoneNumber2(userMetaRequestDto.phoneNumber2());
         userMeta.setGender(GenderEnum.valueOf(userMetaRequestDto.gender()));
