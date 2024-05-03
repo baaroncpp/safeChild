@@ -77,7 +77,6 @@ public class AppConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:6908")
-                        .allowCredentials(true)
                         .allowedHeaders(HttpMethod.GET.name(),
                                 HttpMethod.PATCH.name(),
                                 HttpMethod.PUT.name(),
