@@ -69,24 +69,23 @@ public class AppConfig {
         return taskExecutor;
     }
 
-    @Bean
+    /*@Bean
     public WebMvcConfigurer webMvcConfigurer(){
         return new WebMvcConfigurer(){
 
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins("http://localhost:6908")
                         .allowedHeaders(HttpMethod.GET.name(),
                                 HttpMethod.PATCH.name(),
                                 HttpMethod.PUT.name(),
                                 HttpMethod.POST.name(),
                                 HttpMethod.DELETE.name())
-                        //.allowedHeaders(HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION);
-                        .allowedHeaders("*");
+                        .allowedHeaders(HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION);
             }
         };
-    }
+    }*/
 
    /* @Bean
     public JavaMailSenderImpl mailSender() {
