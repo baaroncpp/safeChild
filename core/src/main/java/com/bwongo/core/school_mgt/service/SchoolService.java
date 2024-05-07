@@ -3,6 +3,7 @@ package com.bwongo.core.school_mgt.service;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.base.repository.TLocationRepository;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.core_banking.service.MemberService;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.*;
 
 /**
@@ -123,10 +125,14 @@ public class SchoolService {
         return schoolDtoService.schoolToDto(school);
     }
 
-    public List<SchoolResponseDto> getAllSchools(Pageable pageable){
-        return schoolRepository.findAllByDeleted(Boolean.FALSE, pageable).stream()
+    public PageResponseDto getAllSchools(Pageable pageable){
+        var schoolPage = schoolRepository.findAllByDeleted(Boolean.FALSE, pageable);
+
+        var schools = schoolPage.stream()
                 .map(schoolDtoService::schoolToDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        return pageToDto(schoolPage, schools);
     }
 
     public String getNonExistingSchoolAccountNumber(){

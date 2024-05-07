@@ -2,11 +2,11 @@ package com.bwongo.core.student_mgt.repository;
 
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.student_mgt.model.jpa.TStudent;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,5 +23,5 @@ public interface StudentRepository extends JpaRepository<TStudent, Long> {
     Optional<TStudent> findByStudentUsername(String username);
     Optional<TStudent> findByDeletedAndId(boolean isDeleted, Long id);
     Optional<TStudent> findByDeletedAndSchoolIdNumberAndSchool(boolean isDeleted, String schoolIdNumber, TSchool school);
-    List<TStudent> findAllByDeletedAndSchool(Pageable pageable, boolean isDeleted, TSchool school);
+    Page<TStudent> findAllByDeletedAndSchool(Pageable pageable, boolean isDeleted, TSchool school);
 }

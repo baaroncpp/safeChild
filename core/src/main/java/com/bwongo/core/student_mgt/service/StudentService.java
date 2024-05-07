@@ -3,6 +3,7 @@ package com.bwongo.core.student_mgt.service;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.base.model.enums.UserTypeEnum;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.core_banking.service.MemberService;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.SCHOOL_NOT_FOUND;
 import static com.bwongo.core.student_mgt.utils.StudentManagementUtils.studentAlreadyHasNotifyingGuardian;
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
@@ -136,13 +138,17 @@ public class StudentService {
         return studentDtoService.studentToDto(student);
     }
 
-    public List<StudentResponseDto> getAllStudents(Pageable pageable, Long schoolId){
+    public PageResponseDto getAllStudents(Pageable pageable, Long schoolId){
 
         var school = getSchool(schoolId);
 
-        return studentRepository.findAllByDeletedAndSchool(pageable, Boolean.FALSE, school).stream()
+        var studentPage = studentRepository.findAllByDeletedAndSchool(pageable, Boolean.FALSE, school);
+
+        var students = studentPage.stream()
                 .map(studentDtoService::studentToDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        return pageToDto(studentPage, students);
     }
 
     @Transactional
@@ -298,9 +304,13 @@ public class StudentService {
         return studentUsername;
     }
 
-    public List<StudentResponseDto> getAllStudents(Pageable pageable){
-        return studentRepository.findAll(pageable).stream()
+    public PageResponseDto getAllStudents(Pageable pageable){
+
+        var studentPage = studentRepository.findAll(pageable);
+        var students = studentRepository.findAll(pageable).stream()
                 .map(studentDtoService::studentToDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        return pageToDto(studentPage, students);
     }
 }

@@ -1,5 +1,6 @@
 package com.bwongo.core.vehicle_mgt.api;
 
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.vehicle_mgt.model.dto.VehicleRequestDto;
 import com.bwongo.core.vehicle_mgt.model.dto.VehicleResponseDto;
 import com.bwongo.core.vehicle_mgt.service.VehicleService;
@@ -53,9 +54,9 @@ public class VehicleApi {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VEHICLE_ROLE.READ', 'ADMIN_ROLE.READ')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<VehicleResponseDto> getAllVehiclesBySchoolId(@RequestParam("page") int page,
-                                                             @RequestParam("size") int size,
-                                                             @RequestParam("schoolId") Long schoolId){
+    public PageResponseDto getAllVehiclesBySchoolId(@RequestParam("page") int page,
+                                                    @RequestParam("size") int size,
+                                                    @RequestParam("schoolId") Long schoolId){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return vehicleService.getAllVehiclesBySchoolId(pageable, schoolId);
     }

@@ -1,5 +1,6 @@
 package com.bwongo.core.user_mgt.api;
 
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.user_mgt.model.dto.*;
 import com.bwongo.core.user_mgt.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +32,7 @@ public class UserApi {
     private final UserService userService;
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE', 'MOBILE_APP_ROLE.UPDATE')")
     @PostMapping(path = "/change-password", produces = MediaType.APPLICATION_JSON_VALUE)
     public Boolean changePassword(@RequestBody ChangePasswordRequestDto changePasswordRequestDto){
         return userService.changePassword(changePasswordRequestDto);
@@ -86,7 +87,7 @@ public class UserApi {
     @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
     @GetMapping(path = "school/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SchoolUserResponseDto> getSchoolUser(@RequestParam(name = "userType", required = true) String userType,
-                                                     @PathVariable("id") Long schoolId) {
+                                         @PathVariable("id") Long schoolId) {
         return userService.getSchoolUser(userType, schoolId);
     }
 
@@ -126,7 +127,7 @@ public class UserApi {
 
     @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path="pageable", produces = APPLICATION_JSON)
-    public List<UserResponseDto> getAllUsers(@RequestParam(name = "page", required = true) int page,
+    public PageResponseDto getAllUsers(@RequestParam(name = "page", required = true) int page,
                                              @RequestParam(name = "size", required = true) int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return userService.getAll(pageable);
@@ -160,7 +161,7 @@ public class UserApi {
 
     @GetMapping(path = "approvals", produces = APPLICATION_JSON)
     @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
-    public List<UserApprovalResponseDto> getUserApprovals(@RequestParam(name = "page", required = true) int page,
+    public PageResponseDto getUserApprovals(@RequestParam(name = "page", required = true) int page,
                                                           @RequestParam(name = "size", required = true) int size,
                                                           @RequestParam(name = "status", required = true) String status){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());

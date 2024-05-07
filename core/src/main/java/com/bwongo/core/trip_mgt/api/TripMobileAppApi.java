@@ -1,5 +1,6 @@
 package com.bwongo.core.trip_mgt.api;
 
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.student_mgt.model.dto.StudentResponseDto;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
 import com.bwongo.core.trip_mgt.service.TripService;

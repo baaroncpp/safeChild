@@ -2,6 +2,7 @@ package com.bwongo.core.vehicle_mgt.service;
 
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.Validate;
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.base.model.enums.UserTypeEnum;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.*;
 import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.*;
 import static com.bwongo.core.vehicle_mgt.utils.VehicleUtils.checkIfUserCanBeDriver;
@@ -100,7 +102,7 @@ public class VehicleService {
         return vehicleDtoService.vehicleToDto(getVehicle(id));
     }
 
-    public List<VehicleResponseDto> getAllVehiclesBySchoolId(Pageable pageable, Long schoolId){
+    public PageResponseDto getAllVehiclesBySchoolId(Pageable pageable, Long schoolId){
 
         var school = getSchool(schoolId);
 
@@ -110,10 +112,12 @@ public class VehicleService {
         if(!editingUser.getUserType().equals(UserTypeEnum.ADMIN))
             Validate.isTrue(this, schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ACCESS_SCHOOL, schoolId);
 
-
-        return vehicleRepository.findAllByDeletedAndSchool(pageable, Boolean.FALSE, school).stream()
+        var vehiclePage = vehicleRepository.findAllByDeletedAndSchool(pageable, Boolean.FALSE, school);
+        var vehicles = vehiclePage.stream()
                 .map(vehicleDtoService::vehicleToDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        return pageToDto(vehiclePage, vehicles);
     }
 
     public boolean deleteVehicle(Long id){

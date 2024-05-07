@@ -1,5 +1,6 @@
 package com.bwongo.core.student_mgt.api;
 
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.student_mgt.model.dto.*;
 import com.bwongo.core.student_mgt.service.StudentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -67,9 +68,9 @@ public class StudentApi {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('STUDENT_ROLE.READ', 'ADMIN_ROLE.READ')")
     @GetMapping(path = "all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<StudentResponseDto> getAllStudents(@RequestParam(name = "page", required = true) int page,
-                                                   @RequestParam(name = "size", required = true) int size,
-                                                   @RequestParam(name = "schoolId", required = true) Long schoolId){
+    public PageResponseDto getAllStudents(@RequestParam(name = "page", required = true) int page,
+                                          @RequestParam(name = "size", required = true) int size,
+                                          @RequestParam(name = "schoolId", required = true) Long schoolId){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return studentService.getAllStudents(pageable, schoolId);
     }
@@ -77,7 +78,7 @@ public class StudentApi {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path = "all-schools", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<StudentResponseDto> getAllStudents(@RequestParam(name = "page", required = true) int page,
+    public PageResponseDto getAllStudents(@RequestParam(name = "page", required = true) int page,
                                                    @RequestParam(name = "size", required = true) int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return studentService.getAllStudents(pageable);

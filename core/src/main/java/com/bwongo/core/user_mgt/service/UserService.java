@@ -4,6 +4,7 @@ import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.text.StringRegExUtil;
 import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.base.utils.EnumValidations;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.base.utils.BasicMsgConstants.COUNTRY_WITH_ID_NOT_FOUND;
 import static com.bwongo.core.base.utils.EnumValidations.isApprovalStatus;
 import static com.bwongo.core.base.utils.EnumValidations.isUserType;
@@ -295,12 +297,12 @@ public class UserService {
         Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, schoolId);
         var school= existingSchool.get();
 
-        var schoolUsers = schoolUserRepository.findAllBySchool(school);
+        var schoolUsersPage = schoolUserRepository.findAllBySchool(school);
 
-        return schoolUsers.stream()
+        return schoolUsersPage.stream()
                 .filter(schoolUser -> schoolUser.getUser().getUserType().equals(userTypeEnum))
                 .map(schoolUser -> schoolDtoService.tUserToUserSchoolDto(schoolUser.getUser(), schoolUser.getSchool()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -497,10 +499,13 @@ public class UserService {
         return userRepository.countByUserType(userTypeEnum);
     }
 
-    public List<UserResponseDto> getAll(Pageable pageable) {
-        return userRepository.findAll(pageable).stream()
+    public PageResponseDto getAll(Pageable pageable) {
+        var usersPage = userRepository.findAll(pageable);
+        var users = usersPage.stream()
                 .map(userDtoService::tUserToDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        return pageToDto(usersPage, users);
     }
 
     @Transactional
@@ -568,12 +573,14 @@ public class UserService {
         return Boolean.TRUE;
     }
 
-    public List<UserApprovalResponseDto> getUserApprovals(String status, Pageable pageable) {
+    public PageResponseDto getUserApprovals(String status, Pageable pageable) {
 
         Validate.isTrue(this, isApprovalStatus(status), ExceptionType.BAD_REQUEST, INVALID_APPROVAL_STATUS);
         var approvalEnum = ApprovalEnum.valueOf(status);
 
-        return userApprovalRepository.findAllByStatus(approvalEnum, pageable).stream()
+        var userApprovalPage = userApprovalRepository.findAllByStatus(approvalEnum, pageable);
+
+        var userApprovals = userApprovalPage.stream()
                 .map(approval -> {
                     SchoolResponseDto school = null;
                     if(approval.getUser().getUserType().equals(UserTypeEnum.DRIVER)
@@ -583,7 +590,9 @@ public class UserService {
                     }
                     return userDtoService.userApprovalToDto(approval, school);
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        return pageToDto(userApprovalPage, userApprovals);
     }
 
     public List<PermissionResponseDto> getPermissions(){

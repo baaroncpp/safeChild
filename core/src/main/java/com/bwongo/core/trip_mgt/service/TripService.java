@@ -3,6 +3,7 @@ package com.bwongo.core.trip_mgt.service;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.DateTimeUtil;
 import com.bwongo.commons.models.utils.Validate;
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.bwongo.core.base.model.enums.TripStatus.*;
+import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.base.utils.BasicMsgConstants.DATE_TIME_FORMAT;
 import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.*;
 
@@ -69,7 +71,7 @@ public class TripService {
         );
     }
 
-    public List<TripResponseDto> getTripsByDriverUsernameAndDate(String driverUsername,
+    public PageResponseDto getTripsByDriverUsernameAndDate(String driverUsername,
                                                                  String fromStringDate,
                                                                  String toStringDate,
                                                                  Pageable pageable){
@@ -83,12 +85,14 @@ public class TripService {
         if(existingDriver.isPresent())
             driver = existingDriver.get();
 
-        var driverTrips = tripRepository.findAllBySchoolStaffAndCreatedOnBetween(driver, fromDate, toDate, pageable);
-        Validate.notNull(this, driverTrips, ExceptionType.BAD_REQUEST, NO_TRIPS_FOUND);
+        var driverTripsPage = tripRepository.findAllBySchoolStaffAndCreatedOnBetween(driver, fromDate, toDate, pageable);
+        Validate.notNull(this, driverTripsPage.getContent(), ExceptionType.BAD_REQUEST, NO_TRIPS_FOUND);
 
-        return driverTrips.stream()
+        var trips = driverTripsPage.stream()
                 .map(tripDtoService::tripToDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        return pageToDto(driverTripsPage, trips);
     }
 
     public List<StudentEventLocationDto> getStudentEventLocation(Long tripId){
@@ -302,11 +306,24 @@ public class TripService {
     }
 
     public List<StudentOnTripDto> getStudentsOnTripsByDriver(String username,
-                                                             String fromDate,
-                                                             String toDate,
+                                                             String fromStringDate,
+                                                             String toStringDate,
                                                              Pageable pageable) {
+        var fromDate = getDateFromString(fromStringDate);
+        var toDate = getDateFromString(toStringDate);
 
-        var trips = getTripsByDriverUsernameAndDate(username, fromDate, toDate, pageable);
+        var existingDriver = userRepository.findByUsername(username);
+        Validate.isPresent(this, existingDriver, DRIVER_NOT_FOUND_BY_USERNAME, username);
+        TUser driver = null;
+        if(existingDriver.isPresent())
+            driver = existingDriver.get();
+
+        var driverTripsPage = tripRepository.findAllBySchoolStaffAndCreatedOnBetween(driver, fromDate, toDate, pageable);
+        Validate.notNull(this, driverTripsPage.getContent(), ExceptionType.BAD_REQUEST, NO_TRIPS_FOUND);
+
+        var trips = driverTripsPage.stream()
+                .map(tripDtoService::tripToDto)
+                .toList();
 
         var result = new ArrayList<StudentOnTripDto>();
 

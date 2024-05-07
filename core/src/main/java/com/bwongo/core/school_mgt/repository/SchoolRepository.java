@@ -1,11 +1,11 @@
 package com.bwongo.core.school_mgt.repository;
 
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,5 +20,5 @@ public interface SchoolRepository extends JpaRepository<TSchool, Long> {
     boolean existsByPhoneNumber(String phoneNumber);
     boolean existsByEmail(String email);
     boolean existsByAccountNumber(String accountNumber);
-    List<TSchool> findAllByDeleted(boolean deleted, Pageable pageable);
+    Page<TSchool> findAllByDeleted(boolean deleted, Pageable pageable);
 }

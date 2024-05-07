@@ -1,5 +1,6 @@
 package com.bwongo.core.school_mgt.api;
 
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.school_mgt.model.dto.SchoolRequestDto;
 import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
 import com.bwongo.core.school_mgt.service.SchoolService;
@@ -49,8 +50,8 @@ public class SchoolApi {
 
     @PreAuthorize("hasAnyAuthority('SCHOOL_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<SchoolResponseDto> getSchools(@RequestParam(name = "page", required = true) int page,
-                                              @RequestParam(name = "size", required = true) int size){
+    public PageResponseDto getSchools(@RequestParam(name = "page", required = true) int page,
+                                      @RequestParam(name = "size", required = true) int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return schoolService.getAllSchools(pageable);
     }

@@ -1,5 +1,6 @@
 package com.bwongo.core.trip_mgt.api;
 
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.base.model.enums.TripStatus;
 import com.bwongo.core.trip_mgt.model.dto.StudentEventLocationDto;
 import com.bwongo.core.trip_mgt.model.dto.TripResponseDto;
@@ -30,12 +31,12 @@ public class TripApi {
 
     @PreAuthorize("hasAnyAuthority('TRIP_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "driver", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<TripResponseDto> getTripByDriverAndDate(@RequestParam(name = "page", required = true) int page,
-                                                        @RequestParam(name = "size", required = true) int size,
-                                                        @RequestParam(name = "username", required = true) String username,
-                                                        @RequestParam(name = "fromDate", required = true) String fromDate,
-                                                        @RequestParam(name = "toDate", required = true) String toDate){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+    public PageResponseDto getTripByDriverAndDate(@RequestParam(name = "page", required = true) int page,
+                                                  @RequestParam(name = "size", required = true) int size,
+                                                  @RequestParam(name = "username", required = true) String username,
+                                                  @RequestParam(name = "fromDate", required = true) String fromDate,
+                                                  @RequestParam(name = "toDate", required = true) String toDate){
+        var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return tripService.getTripsByDriverUsernameAndDate(username, fromDate, toDate, pageable);
     }
 
