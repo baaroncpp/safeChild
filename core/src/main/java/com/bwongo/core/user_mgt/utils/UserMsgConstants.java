@@ -16,7 +16,7 @@ public class UserMsgConstants {
     public static final String USER_GROUP_NAME_ONLY_UPPER_CASE = "User group should contain only upper case";
     public static final String USER_GROUP_NAME_IS_NULL = "User group name is required";
     public static final String USER_GROUP_NOTE_IS_NULL = "User group note is required";
-    public static final String USER_ID_REQUIRED = "User ID is required";
+    public static final String APPROVAL_ID_REQUIRED = "Approval ID is required";
     public static final String PHONE_NUMBER_REQUIRED = "Phone number is required";
     public static final String GENDER_REQUIRED = "Gender is required";
     public static final String DOB_REQUIRED = "Date of birth is required";

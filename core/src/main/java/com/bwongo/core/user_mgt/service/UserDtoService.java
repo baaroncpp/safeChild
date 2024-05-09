@@ -111,7 +111,7 @@ public class UserDtoService {
         userMeta.setCountry(country);
         userMeta.setIdentificationType(IdentificationType.valueOf(userMetaRequestDto.identificationType()));
         userMeta.setIdentificationNumber(userMetaRequestDto.identificationNumber());
-        userMeta.setPin(userMetaRequestDto.pin());
+        //userMeta.setPin(userMetaRequestDto.pin());
 
         return userMeta;
     }

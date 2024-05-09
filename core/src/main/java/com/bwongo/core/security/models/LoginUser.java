@@ -32,6 +32,9 @@ public class LoginUser implements UserDetails {
     @Getter
     private TUserGroup userGroup;
 
+    @Getter
+    private Long schoolId;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return grantedAuthorities;

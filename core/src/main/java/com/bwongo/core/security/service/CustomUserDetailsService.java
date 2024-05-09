@@ -2,6 +2,8 @@ package com.bwongo.core.security.service;
 
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.Validate;
+import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
+import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
 import com.bwongo.core.security.models.LoginUser;
 import com.bwongo.core.user_mgt.model.jpa.TGroupAuthority;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
@@ -30,6 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final TUserRepository userRepository;
     private final TGroupAuthorityRepository groupAuthorityRepository;
+    private final SchoolUserRepository schoolUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -57,7 +60,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return Optional.of(logInUser);
     }
 
-    private static LoginUser getLoginUser(TUser user, Set<SimpleGrantedAuthority> permissions, TUserGroup userGroup) {
+    private LoginUser getLoginUser(TUser user, Set<SimpleGrantedAuthority> permissions, TUserGroup userGroup) {
         var logInUser = new LoginUser();
 
         logInUser.setUsername(user.getUsername());
@@ -69,6 +72,16 @@ public class CustomUserDetailsService implements UserDetailsService {
         logInUser.setId(user.getId());
         logInUser.setGrantedAuthorities(permissions);
         logInUser.setUserGroup(userGroup);
+
+
+        if(getSchoolUser(user).isPresent()){
+            logInUser.setSchoolId(getSchoolUser(user).get().getSchool().getId());
+        }
+
         return logInUser;
+    }
+
+    public Optional<TSchoolUser> getSchoolUser(TUser user){
+        return schoolUserRepository.findByUser(user);
     }
 }

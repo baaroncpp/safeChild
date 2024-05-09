@@ -35,7 +35,7 @@ public class TUserMeta extends AuditEntity {
     private String identificationPath;
     private Boolean nonVerifiedEmail;
     private Boolean nonVerifiedPhoneNumber;
-    private String pin;
+    //private String pin;
     private String physicalAddress;
 
     @Column(name = "first_name")
@@ -121,10 +121,10 @@ public class TUserMeta extends AuditEntity {
         return nonVerifiedPhoneNumber;
     }
 
-    @Column(name = "pin")
+    /*@Column(name = "pin")
     public String getPin() {
         return pin;
-    }
+    }*/
 
     @Column(name = "physical_address")
     public String getPhysicalAddress() {

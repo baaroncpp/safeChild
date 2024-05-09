@@ -1,0 +1,1 @@
+ALTER TABLE t_user_meta DROP COLUMN pin;

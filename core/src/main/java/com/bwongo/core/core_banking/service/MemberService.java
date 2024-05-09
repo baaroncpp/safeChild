@@ -97,7 +97,7 @@ public class MemberService {
         var coreBankingSchool = new DefaultRegisterUserDto(
                 userMeta.getLastName()+" "+userMeta.getFirstName(),
                 username,
-                userMeta.getPin(),
+                "5665",
                 userMeta.getEmail(),
                 schoolStaffGroupId,
                 customFields
@@ -136,7 +136,7 @@ public class MemberService {
         var coreBankingSchool = new DefaultRegisterUserDto(
                 userMeta.getLastName()+" "+userMeta.getFirstName(),
                 username,
-                userMeta.getPin(),
+                "5665",
                 userMeta.getEmail(),
                 driverGroupId,
                 customFields

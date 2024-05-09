@@ -12,12 +12,12 @@ import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
  * @Date 8/15/23
  **/
 public record UserApprovalRequestDto(
-        Long id,
-        Long userId,
+        Long approvalId,
+        //Long userId,
         String status
 ) {
     public void validate(){
-        Validate.notNull(this, userId, ExceptionType.BAD_REQUEST, USER_ID_REQUIRED);
+        Validate.notNull(this, approvalId, ExceptionType.BAD_REQUEST, APPROVAL_ID_REQUIRED);
         Validate.notEmpty(this, status, APPROVAL_STATUS_REQUIRED);
         Validate.isTrue(this, isApprovalStatus(status), ExceptionType.BAD_REQUEST, INVALID_APPROVAL_STATUS);
     }

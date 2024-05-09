@@ -419,7 +419,9 @@ public class UserService {
 
         Validate.isTrue(this, !userMetaRepository.existsByEmail(userMetaRequestDto.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, userMetaRequestDto.email());
         Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
-        Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
+
+        if(!userMetaRequestDto.phoneNumber2().isEmpty())
+            Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
 
         var userMeta = userDtoService.dtoToUserMeta(userMetaRequestDto);
         userMeta.setCountry(country);
@@ -466,7 +468,7 @@ public class UserService {
         if(!metaData.getPhoneNumber().equals(userMetaRequestDto.phoneNumber()))
             Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
 
-        if(!metaData.getPhoneNumber2().equals(userMetaRequestDto.phoneNumber2()))
+        if(!userMetaRequestDto.phoneNumber2().isEmpty() && !metaData.getPhoneNumber2().equals(userMetaRequestDto.phoneNumber2()))
             Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
 
         var userMeta = userDtoService.dtoToUserMeta(userMetaRequestDto);
@@ -512,8 +514,8 @@ public class UserService {
     public UserResponseDto approveUser(UserApprovalRequestDto userApprovalRequestDto) {
 
         userApprovalRequestDto.validate();
-        var existingApproval = userApprovalRepository.findById(userApprovalRequestDto.id());
-        Validate.isPresent(this, existingApproval, USER_APPROVAL_NOT_FOUND, userApprovalRequestDto.id());
+        var existingApproval = userApprovalRepository.findById(userApprovalRequestDto.approvalId());
+        Validate.isPresent(this, existingApproval, USER_APPROVAL_NOT_FOUND, userApprovalRequestDto.approvalId());
         final var userApproval = existingApproval.get();
 
         ApprovalEnum approvalEnum = ApprovalEnum.valueOf(userApprovalRequestDto.status());
@@ -642,8 +644,7 @@ public class UserService {
                 schoolUserRequestDto.email(),
                 schoolUserRequestDto.countryId(),
                 schoolUserRequestDto.identificationType(),
-                schoolUserRequestDto.identificationNumber(),
-                schoolUserRequestDto.pin()
+                schoolUserRequestDto.identificationNumber()
         );
 
     }
