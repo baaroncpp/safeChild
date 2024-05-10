@@ -25,8 +25,8 @@ import com.bwongo.core.user_mgt.repository.*;
 import com.bwongo.core.base.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.base.utils.BasicMsgConstants.COUNTRY_WITH_ID_NOT_FOUND;
@@ -161,9 +160,11 @@ public class UserService {
 
         schoolUserRequestDto.validate();
         Validate.notEmpty(this, schoolUserRequestDto.password(), PASSWORD_REQUIRED);
-        StringRegExUtil.stringOfStandardPassword(this, schoolUserRequestDto.password(), STANDARD_PASSWORD);
-        Validate.notEmpty(this, schoolUserRequestDto.pin(), NULL_PIN);
-        StringRegExUtil.stringOfOnlyNumbers(this, schoolUserRequestDto.pin(), String.format(INVALID_PIN, schoolUserRequestDto.pin()));
+
+        //Check if schoolUser is staff or driver
+        var userType = UserTypeEnum.valueOf(schoolUserRequestDto.userType());
+        if(userType.equals(UserTypeEnum.DRIVER) || userType.equals(UserTypeEnum.SCHOOL_STAFF))
+            validateLoggedUserWithSchool(schoolUserRequestDto.schoolId());
 
         var existingUserGroup = userGroupRepository.findById(schoolUserRequestDto.userGroupId());
         Validate.isPresent(this, existingUserGroup, USER_GROUP_DOES_NOT_EXIST, schoolUserRequestDto.userGroupId());
@@ -181,7 +182,7 @@ public class UserService {
         user.setInitialPasswordReset(Boolean.FALSE);
         user.setPassword(passwordEncoder.encode(schoolUserRequestDto.password()));
         user.setUserGroup(userGroup);
-        user.setUserType(UserTypeEnum.valueOf(schoolUserRequestDto.userType()));
+        user.setUserType(userType);
 
         auditService.stampLongEntity(user);
 
@@ -236,7 +237,10 @@ public class UserService {
 
         schoolUserRequestDto.validate();
         Validate.isTrue(this, schoolUserRequestDto.password() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PASSWORD);
-        Validate.isTrue(this, schoolUserRequestDto.pin() == null, ExceptionType.BAD_REQUEST, CANNOT_UPDATE_PIN);
+
+        var userType = UserTypeEnum.valueOf(schoolUserRequestDto.userType());
+        if(userType.equals(UserTypeEnum.DRIVER) || userType.equals(UserTypeEnum.SCHOOL_STAFF))
+            validateLoggedUserWithSchool(schoolUserRequestDto.schoolId());
 
         var existingUser = userRepository.findById(id);
         Validate.isPresent(this, existingUser, USER_DOES_NOT_EXIST, id);
@@ -262,7 +266,6 @@ public class UserService {
         updatedUser.setApproved(user.isApproved());
         updatedUser.setDeleted(user.getDeleted());
         updatedUser.setInitialPasswordReset(user.isInitialPasswordReset());
-        //updatedUser.setPassword(passwordEncoder.encode(schoolUserRequestDto.password()));
         updatedUser.setUserGroup(userGroup);
         updatedUser.setUserMetaId(user.getUserMetaId());
         updatedUser.setApprovedBy(user.getApprovedBy());
@@ -518,6 +521,8 @@ public class UserService {
         Validate.isPresent(this, existingApproval, USER_APPROVAL_NOT_FOUND, userApprovalRequestDto.approvalId());
         final var userApproval = existingApproval.get();
 
+        validateLoggedUserWithSchoolUser(userApproval.getUser());
+
         ApprovalEnum approvalEnum = ApprovalEnum.valueOf(userApprovalRequestDto.status());
         userApproval.setStatus(approvalEnum);
         auditService.stampAuditedEntity(userApproval);
@@ -597,6 +602,34 @@ public class UserService {
         return pageToDto(userApprovalPage, userApprovals);
     }
 
+    public PageResponseDto getSchoolUserApprovals(Long schoolId, String status, PageRequest pageable) {
+
+        var existingSchool = schoolRepository.findById(schoolId);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, schoolId);
+        var school = existingSchool.get();
+
+        Validate.isTrue(this, isApprovalStatus(status), ExceptionType.BAD_REQUEST, INVALID_APPROVAL_STATUS);
+        var approvalEnum = ApprovalEnum.valueOf(status);
+
+        var userApprovalPage = userApprovalRepository.findAllByStatus(approvalEnum, pageable);
+
+        var userApprovals = userApprovalPage.stream()
+                .map(approval -> {
+                    SchoolResponseDto tschool = null;
+                    if(approval.getUser().getUserType().equals(UserTypeEnum.DRIVER)
+                            || approval.getUser().getUserType().equals(UserTypeEnum.SCHOOL_STAFF)){
+                        tschool = getUserSchool(approval.getUser());
+                    }
+                    return userDtoService.userApprovalToDto(approval, tschool);
+                }).filter(approvalDto -> {
+                    var approvalSchool = approvalDto.school();
+                    return approvalSchool != null && (Objects.equals(approvalSchool.id(), school.getId()));
+                })
+                .toList();
+
+        return pageToDto(userApprovalPage, userApprovals);
+    }
+
     public List<PermissionResponseDto> getPermissions(){
         return getUserPermissionsById(auditService.getLoggedInUser().getId());
     }
@@ -609,7 +642,7 @@ public class UserService {
         return groupAuthorities
                 .stream()
                 .map(groupAuthority -> userDtoService.permissionToDto(groupAuthority.getPermission()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private UserRequestDto mapSchoolUserRequestDtoToUserRequestDto(SchoolUserRequestDto schoolUserRequestDto){
@@ -646,7 +679,6 @@ public class UserService {
                 schoolUserRequestDto.identificationType(),
                 schoolUserRequestDto.identificationNumber()
         );
-
     }
 
     private SchoolResponseDto getUserSchool(TUser user){
@@ -663,4 +695,34 @@ public class UserService {
 
         return user;
     }
+
+    private void validateLoggedUserWithSchoolUser(TUser user){
+
+        var schoolUser = schoolUserRepository.findByUser(user);
+        Validate.isPresent(this, schoolUser, NOT_ATTACHED_TO_SCHOOL, user.getId());
+        var userSchool = schoolUser.get().getSchool();
+
+        var loggedInUserId = auditService.getLoggedInUser().getId();
+        var loggedInUser = new TUser();
+        loggedInUser.setId(loggedInUserId);
+
+        var loggedInSchoolUser = schoolUserRepository.findByUser(loggedInUser);
+        if(loggedInSchoolUser.isPresent()){
+            var loggedInUserSchool = loggedInSchoolUser.get().getSchool();
+            Validate.isTrue(this, Objects.equals(userSchool.getId(), loggedInUserSchool.getId()), ExceptionType.BAD_REQUEST, USER_NOT_IN_SIMILAR_SCHOOL);
+        }
+    }
+
+    private void validateLoggedUserWithSchool(Long schoolId){
+        var loggedInUserId = auditService.getLoggedInUser().getId();
+        var loggedInUser = new TUser();
+        loggedInUser.setId(loggedInUserId);
+
+        var loggedInSchoolUser = schoolUserRepository.findByUser(loggedInUser);
+        if(loggedInSchoolUser.isPresent()){
+            var loggedInUserSchool = loggedInSchoolUser.get().getSchool();
+            Validate.isTrue(this, Objects.equals(schoolId, loggedInUserSchool.getId()), ExceptionType.BAD_REQUEST, USER_NOT_IN_SIMILAR_SCHOOL);
+        }
+    }
+
 }

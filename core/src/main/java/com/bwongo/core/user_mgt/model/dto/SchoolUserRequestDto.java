@@ -27,7 +27,7 @@ public record SchoolUserRequestDto (
         Long countryId,
         String identificationType,
         String identificationNumber,
-        String pin,
+        //String pin,
         String password,
         Long userGroupId,
         Long approvedBy,

@@ -6,7 +6,6 @@ import com.bwongo.core.user_mgt.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +29,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 public class UserApi {
 
     private final UserService userService;
+    private static final String CREATED_ON = "createdOn";
 
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('USER_ROLE.UPDATE','ADMIN_ROLE.UPDATE', 'MOBILE_APP_ROLE.UPDATE')")
@@ -84,7 +84,7 @@ public class UserApi {
         return userService.updateSchoolUser(id, userDto);
     }
 
-    @PreAuthorize("hasAnyAuthority('USER_ROLE.WRITE','ADMIN_ROLE.WRITE')")
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "school/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<SchoolUserResponseDto> getSchoolUser(@RequestParam(name = "userType", required = true) String userType,
                                          @PathVariable("id") Long schoolId) {
@@ -129,7 +129,7 @@ public class UserApi {
     @GetMapping(path="pageable", produces = APPLICATION_JSON)
     public PageResponseDto getAllUsers(@RequestParam(name = "page", required = true) int page,
                                              @RequestParam(name = "size", required = true) int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        var pageable = PageRequest.of(page, size, Sort.by(CREATED_ON).descending());
         return userService.getAll(pageable);
     }
 
@@ -164,8 +164,18 @@ public class UserApi {
     public PageResponseDto getUserApprovals(@RequestParam(name = "page", required = true) int page,
                                                           @RequestParam(name = "size", required = true) int size,
                                                           @RequestParam(name = "status", required = true) String status){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        var pageable = PageRequest.of(page, size, Sort.by(CREATED_ON).descending());
         return userService.getUserApprovals(status, pageable);
+    }
+
+    @GetMapping(path = "school/{id}/approvals", produces = APPLICATION_JSON)
+    @PreAuthorize("hasAnyAuthority('USER_ROLE.READ','ADMIN_ROLE.READ')")
+    public PageResponseDto getSchoolUserApprovals(@RequestParam(name = "page", required = true) int page,
+                                                  @RequestParam(name = "size", required = true) int size,
+                                                  @RequestParam(name = "status", required = true) String status,
+                                                  @PathVariable("id") Long schoolId){
+        var pageable = PageRequest.of(page, size, Sort.by(CREATED_ON).descending());
+        return userService.getSchoolUserApprovals(schoolId, status, pageable);
     }
 
     @GetMapping(path = "permissions", produces = APPLICATION_JSON)

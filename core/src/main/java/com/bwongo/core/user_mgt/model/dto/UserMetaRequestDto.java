@@ -46,7 +46,7 @@ public record UserMetaRequestDto(
         Validate.isTrue(this, isIdentificationType(identificationType), ExceptionType.BAD_REQUEST, INVALID_IDENTIFICATION_TYPE);
         //Validate.notEmpty(this, pin, NULL_PIN);
         //StringRegExUtil.stringOfOnlyNumbers(this, pin, String.format(INVALID_PIN, pin));
-        //Validate.isTrue(this, pin.length() == 4, ExceptionType.BAD_REQUEST, PIN_BAD_LENGTH);
+        //Validate./home/bkaaron/bwongo/surPa/sp-smsisTrue(this, pin.length() == 4, ExceptionType.BAD_REQUEST, PIN_BAD_LENGTH);
 
         if(!phoneNumber2.isEmpty()){
             StringRegExUtil.stringOfInternationalPhoneNumber(this, phoneNumber, INVALID_SECOND_PHONE_NUMBER);
