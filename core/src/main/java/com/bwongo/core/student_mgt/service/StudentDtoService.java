@@ -88,10 +88,12 @@ public class StudentDtoService {
         guardian.setFullName(guardianRequestDto.fullName());
         guardian.setPhoneNumber(guardianRequestDto.phoneNumber());
         guardian.setAddress(guardianRequestDto.address());
-        guardian.setRelation(Relation.valueOf(guardianRequestDto.relation()));
         guardian.setIdentificationType(IdentificationType.valueOf(guardianRequestDto.identificationType()));
         guardian.setIdNumber(guardianRequestDto.idNumber());
         guardian.setNotified(guardianRequestDto.isNotified());
+
+        if(!guardianRequestDto.relation().isEmpty())
+            guardian.setRelation(Relation.valueOf(guardianRequestDto.relation()));
 
         return guardian;
     }

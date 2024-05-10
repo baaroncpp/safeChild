@@ -108,7 +108,8 @@ public class TripService {
         Validate.isPresent(this, existingSchoolUser, SCHOOL_USER_NOT_FOUND, staff.getId());
         var schoolUser = existingSchoolUser.get();
 
-        Validate.isTrue(this, Objects.equals(schoolUser.getSchool().getId(), trip.getSchool().getId()), ExceptionType.ACCESS_DENIED, NO_ACCESS_TO_TRIP);
+        //TODO need to look into this
+        //Validate.isTrue(this, Objects.equals(schoolUser.getSchool().getId(), trip.getSchool().getId()), ExceptionType.ACCESS_DENIED, NO_ACCESS_TO_TRIP);
 
         var studentTravels = studentTravelRepository.findAllByTrip(trip);
         Validate.notNull(this, studentTravels, ExceptionType.BAD_REQUEST, NO_STUDENT_COORDINATES);
