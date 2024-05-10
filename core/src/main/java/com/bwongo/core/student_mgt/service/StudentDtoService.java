@@ -88,9 +88,11 @@ public class StudentDtoService {
         guardian.setFullName(guardianRequestDto.fullName());
         guardian.setPhoneNumber(guardianRequestDto.phoneNumber());
         guardian.setAddress(guardianRequestDto.address());
-        guardian.setIdentificationType(IdentificationType.valueOf(guardianRequestDto.identificationType()));
         guardian.setIdNumber(guardianRequestDto.idNumber());
         guardian.setNotified(guardianRequestDto.isNotified());
+
+        if(!guardianRequestDto.identificationType().isEmpty())
+            guardian.setIdentificationType(IdentificationType.valueOf(guardianRequestDto.identificationType()));
 
         if(!guardianRequestDto.relation().isEmpty())
             guardian.setRelation(Relation.valueOf(guardianRequestDto.relation()));
