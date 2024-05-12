@@ -53,4 +53,15 @@ public class TripApi {
         return tripService.changeTripStatus(id, tripStatus);
     }
 
+    @PreAuthorize("hasAnyAuthority('TRIP_ROLE.UPDATE','ADMIN_ROLE.UPDATE')")
+    @GetMapping(path = "all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PageResponseDto getAllTrips(@RequestParam(name = "page", required = true) int page,
+                                       @RequestParam(name = "size", required = true) int size,
+                                       @RequestParam(name = "schoolId", required = false) Long schoolId,
+                                       @RequestParam(name = "fromDate", required = true) String fromDate,
+                                       @RequestParam(name = "toDate", required = true) String toDate){
+        var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        return tripService.getAllTrips(pageable, schoolId, fromDate, toDate);
+    }
+
 }

@@ -56,7 +56,7 @@ public class VehicleApi {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PageResponseDto getAllVehiclesBySchoolId(@RequestParam(name = "page", required = true) int page,
                                                     @RequestParam(name = "size",  required = true) int size,
-                                                    @RequestParam(name = "schoolId") Long schoolId){
+                                                    @RequestParam(name = "schoolId", required = false) Long schoolId){
         var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return vehicleService.getAllVehiclesBySchoolId(pageable, schoolId);
     }

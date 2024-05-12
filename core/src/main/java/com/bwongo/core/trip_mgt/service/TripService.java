@@ -6,6 +6,9 @@ import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.service.AuditService;
+import com.bwongo.core.school_mgt.model.jpa.TSchool;
+import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
+import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
 import com.bwongo.core.student_mgt.model.dto.StudentResponseDto;
 import com.bwongo.core.student_mgt.model.jpa.StudentTravel;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.bwongo.core.base.model.enums.TripStatus.*;
 import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.base.utils.BasicMsgConstants.DATE_TIME_FORMAT;
+import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.SCHOOL_NOT_FOUND;
 import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.*;
 
 import java.util.*;
@@ -34,6 +38,7 @@ import java.util.stream.Stream;
 
 import static com.bwongo.core.trip_mgt.utils.TripUtils.generateStudentTripReport;
 import static com.bwongo.core.trip_mgt.utils.TripUtils.getRemainingStudentsOnTrip;
+import static com.bwongo.core.user_mgt.utils.UserManagementUtils.checkThatSchoolUserMatchesSchool;
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.*;
 
@@ -48,7 +53,7 @@ import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.*;
 @RequiredArgsConstructor
 public class TripService {
 
-    private final StudentRepository studentRepository;
+    private final SchoolRepository schoolRepository;
     private final TUserRepository userRepository;
     private final TripRepository tripRepository;
     private final TripDtoService tripDtoService;
@@ -338,5 +343,60 @@ public class TripService {
             }
         });
         return result;
+    }
+
+    public PageResponseDto getAllTrips(Pageable pageable, Long schoolId, String fromStringDate, String toStringDate){
+
+        if(schoolId != null)
+            return getTripsBySchool(pageable, schoolId, fromStringDate, toStringDate);
+
+        var fromDate = getDateFromString(fromStringDate);
+        var toDate = getDateFromString(toStringDate);
+
+        var user = userRepository.findById(auditService.getLoggedInUser().getId()).get();
+        Validate.isTrue(this, user.getUserType().equals(UserTypeEnum.ADMIN), ExceptionType.ACCESS_DENIED, "Access denied");
+
+        var tripPage = tripRepository.findAllByCreatedOnBetween(fromDate, toDate, pageable);
+
+        var trips = tripPage.stream()
+                .map(tripDtoService::tripToDto)
+                .toList();
+
+        return pageToDto(tripPage, trips);
+    }
+
+    private PageResponseDto getTripsBySchool(Pageable pageable, Long schoolId, String fromStringDate, String toStringDate){
+
+        var schoolUser = getSchoolUser(auditService.getLoggedInUser().getId());
+        checkThatSchoolUserMatchesSchool(schoolUser, schoolId);
+
+        var fromDate = getDateFromString(fromStringDate);
+        var toDate = getDateFromString(toStringDate);
+
+        var school = getSchool(schoolId);
+
+        var tripPage = tripRepository.findAllBySchoolAndCreatedOnBetween(school, fromDate, toDate, pageable);
+
+        var trips = tripPage.stream()
+                .map(tripDtoService::tripToDto)
+                .toList();
+
+        return pageToDto(tripPage, trips);
+    }
+
+    private TSchool getSchool(Long id){
+        var existingSchool = schoolRepository.findById(id);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, id);
+        return existingSchool.get();
+    }
+
+    private TSchoolUser getSchoolUser(Long userId){
+
+        var user = new TUser();
+        user.setId(userId);
+
+        var existingSchoolUser = schoolUserRepository.findByUser(user);
+        Validate.isPresent(this, existingSchoolUser, NO_SCHOOL_WITH_USER, userId);
+        return existingSchoolUser.get();
     }
 }
