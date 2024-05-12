@@ -5,6 +5,7 @@ import com.bwongo.commons.models.utils.DateTimeUtil;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.core.account_mgt.repository.TAccountRepository;
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.base.model.enums.*;
 import com.bwongo.core.base.model.jpa.TLocation;
 import com.bwongo.core.base.repository.TLocationRepository;
@@ -15,6 +16,7 @@ import com.bwongo.core.notify_mgt.network.MessageBrokerService;
 import com.bwongo.core.notify_mgt.repository.NotificationRepository;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
+import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
 import com.bwongo.core.student_mgt.model.dto.StudentDayResponseDto;
 import com.bwongo.core.student_mgt.model.jpa.StudentDay;
@@ -39,9 +41,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.bwongo.commons.models.utils.DateTimeUtil.*;
+import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.base.utils.BasicMsgConstants.DATE_TIME_FORMAT;
 import static com.bwongo.core.notify_mgt.utils.NotificationMsgConstants.*;
 import static com.bwongo.core.notify_mgt.utils.NotificationUtils.*;
+import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.SCHOOL_NOT_FOUND;
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
 import static com.bwongo.core.trip_mgt.utils.TripMsgConstants.*;
 import static com.bwongo.core.trip_mgt.utils.TripUtils.getRemainingStudentsOnTrip;
@@ -56,7 +60,6 @@ import static com.bwongo.core.user_mgt.utils.UserMsgConstants.SCHOOL_USER_NOT_FO
 @Slf4j
 @RequiredArgsConstructor
 public class NotificationService {
-    private final TUserRepository tUserRepository;
 
     @Value("${notification.sms.sender}")
     private String smsSender;
@@ -76,6 +79,7 @@ public class NotificationService {
     private static final String SUCCESS_NOTE = "Successfully signed in all students on trip";
     private static final String FAILED_NOTIFICATION = "Failed to send notification";
 
+    private final TUserRepository tUserRepository;
     private final StudentDayRepository studentDayRepository;
     private final StudentTravelRepository studentTravelRepository;
     private final StudentRepository studentRepository;
@@ -89,6 +93,28 @@ public class NotificationService {
     private final StudentDtoService studentDtoService;
     private final TAccountRepository accountRepository;
     private final TripDtoService tripDtoService;
+    private final SchoolRepository schoolRepository;
+
+    public PageResponseDto getNotifications(Pageable pageable, String startStringDate, String endStringDate, Long schoolId){
+
+        var startDate = getDateFromString(startStringDate);
+        var endDate = getDateFromString(endStringDate);
+
+        var existingSchool = schoolRepository.findById(schoolId);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, schoolId);
+        var school = existingSchool.get();
+
+        var existingAccount = accountRepository.findBySchool(school);
+        Validate.isPresent(this, existingAccount, "School account not found");
+        var account = existingAccount.get();
+        var accountNumber = account.getAccountNumber();
+
+        var notificationPage = notificationRepository.findAllByAccountNumberAndCreatedOnBetween(accountNumber, startDate, endDate, pageable);
+
+        var notifications = notificationPage.getContent();
+
+        return pageToDto(notificationPage, notifications);
+    }
 
     private TStudent getStudentByUsername(String username){
         var existingStudent = studentRepository.findByStudentUsername(username);
@@ -434,5 +460,10 @@ public class NotificationService {
             return String.format(onSchoolSms, studentUsername, schoolName, schoolUserType, staffUsername, time.format(formatter));
 
         return null;
+    }
+
+    private Date getDateFromString(String stringDate){
+        Validate.isAcceptableDateFormat(this, stringDate);
+        return DateTimeUtil.stringToDate(stringDate, DATE_TIME_FORMAT);
     }
 }

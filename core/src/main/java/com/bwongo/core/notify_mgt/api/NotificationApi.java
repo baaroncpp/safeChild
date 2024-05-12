@@ -1,5 +1,6 @@
 package com.bwongo.core.notify_mgt.api;
 
+import com.bwongo.core.base.model.dto.PageResponseDto;
 import com.bwongo.core.notify_mgt.model.dto.BulkSignInRequestDto;
 import com.bwongo.core.notify_mgt.model.dto.BulkSignInResponse;
 import com.bwongo.core.notify_mgt.model.dto.NotificationDriverDto;
@@ -58,12 +59,23 @@ public class NotificationApi {
         return notificationService.bulkOnSchool(bulkSignInRequestDto);
     }
 
-    @PreAuthorize("hasAnyAuthority('MOBILE_APP_ROLE.WRITE','ADMIN_ROLE.WRITE')")
+    @PreAuthorize("hasAnyAuthority('MOBILE_APP_ROLE.READ','ADMIN_ROLE.READ')")
     @GetMapping(path = "notification/student-day/date", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<StudentDayResponseDto> getStudentDayByDate(@RequestParam("page") int page,
                                                            @RequestParam("size") int size,
                                                            @RequestParam("date") String date){
         var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return notificationService.getStudentDayByStaffAndDate(date, pageable);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ', 'SCHOOL_ROLE.READ')")
+    @GetMapping(path = "sms/notification/school", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PageResponseDto getNotificationsBySchool(@RequestParam(name = "page") int page,
+                                                    @RequestParam(name = "size") int size,
+                                                    @RequestParam(name = "startDate") String startDate,
+                                                    @RequestParam(name = "endDate") String endDate,
+                                                    @RequestParam(name = "schoolId") Long schoolId){
+        var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        return notificationService.getNotifications(pageable, startDate, endDate, schoolId);
     }
 }
