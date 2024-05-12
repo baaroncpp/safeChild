@@ -48,7 +48,7 @@ public class AccountApi {
         return accountService.getAccountBalance();
     }
 
-    @PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.READ', 'ADMIN_ROLE.READ')")
+    @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path = "system/balance", produces = MediaType.APPLICATION_JSON_VALUE)
     public BigDecimal getSystemSmsAccountBalance(){
         return accountService.getAccountBalance();
