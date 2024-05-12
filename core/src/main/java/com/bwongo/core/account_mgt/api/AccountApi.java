@@ -43,8 +43,14 @@ public class AccountApi {
     }
 
     @PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.READ', 'ADMIN_ROLE.READ')")
-    @GetMapping(path = "account/balance", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "school/balance", produces = MediaType.APPLICATION_JSON_VALUE)
     public BigDecimal getSchoolAccountBalance(){
+        return accountService.getAccountBalance();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ACCOUNT_ROLE.READ', 'ADMIN_ROLE.READ')")
+    @GetMapping(path = "system/balance", produces = MediaType.APPLICATION_JSON_VALUE)
+    public BigDecimal getSystemSmsAccountBalance(){
         return accountService.getAccountBalance();
     }
 

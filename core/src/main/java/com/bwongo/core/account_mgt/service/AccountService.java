@@ -95,6 +95,14 @@ public class AccountService {
         return schoolAccount.getCurrentBalance();
     }
 
+    public BigDecimal getSmsSystemAccountBalance(){
+        var existingAccount = accountRepository.findByAccountNumber(SMS_COLLECTION_ACCOUNT_NUMBER);
+        Validate.isPresent(this, existingAccount, "Contact Admin");
+        var account = existingAccount.get();
+
+        return account.getCurrentBalance();
+    }
+
     @Transactional
     public SmsPaymentResponseDto consumeSmsPayment(SmsPaymentRequestDto smsPaymentRequestDto){
 
