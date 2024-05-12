@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,7 +63,7 @@ public class NotificationApi {
     public List<StudentDayResponseDto> getStudentDayByDate(@RequestParam("page") int page,
                                                            @RequestParam("size") int size,
                                                            @RequestParam("date") String date){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return notificationService.getStudentDayByStaffAndDate(date, pageable);
     }
 }

@@ -2,15 +2,19 @@ package com.bwongo.core.base.api;
 
 import com.bwongo.core.base.model.dto.CountryResponseDto;
 import com.bwongo.core.base.model.dto.DistrictResponseDto;
+import com.bwongo.core.base.model.enums.FileDirEnum;
 import com.bwongo.core.base.service.BaseService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -41,6 +45,12 @@ public class BaseApi {
     @GetMapping(path = "countries", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CountryResponseDto> getAllCountries(){
         return baseService.getAllCountries();
+    }
+
+    @PostMapping(value = "uploadFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> uploadFile(@RequestPart(value = "file") MultipartFile file) {
+        baseService.uploadFile(file, FileDirEnum.PROFILE);
+        return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
 }

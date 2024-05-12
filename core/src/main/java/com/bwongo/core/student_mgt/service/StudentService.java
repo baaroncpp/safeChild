@@ -140,9 +140,22 @@ public class StudentService {
 
     public PageResponseDto getAllStudents(Pageable pageable, Long schoolId){
 
+        if(schoolId == null)
+            return getAllStudentsAdmin(pageable);
+
         var school = getSchool(schoolId);
 
         var studentPage = studentRepository.findAllByDeletedAndSchool(pageable, Boolean.FALSE, school);
+
+        var students = studentPage.stream()
+                .map(studentDtoService::studentToDto)
+                .toList();
+
+        return pageToDto(studentPage, students);
+    }
+
+    public PageResponseDto getAllStudentsAdmin(Pageable pageable){
+        var studentPage = studentRepository.findAllByDeleted(pageable, Boolean.FALSE);
 
         var students = studentPage.stream()
                 .map(studentDtoService::studentToDto)

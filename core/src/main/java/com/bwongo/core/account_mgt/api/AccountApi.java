@@ -7,7 +7,6 @@ import com.bwongo.core.account_mgt.service.AccountService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -60,7 +59,7 @@ public class AccountApi {
     public List<AccountResponseDto> getAllSchoolAccounts(@RequestParam(name = "page", required = true) int page,
                                                          @RequestParam(name = "size", required = true) int size,
                                                          @RequestParam(name = "accountType", required = true) String accountType){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return accountService.getAccounts(accountType, pageable);
     }
 }

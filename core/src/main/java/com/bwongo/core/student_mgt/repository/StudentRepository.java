@@ -24,4 +24,5 @@ public interface StudentRepository extends JpaRepository<TStudent, Long> {
     Optional<TStudent> findByDeletedAndId(boolean isDeleted, Long id);
     Optional<TStudent> findByDeletedAndSchoolIdNumberAndSchool(boolean isDeleted, String schoolIdNumber, TSchool school);
     Page<TStudent> findAllByDeletedAndSchool(Pageable pageable, boolean isDeleted, TSchool school);
+    Page<TStudent> findAllByDeleted(Pageable pageable, boolean isDeleted);
 }
