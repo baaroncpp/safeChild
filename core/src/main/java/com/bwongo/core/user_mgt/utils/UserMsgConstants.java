@@ -92,5 +92,6 @@ public class UserMsgConstants {
     public static final String PERMISSION_NOT_ASSIGNED_TO_USER_GROUP = "Permission %s, not assigned to user group %s";
     public static final String PERMISSION_ALREADY_ASSIGNED_TO_USER_GROUP = "Permission %s, already assigned to user group %s";
     public static final String USER_GROUP_ALREADY_EXISTS = "User group %s already exists";
+    public static final String NO_SCHOOL_WITH_USER = "No school with user ID: %s";
 
 }

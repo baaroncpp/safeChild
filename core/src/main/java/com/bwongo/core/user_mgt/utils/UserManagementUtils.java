@@ -3,8 +3,12 @@ package com.bwongo.core.user_mgt.utils;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.utils.Validate;
 import com.bwongo.core.base.model.enums.UserTypeEnum;
+import com.bwongo.core.school_mgt.model.jpa.TSchool;
+import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
 import com.bwongo.core.user_mgt.model.jpa.TPermission;
 import com.bwongo.core.user_mgt.model.jpa.TUser;
+
+import java.util.Objects;
 
 import static com.bwongo.core.user_mgt.utils.UserMsgConstants.*;
 
@@ -59,6 +63,11 @@ public class UserManagementUtils {
         }
 
         return result;
+    }
+
+    public static void checkThatSchoolUserMatchesSchool(TSchoolUser schoolUser, Long schoolId){
+        var loggedInUserSchool = schoolUser.getSchool();
+        Validate.isTrue(UserManagementUtils.class, Objects.equals(schoolId, loggedInUserSchool.getId()), ExceptionType.BAD_REQUEST, USER_NOT_IN_SIMILAR_SCHOOL);
     }
 
 }

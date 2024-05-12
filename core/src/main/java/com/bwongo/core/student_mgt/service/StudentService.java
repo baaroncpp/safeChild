@@ -8,6 +8,7 @@ import com.bwongo.core.base.model.enums.UserTypeEnum;
 import com.bwongo.core.base.service.AuditService;
 import com.bwongo.core.core_banking.service.MemberService;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
+import com.bwongo.core.school_mgt.model.jpa.TSchoolUser;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import com.bwongo.core.school_mgt.repository.SchoolUserRepository;
 import com.bwongo.core.student_mgt.model.dto.*;
@@ -17,6 +18,7 @@ import com.bwongo.core.student_mgt.model.jpa.TStudentGuardian;
 import com.bwongo.core.student_mgt.repository.GuardianRepository;
 import com.bwongo.core.student_mgt.repository.StudentGuardianRepository;
 import com.bwongo.core.student_mgt.repository.StudentRepository;
+import com.bwongo.core.user_mgt.model.jpa.TUser;
 import com.bwongo.core.user_mgt.repository.TUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,8 @@ import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.SCHOOL_NOT_FOUND;
 import static com.bwongo.core.student_mgt.utils.StudentManagementUtils.studentAlreadyHasNotifyingGuardian;
 import static com.bwongo.core.student_mgt.utils.StudentMsgConstant.*;
+import static com.bwongo.core.user_mgt.utils.UserManagementUtils.checkThatSchoolUserMatchesSchool;
+import static com.bwongo.core.user_mgt.utils.UserMsgConstants.NO_SCHOOL_WITH_USER;
 import static com.bwongo.core.vehicle_mgt.utils.VehicleMsgConstants.CANT_ASSIGN_SCHOOL;
 
 /**
@@ -144,6 +148,9 @@ public class StudentService {
             return getAllStudentsAdmin(pageable);
 
         var school = getSchool(schoolId);
+
+        var schoolUser = getSchoolUser(auditService.getLoggedInUser().getId());
+        checkThatSchoolUserMatchesSchool(schoolUser, schoolId);
 
         var studentPage = studentRepository.findAllByDeletedAndSchool(pageable, Boolean.FALSE, school);
 
@@ -325,5 +332,15 @@ public class StudentService {
                 .toList();
 
         return pageToDto(studentPage, students);
+    }
+
+    private TSchoolUser getSchoolUser(Long userId){
+
+        var user = new TUser();
+        user.setId(userId);
+
+        var existingSchoolUser = schoolUserRepository.findByUser(user);
+        Validate.isPresent(this, existingSchoolUser, NO_SCHOOL_WITH_USER, userId);
+        return existingSchoolUser.get();
     }
 }
