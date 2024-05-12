@@ -104,6 +104,11 @@ public class VehicleService {
 
     public PageResponseDto getAllVehiclesBySchoolId(Pageable pageable, Long schoolId){
 
+        if(schoolId == null) {
+            var user = userRepository.findById(auditService.getLoggedInUser().getId()).get();
+            Validate.isTrue(this, user.getUserType().equals(UserTypeEnum.ADMIN), ExceptionType.ACCESS_DENIED, "Access denied");
+            return getAllVehicles(pageable);
+        }
         var school = getSchool(schoolId);
 
         var existingEditingUser = userRepository.findById(auditService.getLoggedInUser().getId());
@@ -113,6 +118,15 @@ public class VehicleService {
             Validate.isTrue(this, schoolUserRepository.existsBySchoolAndUser(school, editingUser), ExceptionType.ACCESS_DENIED, CANT_ACCESS_SCHOOL, schoolId);
 
         var vehiclePage = vehicleRepository.findAllByDeletedAndSchool(pageable, Boolean.FALSE, school);
+        var vehicles = vehiclePage.stream()
+                .map(vehicleDtoService::vehicleToDto)
+                .toList();
+
+        return pageToDto(vehiclePage, vehicles);
+    }
+
+    public PageResponseDto getAllVehicles(Pageable pageable){
+        var vehiclePage = vehicleRepository.findAllByDeleted(pageable, Boolean.FALSE);
         var vehicles = vehiclePage.stream()
                 .map(vehicleDtoService::vehicleToDto)
                 .toList();

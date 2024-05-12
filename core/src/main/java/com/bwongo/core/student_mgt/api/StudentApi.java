@@ -70,7 +70,7 @@ public class StudentApi {
     @GetMapping(path = "all", produces = MediaType.APPLICATION_JSON_VALUE)
     public PageResponseDto getAllStudents(@RequestParam(name = "page", required = true) int page,
                                           @RequestParam(name = "size", required = true) int size,
-                                          @RequestParam(name = "schoolId") Long schoolId){
+                                          @RequestParam(name = "schoolId", required = true) Long schoolId){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return studentService.getAllStudents(pageable, schoolId);
     }
@@ -79,7 +79,7 @@ public class StudentApi {
     @PreAuthorize("hasAnyAuthority('ADMIN_ROLE.READ')")
     @GetMapping(path = "all-schools", produces = MediaType.APPLICATION_JSON_VALUE)
     public PageResponseDto getAllStudents(@RequestParam(name = "page", required = true) int page,
-                                                   @RequestParam(name = "size", required = true) int size){
+                                          @RequestParam(name = "size", required = true) int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return studentService.getAllStudents(pageable);
     }

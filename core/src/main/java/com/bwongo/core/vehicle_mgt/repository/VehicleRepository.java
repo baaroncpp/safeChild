@@ -19,4 +19,5 @@ public interface VehicleRepository extends JpaRepository<TVehicle, Long> {
     boolean existsByPlateNumber(String plateNumber);
     Optional<TVehicle> findByDeletedAndId(boolean isDeleted, Long id);
     Page<TVehicle> findAllByDeletedAndSchool(Pageable pageable, boolean isDeleted, TSchool school);
+    Page<TVehicle> findAllByDeleted(Pageable pageable, boolean isDeleted);
 }

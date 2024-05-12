@@ -54,10 +54,10 @@ public class VehicleApi {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('VEHICLE_ROLE.READ', 'ADMIN_ROLE.READ')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public PageResponseDto getAllVehiclesBySchoolId(@RequestParam("page") int page,
-                                                    @RequestParam("size") int size,
-                                                    @RequestParam("schoolId") Long schoolId){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+    public PageResponseDto getAllVehiclesBySchoolId(@RequestParam(name = "page", required = true) int page,
+                                                    @RequestParam(name = "size",  required = true) int size,
+                                                    @RequestParam(name = "schoolId") Long schoolId){
+        var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return vehicleService.getAllVehiclesBySchoolId(pageable, schoolId);
     }
 
