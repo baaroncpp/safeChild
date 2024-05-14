@@ -90,7 +90,7 @@ public class TripMobileAppApi {
                                                     @RequestParam(name = "username", required = true) String username,
                                                     @RequestParam(name = "fromDate", required = true) String fromDate,
                                                     @RequestParam(name = "toDate", required = true) String toDate){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
+        var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return tripService.getStudentsOnTripsByDriver(username, fromDate, toDate, pageable);
     }
 }
