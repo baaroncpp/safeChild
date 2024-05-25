@@ -471,7 +471,7 @@ public class AccountService {
 
             school.setCoreBankingId(coreBankingId);
 
-            auditService.stampAuditedEntity(school);
+            auditService.stampLongEntity(school);
             school.setModifiedBy(auditUser);
             schoolRepository.save(school);
         }
@@ -483,7 +483,7 @@ public class AccountService {
         account.setSchoolAccount(Boolean.TRUE);
         account.setCurrentBalance(BigDecimal.ZERO);
 
-        auditService.stampAuditedEntity(account);
+        auditService.stampLongEntity(account);
         account.setCreatedBy(auditUser);
         account.setModifiedBy(auditUser);
         return accountRepository.save(account);
