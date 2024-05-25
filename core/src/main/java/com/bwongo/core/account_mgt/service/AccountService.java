@@ -253,13 +253,17 @@ public class AccountService {
     @Async("asyncTaskExecutor")
     public void updatePendingPaymentDeposits(){
         log.info(Thread.currentThread().getName());
-        List<TMomoDeposit> momoDepositList = momoDepositRepository.findByTransactionStatus(TransactionStatus.PENDING);
-        for(TMomoDeposit deposit : momoDepositList){
-            try{
-                checkDepositStatus(deposit);
-            }catch (Exception ex){
-                log.error(ex.getMessage());
+        try {
+            List<TMomoDeposit> momoDepositList = momoDepositRepository.findByTransactionStatus(TransactionStatus.PENDING);
+            for (TMomoDeposit deposit : momoDepositList) {
+                try {
+                    checkDepositStatus(deposit);
+                } catch (Exception ex) {
+                    log.error(ex.getMessage());
+                }
             }
+        }catch (Exception e){
+            log.error(e.getMessage());
         }
     }
 
