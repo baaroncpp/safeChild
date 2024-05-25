@@ -425,6 +425,8 @@ public class AccountService {
 
         var result = paymentService.makeCoreBakingMomoDeposit(momoBankingDto);
 
+        log.error("CYCLOS RESPONSE: " + result.getStatus().name());
+
         Validate.isTrue(this, result.getStatus().isSuccessful(), ExceptionType.BAD_REQUEST, result.getStatus().name());
     }
 
