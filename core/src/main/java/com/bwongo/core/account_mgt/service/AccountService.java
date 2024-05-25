@@ -463,27 +463,27 @@ public class AccountService {
 
     private TAccount createSchoolAccountIfNotExist(TSchool school, TUser auditUser){
 
-        var accountNumber = school.getAccountNumber();
-        if((school.getAccountNumber() == null) && school.getCoreBankingId() == null){
-            accountNumber = schoolService.getNonExistingSchoolAccountNumber();
-            school.setAccountNumber(accountNumber);
+        var newAccountNumber = schoolService.getNonExistingSchoolAccountNumber();
+
+        if(school.getAccountNumber() == null/* && school.getCoreBankingId() == null*/){
+            school.setAccountNumber(newAccountNumber);
             var coreBankingId = memberService.addSchoolToCoreBanking(school);
 
             school.setCoreBankingId(coreBankingId);
 
-            auditService.stampLongEntity(school);
+            auditService.stampAuditedEntity(school);
             school.setModifiedBy(auditUser);
             schoolRepository.save(school);
         }
 
         var account = new TAccount();
         account.setSchool(school);
-        account.setAccountNumber(accountNumber);
+        account.setAccountNumber(newAccountNumber);
         account.setStatus(AccountStatus.ACTIVE);
         account.setSchoolAccount(Boolean.TRUE);
         account.setCurrentBalance(BigDecimal.ZERO);
 
-        auditService.stampLongEntity(account);
+        auditService.stampAuditedEntity(account);
         account.setCreatedBy(auditUser);
         account.setModifiedBy(auditUser);
         return accountRepository.save(account);

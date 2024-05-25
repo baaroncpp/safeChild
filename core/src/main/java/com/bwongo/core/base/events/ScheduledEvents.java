@@ -20,7 +20,7 @@ public class ScheduledEvents {
     private final AccountService accountService;
     private final TripService tripService;
 
-    @Scheduled(fixedDelay = 60000, initialDelay = 60000)
+    @Scheduled(fixedDelay = 60000/*, initialDelay = 60000*/)
     public void updatePendingMomoDeposits(){
         log.info("Momo deposit transaction update Scheduler");
         accountService.updatePendingPaymentDeposits();
