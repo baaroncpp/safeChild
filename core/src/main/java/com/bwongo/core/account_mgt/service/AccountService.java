@@ -423,6 +423,8 @@ public class AccountService {
                 .amount(amount)
                 .build();
 
+        log.info(momoBankingDto.toString());
+
         var result = paymentService.makeCoreBakingMomoDeposit(momoBankingDto);
 
         log.error("CYCLOS RESPONSE: " + result.getStatus().name());
