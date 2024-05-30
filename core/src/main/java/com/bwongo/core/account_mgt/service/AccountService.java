@@ -467,10 +467,10 @@ public class AccountService {
 
     private TAccount createSchoolAccountIfNotExist(TSchool school, TUser auditUser){
 
-        var newAccountNumber = schoolService.getNonExistingSchoolAccountNumber();
-
-        if(school.getAccountNumber() == null/* && school.getCoreBankingId() == null*/){
-            school.setAccountNumber(newAccountNumber);
+        var schoolAccount = school.getAccountNumber();
+        if(schoolAccount == null || schoolAccount.isEmpty()){
+            schoolAccount = schoolService.getNonExistingSchoolAccountNumber();
+            school.setAccountNumber(schoolAccount);
             var coreBankingId = memberService.addSchoolToCoreBanking(school);
 
             school.setCoreBankingId(coreBankingId);
@@ -482,7 +482,7 @@ public class AccountService {
 
         var account = new TAccount();
         account.setSchool(school);
-        account.setAccountNumber(newAccountNumber);
+        account.setAccountNumber(schoolAccount);
         account.setStatus(AccountStatus.ACTIVE);
         account.setSchoolAccount(Boolean.TRUE);
         account.setCurrentBalance(BigDecimal.ZERO);
