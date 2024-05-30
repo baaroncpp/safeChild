@@ -22,8 +22,12 @@ public class ScheduledEvents {
 
     @Scheduled(fixedDelay = 60000/*, initialDelay = 60000*/)
     public void updatePendingMomoDeposits(){
-        log.info("Momo deposit transaction update Scheduler");
-        accountService.updatePendingPaymentDeposits();
+        try {
+            log.info("Momo deposit transaction update Scheduler");
+            accountService.updatePendingPaymentDeposits();
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
     }
 
     @Scheduled(cron="0 0 0 * * *")
