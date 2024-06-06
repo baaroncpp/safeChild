@@ -152,6 +152,6 @@ public class SchoolService {
 
         var accountNumber = school.getAccountNumber();
 
-        return memberService.getUserByUsername(accountNumber);
+        return memberService.getUserByUsername(accountNumber).getImages();
     }
 }
