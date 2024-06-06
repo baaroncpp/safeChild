@@ -143,4 +143,15 @@ public class SchoolService {
 
         return accountNumber;
     }
+
+    public Object getSchoolImages(Long id){
+
+        var existingSchool = schoolRepository.findById(id);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, id);
+        final var school = existingSchool.get();
+
+        var accountNumber = school.getAccountNumber();
+
+        return memberService.getUserByUsername(accountNumber);
+    }
 }

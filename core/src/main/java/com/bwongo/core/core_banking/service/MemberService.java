@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.strohalm.cyclos.webservices.members.MemberRegistrationResult;
 import nl.strohalm.cyclos.webservices.members.RegisterMemberParameters;
 import nl.strohalm.cyclos.webservices.members.UpdateMemberParameters;
+import nl.strohalm.cyclos.webservices.model.MemberVO;
 import nl.strohalm.cyclos.webservices.model.RegistrationFieldValueVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -257,5 +258,20 @@ public class MemberService {
             log.info(errorMsg);
             Validate.filterException(this, errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
         }
+    }
+
+    public MemberVO getUserByUsername(String username){
+        var memberWebService = getWebServiceFactory().getMemberWebService();
+
+        MemberVO result = null;
+        try {
+            result = memberWebService.loadByUsername(username);
+        }catch(Exception e){
+            var errorMsg = e.getMessage();
+            Validate.filterException(this, errorMsg.substring(errorMsg.lastIndexOf(":") + 1));
+        }
+        Validate.notNull(this, result, ExceptionType.RESOURCE_NOT_FOUND, "Not found", username);
+
+        return result;
     }
 }

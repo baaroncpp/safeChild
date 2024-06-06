@@ -55,4 +55,9 @@ public class SchoolApi {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return schoolService.getAllSchools(pageable);
     }
+
+    @GetMapping(path = "images/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getSchoolImages(@PathVariable("id") Long id){
+        return schoolService.getSchoolImages(id);
+    }
 }
