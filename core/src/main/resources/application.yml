@@ -2,6 +2,7 @@ server:
   port: 2022
   error:
     include-message: always
+  ip: 135.181.158.109
 
 spring:
   rabbitmq:

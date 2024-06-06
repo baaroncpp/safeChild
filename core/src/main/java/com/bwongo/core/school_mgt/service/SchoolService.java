@@ -11,6 +11,7 @@ import com.bwongo.core.school_mgt.model.dto.SchoolRequestDto;
 import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,8 @@ public class SchoolService {
     private final TLocationRepository locationRepository;
     private final MemberService memberService;
 
-    private static final String SERVER_IP = "135.181.158.109";
+    @Value("${server.ip}")
+    private String serverIp;
 
     @Transactional
     public SchoolResponseDto addSchool(SchoolRequestDto schoolRequestDto){
@@ -155,8 +157,8 @@ public class SchoolService {
         var accountNumber = school.getAccountNumber();
 
         return memberService.getUserByUsername(accountNumber).getImages().stream().peek(imageVO -> {
-            var updatedUrl = imageVO.getThumbnailUrl().replace("127.0.0.1", SERVER_IP);
-            var updatedFullUrl = imageVO.getFullUrl().replace("127.0.0.1", SERVER_IP);
+            var updatedUrl = imageVO.getThumbnailUrl().replace("127.0.0.1", serverIp);
+            var updatedFullUrl = imageVO.getFullUrl().replace("127.0.0.1", serverIp);
             imageVO.setThumbnailUrl(updatedUrl);
             imageVO.setFullUrl(updatedFullUrl);
         }).toList();
