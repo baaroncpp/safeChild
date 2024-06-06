@@ -36,6 +36,8 @@ public class SchoolService {
     private final TLocationRepository locationRepository;
     private final MemberService memberService;
 
+    private static final String SERVER_IP = "135.181.158.109";
+
     @Transactional
     public SchoolResponseDto addSchool(SchoolRequestDto schoolRequestDto){
 
@@ -152,6 +154,11 @@ public class SchoolService {
 
         var accountNumber = school.getAccountNumber();
 
-        return memberService.getUserByUsername(accountNumber).getImages();
+        return memberService.getUserByUsername(accountNumber).getImages().stream().peek(imageVO -> {
+            var updatedUrl = imageVO.getThumbnailUrl().replace("127.0.0.1", SERVER_IP);
+            var updatedFullUrl = imageVO.getFullUrl().replace("127.0.0.1", SERVER_IP);
+            imageVO.setThumbnailUrl(updatedUrl);
+            imageVO.setFullUrl(updatedFullUrl);
+        }).toList();
     }
 }
