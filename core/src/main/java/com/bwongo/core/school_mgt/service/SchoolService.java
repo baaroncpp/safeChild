@@ -1,5 +1,7 @@
 package com.bwongo.core.school_mgt.service;
 
+import com.bwongo.commons.models.exceptions.BadRequestException;
+import com.bwongo.commons.models.exceptions.ResourceNotFoundException;
 import com.bwongo.commons.models.exceptions.model.ExceptionType;
 import com.bwongo.commons.models.text.StringUtil;
 import com.bwongo.commons.models.utils.Validate;
@@ -156,7 +158,13 @@ public class SchoolService {
 
         var accountNumber = school.getAccountNumber();
 
-        return memberService.getUserByUsername(accountNumber).getImages().stream().peek(imageVO -> {
+        var images = memberService.getUserByUsername(accountNumber).getImages();
+
+        if(images == null){
+            throw new ResourceNotFoundException(this, "Images not found");
+        }
+
+        return images.stream().peek(imageVO -> {
             var updatedUrl = imageVO.getThumbnailUrl().replace("127.0.0.1", serverIp);
             var updatedFullUrl = imageVO.getFullUrl().replace("127.0.0.1", serverIp);
             imageVO.setThumbnailUrl(updatedUrl);
