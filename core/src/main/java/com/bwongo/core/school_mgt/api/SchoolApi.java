@@ -56,7 +56,7 @@ public class SchoolApi {
         return schoolService.getAllSchools(pageable);
     }
 
-    @GetMapping(path = "images/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "{id}/images", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getSchoolImages(@PathVariable("id") Long id){
         return schoolService.getSchoolImages(id);
     }
