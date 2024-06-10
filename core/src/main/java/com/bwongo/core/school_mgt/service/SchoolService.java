@@ -13,6 +13,7 @@ import com.bwongo.core.school_mgt.model.dto.SchoolRequestDto;
 import com.bwongo.core.school_mgt.model.dto.SchoolResponseDto;
 import com.bwongo.core.school_mgt.repository.SchoolRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import static com.bwongo.core.school_mgt.utils.SchoolMsgConstants.*;
  **/
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SchoolService {
 
     private final SchoolRepository schoolRepository;
@@ -63,6 +65,8 @@ public class SchoolService {
 
         var savedLocation = locationRepository.save(location);
 
+        log.info("School location: {}", savedLocation);
+
         var accountNumber = getNonExistingSchoolAccountNumber();
 
         school.setLocation(savedLocation);
@@ -73,6 +77,8 @@ public class SchoolService {
         school.setCoreBankingId(coreBankingId);
 
         var result = schoolRepository.save(school);
+
+        log.info(result.toString());
 
         return schoolDtoService.schoolToDto(result);
     }
@@ -115,7 +121,7 @@ public class SchoolService {
         auditService.stampAuditedEntity(updatedSchool);
 
         var savedUpdatedSchool = schoolRepository.save(updatedSchool);
-        //memberService.updateSchoolToCoreBanking(savedUpdatedSchool.getCoreBankingId(), savedUpdatedSchool);
+        memberService.updateSchoolToCoreBanking(savedUpdatedSchool.getCoreBankingId(), savedUpdatedSchool);
 
         return schoolDtoService.schoolToDto(savedUpdatedSchool);
     }

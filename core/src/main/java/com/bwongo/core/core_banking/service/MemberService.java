@@ -52,7 +52,9 @@ public class MemberService {
                 new RegistrationFieldValueVO("category", school.getSchoolCategory().getNote()),
                 new RegistrationFieldValueVO("sms_amount", school.getSmsCost().toString()),
                 new RegistrationFieldValueVO("std_school", school.getSchoolName()),
-                new RegistrationFieldValueVO("address", school.getDistrict().getName() +", "+school.getPhysicalAddress())
+                new RegistrationFieldValueVO("address", school.getDistrict().getName() +", "+school.getPhysicalAddress()),
+                new RegistrationFieldValueVO("latitude", Double.toString(school.getLocation().getLatitude())),
+                new RegistrationFieldValueVO("longitude", Double.toString(school.getLocation().getLongitude()))
         );
 
         var coreBankingSchool = new DefaultRegisterUserDto(
@@ -74,7 +76,9 @@ public class MemberService {
                 new RegistrationFieldValueVO("category", school.getSchoolCategory().getNote()),
                 new RegistrationFieldValueVO("sms_amount", school.getSmsCost().toString()),
                 new RegistrationFieldValueVO("std_school", school.getSchoolName()),
-                new RegistrationFieldValueVO("address", school.getDistrict().getName() +", "+school.getPhysicalAddress())
+                new RegistrationFieldValueVO("address", school.getDistrict().getName() +", "+school.getPhysicalAddress()),
+                new RegistrationFieldValueVO("latitude", Double.toString(school.getLocation().getLatitude())),
+                new RegistrationFieldValueVO("longitude", Double.toString(school.getLocation().getLongitude()))
         );
 
         var coreBankingSchool = new DefaultUpdateUserDto(
