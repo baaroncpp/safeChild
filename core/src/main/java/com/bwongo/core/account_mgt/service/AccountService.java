@@ -119,6 +119,7 @@ public class AccountService {
         var schoolAccount = existingSchoolAccount.get();
 
         var smsCost = schoolAccount.getSchool().getSmsCost();
+        log.info("smsCost: {}", smsCost);
 
         var existingSmsCollectionAccount = accountRepository.findByAccountNumber(SMS_COLLECTION_ACCOUNT_NUMBER);
         var smsCollectionAccount = new TAccount();
