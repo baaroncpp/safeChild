@@ -186,6 +186,7 @@ public class AccountService {
         smsPayment.setSchoolAccount(schoolAccount.getAccountNumber());
         smsPayment.setStudentSchoolName(schoolAccount.getSchool().getSchoolName());
         smsPayment.setAppRef("SAFE-CHILD-CORE");
+        smsPayment.setAmount(smsCost);
 
         var paymentResult = paymentService.makeCoreBankingSmsPayment(smsPayment);
         var status = paymentResult.getStatus().name();

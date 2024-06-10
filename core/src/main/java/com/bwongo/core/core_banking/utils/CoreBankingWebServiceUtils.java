@@ -173,7 +173,7 @@ public class CoreBankingWebServiceUtils {
         params.setToMember(paymentDto.getMainSmsAccount());
         params.setTransferTypeId(paymentDto.getSmsTransferType());
         params.setCustomValues(customParams);
-        params.setAmount(BigDecimal.valueOf(150));
+        params.setAmount(paymentDto.getAmount());
         params.setDescription("SMS CHARGE");
 
         log.info(params.toString());

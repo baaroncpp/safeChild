@@ -3,6 +3,8 @@ package com.bwongo.core.core_banking.model.dto;
 import com.bwongo.core.base.model.enums.StudentStatus;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 /**
  * @Author bkaaron
  * @Project nc
@@ -20,4 +22,5 @@ public class PaymentDto {
     private String schoolAccount;
     private String mainSmsAccount;
     private Long smsTransferType;
+    private BigDecimal amount;
 }
