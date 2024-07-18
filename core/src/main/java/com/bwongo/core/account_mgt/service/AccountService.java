@@ -369,11 +369,7 @@ public class AccountService {
         var existingSchoolAccount = accountRepository.findBySchool(school);
 
         var schoolAccount = new TAccount();
-        if(existingSchoolAccount.isEmpty())
-            schoolAccount = createSchoolAccountIfNotExist(school, auditUser);
-
-
-        schoolAccount = existingSchoolAccount.get();
+        schoolAccount = existingSchoolAccount.orElseGet(() -> createSchoolAccountIfNotExist(school, auditUser));
 
         var schoolAccountBalanceCreditBefore = schoolAccount.getCurrentBalance();
         var schoolAccountBalanceCreditAfter = schoolAccountBalanceCreditBefore.add(amount);

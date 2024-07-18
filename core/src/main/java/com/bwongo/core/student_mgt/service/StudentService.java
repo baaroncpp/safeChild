@@ -180,10 +180,10 @@ public class StudentService {
 
         var existingStudent = getStudent(studentId);
 
-        Validate.isTrue(this, !guardianRepository.existsByPhoneNumberAndDeleted(phoneNumber, Boolean.FALSE),
+        /*Validate.isTrue(this, !guardianRepository.existsByPhoneNumberAndDeleted(phoneNumber, Boolean.FALSE),
                 ExceptionType.BAD_REQUEST,
                 GUARDIAN_PHONE_TAKEN,
-                phoneNumber);
+                phoneNumber);*/
 
         var guardian = studentDtoService.dtoToTGuardian(guardianRequestDto);
         auditService.stampAuditedEntity(guardian);

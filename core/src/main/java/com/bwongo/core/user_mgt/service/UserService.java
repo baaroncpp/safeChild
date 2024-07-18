@@ -421,11 +421,11 @@ public class UserService {
         final var country = existingCountry.get();
 
         Validate.isTrue(this, !userMetaRepository.existsByEmail(userMetaRequestDto.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, userMetaRequestDto.email());
-        Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
+        //Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
 
-        if(!userMetaRequestDto.phoneNumber2().isEmpty())
+        /*if(!userMetaRequestDto.phoneNumber2().isEmpty())
             Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
-
+*/
         var userMeta = userDtoService.dtoToUserMeta(userMetaRequestDto);
         userMeta.setCountry(country);
         userMeta.setDisplayName(user.getUsername());
@@ -468,12 +468,12 @@ public class UserService {
         if(!metaData.getEmail().equals(userMetaRequestDto.email()))
             Validate.isTrue(this, !userMetaRepository.existsByEmail(userMetaRequestDto.email()), ExceptionType.BAD_REQUEST, EMAIL_ALREADY_TAKEN, userMetaRequestDto.email());
 
-        if(!metaData.getPhoneNumber().equals(userMetaRequestDto.phoneNumber()))
+        /*if(!metaData.getPhoneNumber().equals(userMetaRequestDto.phoneNumber()))
             Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber(userMetaRequestDto.phoneNumber()), ExceptionType.BAD_REQUEST, PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber());
 
         if(!userMetaRequestDto.phoneNumber2().isEmpty() && !metaData.getPhoneNumber2().equals(userMetaRequestDto.phoneNumber2()))
             Validate.isTrue(this, !userMetaRepository.existsByPhoneNumber2(userMetaRequestDto.phoneNumber2()), ExceptionType.BAD_REQUEST, SECOND_PHONE_NUMBER_ALREADY_TAKEN, userMetaRequestDto.phoneNumber2());
-
+*/
         var userMeta = userDtoService.dtoToUserMeta(userMetaRequestDto);
         userMeta.setId(id);
         userMeta.setCountry(country);
