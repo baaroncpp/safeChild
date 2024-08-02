@@ -402,6 +402,8 @@ public class NotificationService {
             notification.setCreatedOn(getCurrentUTCTime());
             notification.setAccountNumber(accountNumber);
 
+            auditService.stampLongEntity(notification);
+
             var notify = notificationRepository.save(notification);
             messageBrokerService.sendSms(notify);
         }

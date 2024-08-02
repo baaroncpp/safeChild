@@ -25,6 +25,7 @@ public class MessageBrokerService {
     private final RabbitTemplate rabbitTemplate;
 
     public void sendSms(Notification notification){
+        log.info("Sending sms to {}", notification);
         rabbitTemplate.convertAndSend(exchange, smsRoutingKey, notification);
     }
 }
