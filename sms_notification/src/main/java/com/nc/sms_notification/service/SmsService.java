@@ -89,7 +89,11 @@ public class SmsService {
         var notifications = notificationRepository.findAllByStatus(SmsStatus.PENDING);
 
         for(Notification notification : notifications){
-            sendSms(notification);
+            try {
+                sendSms(notification);
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
         }
     }
 
@@ -119,6 +123,7 @@ public class SmsService {
                 var statusMessage = jsonObject.getJSONArray("messages").getString(0);
                 notification.setStatus(SmsStatus.SUCCESS);
                 notification.setStatusNote(statusMessage);
+                notification.setTransactionId(smsPaymentResponseDto.transactionReference());
                 log.info("Success ........ "+statusMessage);
 
             }else{

@@ -8,7 +8,7 @@ spring:
     username: ${QUEUE_USERNAME:guest}
     password: ${QUEUE_PASSWORD:guest}
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB:safe_child_db}
+    url: jdbc:postgresql://${DB_HOST:135.181.158.109}:${DB_PORT:5432}/${DB:safe_child_db}
     username: ${DB_USERNAME:aaron}
     password: ${DB_PASSWORD:aaron}
   jpa:
@@ -41,9 +41,9 @@ pandora-sms:
 
 url:
   access:
-    token: http://135.181.158.109:2022/oauth/token
+    token: http://localhost:2022/oauth/token
   sms:
-    payment: http://135.181.158.109:2022/api/v1/account/service/sms/payment
+    payment: http://localhost:2022/api/v1/account/service/sms/payment
 
 core:
   username: ${CORE_USERNAME:adminadmin}
