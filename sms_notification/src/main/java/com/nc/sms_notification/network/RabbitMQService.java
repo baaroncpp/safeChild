@@ -23,9 +23,9 @@ public class RabbitMQService {
     @Value("${notification.queue.name.sms}")
     private String smsQueue;
 
-    @RabbitListener(queues = "sms.queue")
+    //@RabbitListener(queues = "sms.queue")
     public void receiveSms(Notification notification){
         log.info("received sms from CORE");
-        smsService.sendSms(notification);
+        //smsService.sendSmsByMessageQueue(notification);
     }
 }

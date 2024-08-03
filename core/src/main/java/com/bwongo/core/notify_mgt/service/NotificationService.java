@@ -405,7 +405,8 @@ public class NotificationService {
             auditService.stampLongEntity(notification);
 
             var notify = notificationRepository.save(notification);
-            messageBrokerService.sendSms(notify);
+            //Commented out message broker rabbitmq
+            //messageBrokerService.sendSms(notify);
         }
 
         return new NotificationResponseDto(
