@@ -1,10 +1,7 @@
 package com.bwongo.core.notify_mgt.api;
 
 import com.bwongo.core.base.model.dto.PageResponseDto;
-import com.bwongo.core.notify_mgt.model.dto.BulkSignInRequestDto;
-import com.bwongo.core.notify_mgt.model.dto.BulkSignInResponse;
-import com.bwongo.core.notify_mgt.model.dto.NotificationDriverDto;
-import com.bwongo.core.notify_mgt.model.dto.NotificationDto;
+import com.bwongo.core.notify_mgt.model.dto.*;
 import com.bwongo.core.notify_mgt.service.MailService;
 import com.bwongo.core.notify_mgt.service.NotificationService;
 import com.bwongo.core.student_mgt.model.dto.StudentDayResponseDto;
@@ -77,5 +74,11 @@ public class NotificationApi {
                                                     @RequestParam(name = "schoolId") Long schoolId){
         var pageable = PageRequest.of(page, size, Sort.by("createdOn").descending());
         return notificationService.getNotifications(pageable, startDate, endDate, schoolId);
+    }
+
+    @PreAuthorize("hasAnyAuthority('MOBILE_APP_ROLE.WRITE','ADMIN_ROLE.WRITE', 'SCHOOL_ROLE.READ')")
+    @PostMapping(path = "send/sms", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public SmsNotificationResponseDto sendSmsNotification(@RequestBody SmsNotificationRequestDto smsNotificationRequestDto){
+        return notificationService.sendSmsNotification(smsNotificationRequestDto);
     }
 }

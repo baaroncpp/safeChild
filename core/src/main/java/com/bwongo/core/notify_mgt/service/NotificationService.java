@@ -41,6 +41,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.bwongo.commons.models.utils.DateTimeUtil.*;
+import static com.bwongo.core.account_mgt.utils.AccountMsgConstants.NOTIFICATION_NOT_FOUND;
 import static com.bwongo.core.base.utils.BaseUtils.pageToDto;
 import static com.bwongo.core.base.utils.BasicMsgConstants.DATE_TIME_FORMAT;
 import static com.bwongo.core.notify_mgt.utils.NotificationMsgConstants.*;
@@ -94,6 +95,7 @@ public class NotificationService {
     private final TAccountRepository accountRepository;
     private final TripDtoService tripDtoService;
     private final SchoolRepository schoolRepository;
+    private final NotificationDtoService notificationDtoService;
 
     public PageResponseDto getNotifications(Pageable pageable, String startStringDate, String endStringDate, Long schoolId){
 
@@ -414,6 +416,43 @@ public class NotificationService {
                 studentStatus,
                 schoolName
         );
+    }
+
+    public SmsNotificationResponseDto sendSmsNotification(SmsNotificationRequestDto smsNotificationRequestDto){
+
+        smsNotificationRequestDto.validate();
+        var schoolId = smsNotificationRequestDto.schoolId();
+
+        var accountNumber = "";
+
+        var existingSchool = schoolRepository.findById(schoolId);
+        Validate.isPresent(this, existingSchool, SCHOOL_NOT_FOUND, schoolId);
+        var school = existingSchool.get();
+
+        var existingAccount = accountRepository.findBySchool(school);
+        if(existingAccount.isPresent()){
+            accountNumber = existingAccount.get().getAccountNumber();
+        }
+
+        var notification = new Notification();
+        notification.setMessage(smsNotificationRequestDto.message());
+        notification.setSender(smsSender);
+        notification.setReceiver(smsNotificationRequestDto.phoneNumber());
+        notification.setStatus(SmsStatus.PENDING);
+        notification.setCreatedOn(getCurrentUTCTime());
+        notification.setAccountNumber(accountNumber);
+
+        auditService.stampLongEntity(notification);
+
+        var savedNotify = notificationRepository.save(notification);
+
+        return notificationDtoService.notificationToSmsDto(savedNotify);
+    }
+
+    public SmsNotificationResponseDto getNotificationById(Long id){
+        var existingNotification = notificationRepository.findById(id);
+        Validate.isPresent(this, existingNotification, NOTIFICATION_NOT_FOUND, id);
+        return notificationDtoService.notificationToSmsDto(existingNotification.get());
     }
 
     private void checkIfStudentDayStatusExists(TStudent student, StudentStatus studentStatus, Date schoolDate) {

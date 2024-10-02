@@ -22,5 +22,5 @@ public class NotificationMsgConstants {
     public static final String STUDENT_NOT_ON_TRIP = "Student %s not on the trip";
     public static final String BULK_ONLY_PICK_UP = "Can only do BULK DROP OFF on PICK_UP trip";
     public static final String NO_GUARDIANS_TO_NOTIFY = "No guardians to notify";
-
+    public static final String NULL_MESSAGE = "null or empty message";
 }
