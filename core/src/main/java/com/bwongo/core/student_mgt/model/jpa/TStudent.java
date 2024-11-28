@@ -3,6 +3,7 @@ package com.bwongo.core.student_mgt.model.jpa;
 import com.bwongo.core.base.model.jpa.AuditEntity;
 import com.bwongo.core.school_mgt.model.jpa.TSchool;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -14,6 +15,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "t_student", schema = "core")
 @Setter
+@ToString
 public class TStudent extends AuditEntity {
     private String studentUsername;
     private String firstName;

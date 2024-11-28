@@ -182,17 +182,27 @@ public class NotificationService {
                 Validate.isTrue(this, trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
                 Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.HOME_PICK_UP).isEmpty(),
                         ExceptionType.BAD_REQUEST,
+                        STUDENT_ALREADY_PICKED_UP, studentUsername);
+
+                Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.SCHOOL_SIGN_IN).isEmpty(),
+                        ExceptionType.BAD_REQUEST,
                         STUDENT_ALREADY_SIGNED_IN, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 
             case SCHOOL_SIGN_IN:
                 Validate.isTrue(this, trip.getTripType().equals(TripType.PICK_UP), ExceptionType.BAD_REQUEST, INVALID_STUDENT_STATUS_FOR_TRIP, studentUsername);
-                var studentTravelSignIn = studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.HOME_PICK_UP);
-                Validate.isPresent(this, studentTravelSignIn, STUDENT_NOT_PICKED_UP, student.getStudentUsername());
+                var studentTravelPickUp = studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.HOME_PICK_UP);
+                Validate.isPresent(this, studentTravelPickUp, STUDENT_NOT_PICKED_UP, student.getStudentUsername());
                 Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.SCHOOL_SIGN_IN).isEmpty(),
                         ExceptionType.BAD_REQUEST,
                         STUDENT_ALREADY_SIGNED_IN, studentUsername);
+
+                //ADDED THIS CONSTRAINT TO FIX currentDay, which was being bypassed by trips that have been overlapping to another day
+                Validate.isTrue(this, studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.SCHOOL_SIGN_IN).isEmpty(),
+                        ExceptionType.BAD_REQUEST, STUDENT_ALREADY_SIGNED_IN, studentUsername);
+
+                //TODO check if already signed out or dropped off, with condition that when a post event has already happened no pre event is registered
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 
@@ -201,6 +211,9 @@ public class NotificationService {
                 Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.SCHOOL_SIGN_OUT).isEmpty(),
                         ExceptionType.BAD_REQUEST,
                         STUDENT_ALREADY_SIGNED_OUT, studentUsername);
+
+                Validate.isTrue(this, studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.SCHOOL_SIGN_OUT).isEmpty(),
+                        ExceptionType.BAD_REQUEST, STUDENT_ALREADY_SIGNED_OUT, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
 
@@ -211,6 +224,9 @@ public class NotificationService {
                 Validate.isTrue(this, studentDayRepository.findBySchoolDateAndStudentAndSchoolAndStudentStatus(currentDay, student, school, StudentStatus.HOME_DROP_OFF).isEmpty(),
                         ExceptionType.BAD_REQUEST,
                         STUDENT_ALREADY_DROPPED_OFF, studentUsername);
+
+                Validate.isTrue(this, studentTravelRepository.findByStudentAndTripAndStudentStatus(student, trip, StudentStatus.HOME_DROP_OFF).isEmpty(),
+                        ExceptionType.BAD_REQUEST, STUDENT_ALREADY_DROPPED_OFF, studentUsername);
 
                 return sendNotification(location, student, school, trip, staff, studentStatus, guardianPhoneNumbers);
             default:
@@ -463,10 +479,10 @@ public class NotificationService {
         Validate.isTrue(this, existingStudentDay.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_HAS_ALREADY_BEEN_IN_STATUS, student.getStudentUsername(), studentStatus);
 
         //TODO must be revised if students that did not check in should not be allowed to check out
-        if (studentStatus.equals(StudentStatus.SCHOOL_SIGN_OUT)) {
+        /*if (studentStatus.equals(StudentStatus.SCHOOL_SIGN_OUT)) {
             var studentDays = studentDayRepository.findBySchoolDateAndStudent(schoolDate, student);
             Validate.isTrue(this, !studentDays.isEmpty(), ExceptionType.BAD_REQUEST, STUDENT_NOT_CHECKED_IN, student.getStudentUsername());
-        }
+        }*/
     }
 
     private List<StudentTravel> getStudentsStillOnTrip(Trip trip){

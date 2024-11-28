@@ -10,8 +10,13 @@ import com.nc.sms_notification.repository.NotificationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.time.temporal.ChronoUnit;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 /**
  * @Author bkaaron
@@ -26,6 +31,8 @@ public class SmsService {
     private final NotificationRepository notificationRepository;
     private final WebClientSmsService webClientSmsService;
     private final WebClientNCCoreService webClientNCCoreService;
+
+    private static final String FAILED_PAST_24_HRS = "Not delivered in the past 24 hours";
 
     public void sendSmsByMessageQueue(Notification notify){
         log.info("updated");
@@ -89,12 +96,42 @@ public class SmsService {
         var notifications = notificationRepository.findAllByStatus(SmsStatus.PENDING);
 
         for(Notification notification : notifications){
+
+            //Check if notification is past 24 hour, is so fail the notification
             try {
-                sendSms(notification);
+                if (isWithinPast24Hours(notification.getCreatedOn())) {
+                    sendSms(notification);
+                } else {
+                    failNotification(notification);
+                }
             }catch (Exception e){
                 log.error(e.getMessage());
             }
         }
+    }
+
+    private void failNotification(Notification notification){
+
+        //TODO check createdOn date, if past 24 HRS and also check smsStatus before failing the notification
+        if(notification.getStatus().equals(SmsStatus.PENDING) && isWithinPast24Hours(notification.getCreatedOn())){
+            notification.setStatus(SmsStatus.FAILED);
+            notification.setMessage(FAILED_PAST_24_HRS);
+            notification.setStatusNote(SmsStatus.FAILED.name());
+            notification.setModifiedOn(new Date());
+
+            notificationRepository.save(notification);
+        }
+    }
+
+    public boolean isWithinPast24Hours(Date date) {
+        // Convert the given Date to a ZonedDateTime
+        ZonedDateTime inputDate = date.toInstant().atZone(ZoneId.systemDefault());
+
+        // Get the current time
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+
+        // Check if the given date is within the past 24 hours
+        return !inputDate.isAfter(now) && inputDate.isAfter(now.minus(24, ChronoUnit.HOURS));
     }
 
     private void sendSms(Notification notification){
@@ -124,11 +161,11 @@ public class SmsService {
                 notification.setStatus(SmsStatus.SUCCESS);
                 notification.setStatusNote(statusMessage);
                 notification.setTransactionId(smsPaymentResponseDto.transactionReference());
-                log.info("Success ........ "+statusMessage);
+                log.info("Success ........ "+ statusMessage);
 
             }else{
                 var errorMessage = jsonObject.getJSONArray("messages").getString(0);
-                log.error("Failed ........ "+errorMessage);
+                log.error("Failed ........ "+ errorMessage);
 
                 notification.setStatus(SmsStatus.FAILED);
                 notification.setStatusNote(errorMessage);

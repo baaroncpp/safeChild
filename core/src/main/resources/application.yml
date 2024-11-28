@@ -11,7 +11,7 @@ spring:
     username: ${QUEUE_USERNAME:guest}
     password: ${QUEUE_PASSWORD:guest}
   datasource:
-    url: jdbc:postgresql://${SC_DB_HOST:localhost}:${SC_DB_PORT:5432}/${SC_DB:safe_child_db}
+    url: jdbc:postgresql://${SC_DB_HOST:135.181.158.109}:${SC_DB_PORT:5432}/${SC_DB:safe_child_db}
     username: ${SC_DB_USERNAME:aaron}
     password: ${SC_DB_PASSWORD:aaron}
   jpa:
